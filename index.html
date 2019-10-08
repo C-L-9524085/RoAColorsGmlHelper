@@ -76,6 +76,11 @@
 				margin: 50px;
 				text-align: center;
 			}
+			.calcTypeToggle {
+				margin-top: 10px;
+				font-size: 80%;
+				opacity: 0.7;
+			}
 		</style>
 		<script src="vue.js"></script>
 	</head>
@@ -117,9 +122,10 @@
 						</tr>
 					</table>
 				</div>
-				<textarea id="txtoutput" readonly>TODO gml output</textarea>
+				<textarea id="txtoutput" readonly>colors.gml output</textarea>
 			</div>
-			<input type="checkbox" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @input="generateGmlCode"> {{ calcFromFurthestHue ? 'calculating ranges from main to furthest Hue only' : 'calculating ranges from main to biggest individual H, S, V values' }}</input>
+			<input type="checkbox" class="calcTypeToggle" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @input="generateGmlCode"></input>
+			<label for="calcFromFurthestHue" class="calcTypeToggle">{{ calcFromFurthestHue ? 'calculating ranges from main to furthest Hue only' : 'calculating ranges from main to biggest individual H, S, V values' }}</label>
 		</div>
 
 		<script src="index.js"></script>

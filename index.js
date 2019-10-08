@@ -1,16 +1,4 @@
-/*document.getElementById('txtinput').addEventListener("input", (e) => {
-	console.log("input input:", e.target.value);
-	parseInput();
-})*/
-
-//parseInput();
-
-function emptyArray(arr) {
-	for (let i in arr)
-		arr.pop();
-}
-
-const wm = new Vue({
+const vm = new Vue({
 	el: '#app',
 	data: {
 		rows: [],
@@ -221,6 +209,7 @@ function getRange(n1, n2) {
 	return n1 > n2 ? n1 - n2 : n2 - n1;
 }
 
+// https://stackoverflow.com/questions/35113979/calculate-distance-between-colors-in-hsv-space/35114586#35114586
 function getHueDistance(h0, h1) {
 	return Math.min(Math.abs(h1-h0), 360-Math.abs(h1-h0))
 }
