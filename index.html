@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>ROA Colors.gml generator</title>
+		<style>
+			body {
+				background-color: #534388;
+				color: white;
+			}
+			#app {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				height: 90vh;
+				width: 90vw;
+			}
+			.shadeRow {
+			}
+			.shadeSlotName {
+				padding-right: 5px;
+			}
+			.color {
+				width: 20px;
+				height: 20px;
+
+				max-width: 20px;
+				max-height: 20px;
+
+				box-sizing: border-box;
+			}
+			.unset {
+				background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' preserveAspectRatio='none' viewBox='0 0 100 100'><path d='M100 0 L0 100 ' stroke='red' stroke-width='5'/><path d='M0 0 L100 100 ' stroke='red' stroke-width='5'/></svg>");
+				background-repeat:no-repeat;
+				background-position:center center;
+				background-size: 100% 100%, auto;
+			}
+			.main {
+				box-shadow: 0 0 0 1px white inset;
+			}
+
+			.target {
+				outline: 1px solid red;
+				outline-offset: -2px;
+			}
+
+			textarea {
+				min-width: 500px;
+				background-color: #34246b;
+				color: white;
+				border: none;
+				border-radius: 10px;
+
+				padding: 10px;
+			}
+
+			table {
+				border-collapse: collapse;
+				margin: auto;
+			}
+
+			td {
+				padding: 0px;
+				margin: 0px;
+
+				user-select: none;
+			}
+
+			.shadeRow div {
+				cursor: pointer;
+				max-width: 20px;
+				max-height: 20px;
+				box-sizing: border-box;
+			}
+			#wrappy {
+				margin: 50px;
+				text-align: center;
+			}
+		</style>
+		<script src="vue.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<textarea id="txtinput" @input="parseInput">copy-paste colors.gml</textarea>
+			<div id="wrappy">
+				<div>
+					<input id="colorInputR" :disabled="targetColor == null" @input="inputColorChange" placeholder="R" size="3"></input>
+					<input id="colorInputG" :disabled="targetColor == null" @input="inputColorChange" placeholder="G" size="3"></input>
+					<input id="colorInputB" :disabled="targetColor == null" @input="inputColorChange" placeholder="B" size="3"></input>
+					<button @click="unsetColor" :disabled="targetColor == null">{{targetColor && targetColor.set ? 'x' : 'v'}}</button>
+					<code id="hsv" style="display:block;">hsv(H, S, V)</code>
+					<!-- <code id="range" style="display:block;">range(H, S, V)</code> -->
+				</div>
+				<p>
+					click to edit color
+					<br>ctrl-click to set as main color
+				</p>
+				<table id="colors">
+					<tr class="shadeRow" v-for="row in rows">
+						<td class="shadeSlotName" contenteditable="true" @blur="changeRowName($event, row)">{{row.name}}</td>
+						<td 
+							class="color"
+							v-for="colorSlot in row.colors"
+							@click="clickOnColor($event, colorSlot, row)"
+							v-bind:style="{backgroundColor: `rgb(${colorSlot.r}, ${colorSlot.g}, ${colorSlot.b})`}"
+							v-bind:class="{unset: !colorSlot.set, main: colorSlot.main, target:colorSlot.isTarget}"
+						></td>
+						<td class="color"><div @click="addSlot(row)" name="add Color Slot">+</div></td>
+					</tr>
+					<tr>
+						<td colspan=100% style="padding-top: 2px;">
+							<button style="width: 100%;" @click="addRow" name="add Shade Row">+</button>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<textarea id="txtoutput" readonly>TODO gml output</textarea>
+		</div>
+
+		<script src="index.js"></script>
+	</body>
+</html>
