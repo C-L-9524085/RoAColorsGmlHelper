@@ -23,64 +23,31 @@ const wm = new Vue({
 		parseInput: function() {
 			console.log("parseInput()")
 			const txt = document.getElementById('txtinput').value;
-			//emptyArray(this.rows);
 			this.rows = [];
 
-			var lastSpecifiedRowName = null;
-			this.highestColorSlot = 0;
-			this.highestshadeSlot = 0;
-			console.log(JSON.stringify(this.rows))
-			txt.split('\n').forEach(line => {
-				//console.log(line)
-				line = line.trim();
+			try {
+				this.rows = JSON.parse(txt);
 
-				if (line) {
-					if (line.startsWith("//")) {
-						lastSpecifiedRowName = line.slice(2);
-					}
-					else if (line.startsWith("set_color_profile_slot(")) {
-						const [colorSlot, shadeSlot, r, g, b] = line.slice("set_color_profile_slot(".length).slice(0, -1).split(',').map(arg => arg.trim());
-						/*
-						if (shadeSlot <= 0 && shadeSlot >= 16) {
-							console.error("invalid shadeSlot", shadeSlot)
-							continue ;
-						}
-						if (colorSlot <= 0 && colorSlot >= 5) {
-							console.error("invalid colorSlot", colorSlot)
-							continue ;
-						}
-						*/
-						console.log("adding", colorSlot, shadeSlot, r, g, b)
-						if (this.highestColorSlot < colorSlot)
-							this.highestColorSlot = colorSlot;
-
-						if (this.highestshadeSlot < shadeSlot)
-							this.highestshadeSlot = shadeSlot;
-
-						if (!this.rows[colorSlot])
-							this.rows[colorSlot] = { name: lastSpecifiedRowName, colors: [] };
-
-						this.rows[colorSlot].colors[shadeSlot] = { r: parseInt(r), g: parseInt(g), b: parseInt(b), set: true, main: false }
-						//console.log(JSON.stringify(this.rows))
-					}
+				console.log("checking", this.rows.length, "rows")
+				for (let i = 0; i < this.rows.length; i++) {
+					if (this.rows[i] == null)
+						this.rows[i] = {name: "unamed color row", colors: []}
 					else {
-						console.warn("unhandled line", line)
+						const row = this.rows[i];
+						console.log("checking", row.colors.length, "colors")
+						for (let i2 = 0; i2 < row.colors.length; i2++) {
+							console.log("beep", i2, row.colors.length, i2 <= row.colors.length)
+							if (row.colors[i2] == null)
+								row.colors[i2] = {set: false}
+						}
 					}
 				}
-			});
 
-			for (let i = 0; i <= this.highestColorSlot; i++) {
-				if (this.rows[i] == null)
-					this.rows[i] = {name: "unamed color row", colors: []}
-				else {
-					const row = this.rows[i];
-					for (let i2 = 0; i2 <= this.highestshadeSlot; i2++) {
-						if (row.colors[i2] == null)
-							row.colors[i2] = {set: false}
-					}
-				}
+				console.log("done parsing");
+			} catch(e) {
+				console.error("unable to parse input", e)
+				this.rows = [];
 			}
-			console.log(JSON.stringify(this.rows))
 
 			this.generateGmlCode()
 		},
@@ -192,6 +159,7 @@ const wm = new Vue({
 			this.updateInput();
 		},
 		generateGmlCode: function() {
+			console.log("generateGmlCode()")
 			var mainColorsStr = "// DEFAULT COLOR";
 			var rangesStr = "\n\n// Ranges";
 
