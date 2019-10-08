@@ -17,6 +17,7 @@ const wm = new Vue({
 		highestColorSlot: 0,
 		highestshadeSlot: 0,
 		targetColor: null,
+		calcFromFurthestHue: false,
 		//mainColor: null
 	},
 	methods: {
@@ -180,19 +181,28 @@ const wm = new Vue({
 
 
 				if (HSVMain) {
-					var highestHueDistance = 0;
+					var highest = {h: 0, s: 0, v: 0};
 					var furthestHSV = HSVMain;
 
 					HSVs.forEach(HSV => {
 						const hueDistance = getHueDistance(HSVMain.h, HSV.h) || 0; //brok on blak
-						console.log(row.name, iRow, "hsv", HSV, HSVs.length, "distance from main:", hueDistance)
-						if (hueDistance > highestHueDistance) {
-							highestHueDistance = hueDistance;
-							furthestHSV = HSV;
+						const hueRange = getRange(HSV.h, HSVMain.h);
+						console.log(row.name, iRow, "hsv", HSV, HSVs.length, "distance from main:", hueDistance, "range:", hueRange)
+	
+						if (this.calcFromFurthestHue) {
+							if (hueDistance > highest.h) {
+								highest.h = getRange(hueDistance, HSVMain.h);
+								highest.s = getRange(HSV.s, HSVMain.s);
+								highest.v = getRange(HSV.v, HSVMain.v);
+							}
+						} else {
+							highest.h = Math.max(getRange(hueDistance, HSVMain.h));
+							highest.s = Math.max(getRange(HSV.s, HSVMain.s), highest.s);
+							highest.v = Math.max(getRange(HSV.v, HSVMain.v), highest.v);
 						}
 					});
 
-					rangesStr += `\nset_color_profile_slot_range( ${iRow}, ${getRange(furthestHSV.h,HSVMain.h) + 1}, ${getRange(furthestHSV.s, HSVMain.s) + 1}, ${getRange(HSVMain.v, furthestHSV.v) + 1} );`;
+					rangesStr += `\nset_color_profile_slot_range( ${iRow}, ${highest.h + 1}, ${highest.s + 1}, ${highest.v + 1} );`;
 				}
 
 				

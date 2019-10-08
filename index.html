@@ -8,7 +8,7 @@
 				background-color: #534388;
 				color: white;
 			}
-			#app {
+			#iDontLikeWrappers {
 				display: flex;
 				flex-wrap: wrap;
 				justify-content: center;
@@ -81,42 +81,45 @@
 	</head>
 	<body>
 		<div id="app">
-			<textarea id="txtinput" @input="parseInput">JSON representation of the palette</textarea>
-			<div id="wrappy">
-				<div>
-					<input id="colorInputR" :disabled="targetColor == null" @input="inputColorChange" placeholder="R" size="3"></input>
-					<input id="colorInputG" :disabled="targetColor == null" @input="inputColorChange" placeholder="G" size="3"></input>
-					<input id="colorInputB" :disabled="targetColor == null" @input="inputColorChange" placeholder="B" size="3"></input>
-					<button @click="unsetColor" :disabled="targetColor == null">{{targetColor && targetColor.set ? 'x' : 'v'}}</button>
-					<code id="hsv" style="display:block;">hsv(H, S, V)</code>
-					<!-- <code id="range" style="display:block;">range(H, S, V)</code> -->
+			<div id="iDontLikeWrappers">
+				<textarea id="txtinput" @input="parseInput">JSON representation of the palette</textarea>
+				<div id="wrappy">
+					<div>
+						<input id="colorInputR" :disabled="targetColor == null" @input="inputColorChange" placeholder="R" size="3"></input>
+						<input id="colorInputG" :disabled="targetColor == null" @input="inputColorChange" placeholder="G" size="3"></input>
+						<input id="colorInputB" :disabled="targetColor == null" @input="inputColorChange" placeholder="B" size="3"></input>
+						<button @click="unsetColor" :disabled="targetColor == null">{{targetColor && targetColor.set ? 'x' : 'v'}}</button>
+						<code id="hsv" style="display:block;">hsv(H, S, V)</code>
+						<!-- <code id="range" style="display:block;">range(H, S, V)</code> -->
+					</div>
+					<hr>
+					<p>
+						click to edit color
+						<br>ctrl-click to set as main color
+						<br>you can copy and re-paste the JSON
+					</p>
+					<table id="colors">
+						<tr class="shadeRow" v-for="row in rows">
+							<td class="shadeSlotName" contenteditable="true" @blur="changeRowName($event, row)">{{row.name}}</td>
+							<td 
+								class="color"
+								v-for="colorSlot in row.colors"
+								@click="clickOnColor($event, colorSlot, row)"
+								v-bind:style="{backgroundColor: `rgb(${colorSlot.r}, ${colorSlot.g}, ${colorSlot.b})`}"
+								v-bind:class="{unset: !colorSlot.set, main: colorSlot.main, target:colorSlot.isTarget}"
+							></td>
+							<td class="color"><div @click="addSlot(row)" name="add Color Slot">+</div></td>
+						</tr>
+						<tr>
+							<td colspan=100% style="padding-top: 2px;">
+								<button style="width: 100%;" @click="addRow" name="add Shade Row">+</button>
+							</td>
+						</tr>
+					</table>
 				</div>
-				<hr>
-				<p>
-					click to edit color
-					<br>ctrl-click to set as main color
-					<br>you can copy and re-paste the JSON
-				</p>
-				<table id="colors">
-					<tr class="shadeRow" v-for="row in rows">
-						<td class="shadeSlotName" contenteditable="true" @blur="changeRowName($event, row)">{{row.name}}</td>
-						<td 
-							class="color"
-							v-for="colorSlot in row.colors"
-							@click="clickOnColor($event, colorSlot, row)"
-							v-bind:style="{backgroundColor: `rgb(${colorSlot.r}, ${colorSlot.g}, ${colorSlot.b})`}"
-							v-bind:class="{unset: !colorSlot.set, main: colorSlot.main, target:colorSlot.isTarget}"
-						></td>
-						<td class="color"><div @click="addSlot(row)" name="add Color Slot">+</div></td>
-					</tr>
-					<tr>
-						<td colspan=100% style="padding-top: 2px;">
-							<button style="width: 100%;" @click="addRow" name="add Shade Row">+</button>
-						</td>
-					</tr>
-				</table>
+				<textarea id="txtoutput" readonly>TODO gml output</textarea>
 			</div>
-			<textarea id="txtoutput" readonly>TODO gml output</textarea>
+			<input type="checkbox" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @input="generateGmlCode"> {{ calcFromFurthestHue ? 'calculating ranges from main to furthest Hue only' : 'calculating ranges from main to biggest individual H, S, V values' }}</input>
 		</div>
 
 		<script src="index.js"></script>
