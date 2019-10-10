@@ -151,8 +151,7 @@ const vm = new Vue({
 		},
 		generateGmlCode: function() {
 			console.log("generateGmlCode()")
-			var mainColorsStr = "// DEFAULT COLOR";
-			var rangesStr = "\n\n// Ranges";
+			var str = "// DEFAULT COLOR";
 
 			this.rows.forEach((row, iRow) => {
 				const HSVs = [];
@@ -164,7 +163,7 @@ const vm = new Vue({
 						HSVs.push(HSV);
 						if (color.main) {
 							HSVMain = HSV;
-							mainColorsStr += `\nset_color_profile_slot( 0, ${iRow}, ${color.r}, ${color.g}, ${color.b} ); // ${row.name}`;
+							str += `\n\n// ${row.name}\nset_color_profile_slot( 0, ${iRow}, ${color.r}, ${color.g}, ${color.b} );`;
 						}
 					}
 				})
@@ -192,13 +191,13 @@ const vm = new Vue({
 						}
 					});
 
-					rangesStr += `\nset_color_profile_slot_range( ${iRow}, ${highest.h + 1}, ${highest.s + 1}, ${highest.v + 1} );`;
+					str += `\nset_color_profile_slot_range( ${iRow}, ${highest.h + 1}, ${highest.s + 1}, ${highest.v + 1} );`;
 				}
 
 				
 			})
 
-			document.getElementById('txtoutput').value = mainColorsStr + rangesStr;
+			document.getElementById('txtoutput').value = str;
 		},
 		updateInput: function() {
 			console.log("updateInput()")
