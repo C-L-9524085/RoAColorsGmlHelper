@@ -30,12 +30,6 @@
 
 				box-sizing: border-box;
 			}
-			.unset {
-				background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' preserveAspectRatio='none' viewBox='0 0 100 100'><path d='M100 0 L0 100 ' stroke='red' stroke-width='5'/><path d='M0 0 L100 100 ' stroke='red' stroke-width='5'/></svg>");
-				background-repeat:no-repeat;
-				background-position:center center;
-				background-size: 100% 100%, auto;
-			}
 			.main {
 				box-shadow: 0 0 0 1px white inset;
 			}
@@ -102,7 +96,7 @@
 						<input id="colorInputR" :disabled="targetColor == null" @input="inputColorChange" placeholder="R" size="3"></input>
 						<input id="colorInputG" :disabled="targetColor == null" @input="inputColorChange" placeholder="G" size="3"></input>
 						<input id="colorInputB" :disabled="targetColor == null" @input="inputColorChange" placeholder="B" size="3"></input>
-						<button @click="unsetColor" :disabled="targetColor == null">{{targetColor && targetColor.set ? 'x' : 'v'}}</button>
+						<button @click="deleteColor" :disabled="targetColor == null">🗑️</button>
 						<code id="hsv" style="display:block;">hsv(H, S, V)</code>
 						<!-- <code id="range" style="display:block;">range(H, S, V)</code> -->
 					</div>
@@ -114,14 +108,14 @@
 					</p>
 					<table id="colors">
 						<tr class="shadeRow" v-for="(row, iRow) in rows">
-							<td class="rowDeletButton" @click="deleteRow(iRow)"><div>-</div></td>
+							<td class="rowDeletButton" @click="deleteRow(iRow)"><div>🗑️</div></td>
 							<td class="shadeSlotName" contenteditable="true" @blur="changeRowName($event, row)">{{row.name}}</td>
 							<td 
 								class="color"
 								v-for="colorSlot in row.colors"
 								@click="clickOnColor($event, colorSlot, row)"
 								v-bind:style="{backgroundColor: `rgb(${colorSlot.r}, ${colorSlot.g}, ${colorSlot.b})`}"
-								v-bind:class="{unset: !colorSlot.set, main: colorSlot.main, target:colorSlot.isTarget}"
+								v-bind:class="{ main: colorSlot.main, target:colorSlot.isTarget }"
 							></td>
 							<td class="color"><div @click="addSlot(row)" name="add Color Slot">+</div></td>
 						</tr>

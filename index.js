@@ -5,6 +5,7 @@ const vm = new Vue({
 		highestColorSlot: 0,
 		highestshadeSlot: 0,
 		targetColor: null,
+		targetRow: null,
 		calcFromFurthestHue: false,
 		//mainColor: null
 	},
@@ -27,7 +28,7 @@ const vm = new Vue({
 						for (let i2 = 0; i2 < row.colors.length; i2++) {
 							console.log("beep", i2, row.colors.length, i2 <= row.colors.length)
 							if (row.colors[i2] == null)
-								row.colors[i2] = {set: false}
+								row.colors[i2] = {r: 0, g: 0, b: 0};
 							else if (row.colors[i2].isTarget)
 								this.setTargetColor(row.colors[i2], row);
 						}
@@ -47,7 +48,9 @@ const vm = new Vue({
 			this.updateInput();
 		},
 		addSlot: function(inRow) {
-			inRow.colors.push({set: false, r: 0, g: 0, b: 0})
+			const len = inRow.colors.push({r: 0, g: 0, b: 0});
+			this.setTargetColor(inRow.colors[len - 1], inRow);
+
 			this.$forceUpdate();
 			this.updateInput();
 		},
@@ -84,7 +87,10 @@ const vm = new Vue({
 				this.targetColor.isTarget = false;
 
 			colorSlot.isTarget = true;
+
 			this.targetColor = colorSlot;
+			this.targetRow = row;
+
 			this.setHSVDisplay(colorSlot);
 			this.updateInput();
 		},
@@ -115,8 +121,6 @@ const vm = new Vue({
 				this.targetColor.g = Math.min(255, ciG.value);
 				this.targetColor.b = Math.min(255, ciB.value);
 
-				this.targetColor.set = true;
-
 				this.setHSVDisplay(this.targetColor);
 				this.$forceUpdate();
 				this.generateGmlCode();
@@ -125,23 +129,28 @@ const vm = new Vue({
 				console.warn("color input but no target color set")
 			}
 		},
-		unsetColor: function() {
-			console.log("unsetColor()");
+		deleteColor: function() {
+			console.log("deleteColor()");
 
 			if (this.targetColor) {
-				if (this.targetColor.set) {
-					this.targetColor.set = false;
-					this.targetColor.main = false;
+				if (this.targetRow) {
+					console.log("target row:", this.targetRow.colors)
+					const colorIndex = this.targetRow.colors.indexOf(this.targetColor);
+
+					if (colorIndex >= 0) {
+						this.targetRow.colors.splice(colorIndex, 1);
+
+						this.$forceUpdate();
+						this.generateGmlCode();
+						this.updateInput();
+					}
+					else
+						console.warn("deleteColor() couldn't find color in row");
 				}
 				else
-					this.targetColor.set = true;
-
-				this.$forceUpdate();
-				this.generateGmlCode();
-				this.updateInput();
-			} else {
-				console.warn("color unset but no target color")
-			}
+					console.warn("deleteColor() called but targetRow not set");
+			} else
+				console.warn("deleteColor() called but targetColor not set");
 		},
 		changeRowName: function(event, row) {
 			event.target.innerText = event.target.innerText.replace(/\n/g, "");
@@ -165,13 +174,12 @@ const vm = new Vue({
 				var HSVMain = null;
 
 				row.colors.forEach((color, iCol) => {
-					if (color.set) {
-						const HSV = rgbToHsv(color.r, color.g, color.b);
-						HSVs.push(HSV);
-						if (color.main) {
-							HSVMain = HSV;
-							str += `\n\n// ${row.name}\nset_color_profile_slot( 0, ${iRow}, ${color.r}, ${color.g}, ${color.b} );`;
-						}
+					const HSV = rgbToHsv(color.r, color.g, color.b);
+					HSVs.push(HSV);
+
+					if (color.main) {
+						HSVMain = HSV;
+						str += `\n\n// ${row.name}\nset_color_profile_slot( 0, ${iRow}, ${color.r}, ${color.g}, ${color.b} );`;
 					}
 				})
 
