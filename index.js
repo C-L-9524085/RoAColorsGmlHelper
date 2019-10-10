@@ -28,6 +28,8 @@ const vm = new Vue({
 							console.log("beep", i2, row.colors.length, i2 <= row.colors.length)
 							if (row.colors[i2] == null)
 								row.colors[i2] = {set: false}
+							else if (row.colors[i2].isTarget)
+								this.setTargetColor(row.colors[i2], row);
 						}
 					}
 				}
@@ -38,7 +40,7 @@ const vm = new Vue({
 				this.rows = [];
 			}
 
-			this.generateGmlCode()
+			this.generateGmlCode();
 		},
 		addRow: function() {
 			this.rows.push({name: "unamed color row", colors: []})
