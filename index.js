@@ -20,7 +20,7 @@ const vm = new Vue({
 				console.log("checking", this.rows.length, "rows")
 				for (let i = 0; i < this.rows.length; i++) {
 					if (this.rows[i] == null)
-						this.rows[i] = {name: "unamed color row", colors: []}
+						this.rows[i] = {name: "unnamed color row", colors: []}
 					else {
 						const row = this.rows[i];
 						console.log("checking", row.colors.length, "colors")
@@ -43,7 +43,7 @@ const vm = new Vue({
 			this.generateGmlCode();
 		},
 		addRow: function() {
-			this.rows.push({name: "unamed color row", colors: []})
+			this.rows.push({name: "unnamed color row", colors: []})
 			this.updateInput();
 		},
 		addSlot: function(inRow) {
