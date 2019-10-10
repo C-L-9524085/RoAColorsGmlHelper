@@ -124,7 +124,7 @@
 				</div>
 				<textarea id="txtoutput" readonly>colors.gml output</textarea>
 			</div>
-			<input type="checkbox" class="calcTypeToggle" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @input="generateGmlCode"></input>
+			<input type="checkbox" class="calcTypeToggle" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @click="generateGmlCode"></input>
 			<label for="calcFromFurthestHue" class="calcTypeToggle">{{ calcFromFurthestHue ? 'calculating ranges from main to furthest Hue only' : 'calculating ranges from main to biggest individual H, S, V values' }}</label>
 		</div>
 
