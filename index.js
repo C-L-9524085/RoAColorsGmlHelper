@@ -170,26 +170,8 @@ const vm = new Vue({
 
 
 				if (HSVMain) {
-					var highest = {h: 0, s: 0, v: 0};
-					var furthestHSV = HSVMain;
-
-					HSVs.forEach(HSV => {
-						const hueDistance = getHueDistance(HSVMain.h, HSV.h) || 0; //brok on blak
-						const hueRange = getRange(HSV.h, HSVMain.h);
-						console.log(row.name, iRow, "hsv", HSV, HSVs.length, "distance from main:", hueDistance, "range:", hueRange)
-	
-						if (this.calcFromFurthestHue) {
-							if (hueDistance > highest.h) {
-								highest.h = hueDistance;
-								highest.s = getRange(HSV.s, HSVMain.s);
-								highest.v = getRange(HSV.v, HSVMain.v);
-							}
-						} else {
-							highest.h = Math.max(hueDistance, highest.h);
-							highest.s = Math.max(getRange(HSV.s, HSVMain.s), highest.s);
-							highest.v = Math.max(getRange(HSV.v, HSVMain.v), highest.v);
-						}
-					});
+					console.info("calculating range for", row.name, iRow);
+					const highest = this.calcHSVRange(HSVs, HSVMain);
 
 					str += `\nset_color_profile_slot_range( ${iRow}, ${highest.h + 1}, ${highest.s + 1}, ${highest.v + 1} );`;
 				}
@@ -198,6 +180,29 @@ const vm = new Vue({
 			})
 
 			document.getElementById('txtoutput').value = str;
+		},
+		calcHSVRange: function(HSVArray, HSVMain) {
+			var highestRanges = {h: 0, s: 0, v: 0};
+			var furthestHSV = HSVMain;
+
+			HSVArray.forEach(HSV => {
+				const hueDistance = getHueDistance(HSVMain.h, HSV.h) || 0; //brok on blak
+				console.info("hsv", HSV, HSVArray.length, "distance from main:", hueDistance)
+	
+				if (this.calcFromFurthestHue) {
+					if (hueDistance > highestRanges.h) {
+						highestRanges.h = hueDistance;
+						highestRanges.s = getRange(HSV.s, HSVMain.s);
+						highestRanges.v = getRange(HSV.v, HSVMain.v);
+					}
+				} else {
+					highestRanges.h = Math.max(hueDistance, highestRanges.h);
+					highestRanges.s = Math.max(getRange(HSV.s, HSVMain.s), highestRanges.s);
+					highestRanges.v = Math.max(getRange(HSV.v, HSVMain.v), highestRanges.v);
+				}
+			});
+
+			return highestRanges;
 		},
 		updateInput: function() {
 			console.log("updateInput()")
