@@ -174,6 +174,8 @@ const vm = new Vue({
 					const highest = this.calcHSVRange(HSVs, HSVMain);
 
 					str += `\nset_color_profile_slot_range( ${iRow}, ${highest.h + 1}, ${highest.s + 1}, ${highest.v + 1} );`;
+				} else {
+					str += `\n\n// ${row.name}\n// (no main color selected)`;
 				}
 
 				
