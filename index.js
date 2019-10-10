@@ -180,12 +180,12 @@ const vm = new Vue({
 	
 						if (this.calcFromFurthestHue) {
 							if (hueDistance > highest.h) {
-								highest.h = getRange(hueDistance, HSVMain.h);
+								highest.h = hueDistance;
 								highest.s = getRange(HSV.s, HSVMain.s);
 								highest.v = getRange(HSV.v, HSVMain.v);
 							}
 						} else {
-							highest.h = Math.max(getRange(hueDistance, HSVMain.h));
+							highest.h = Math.max(hueDistance, highest.h);
 							highest.s = Math.max(getRange(HSV.s, HSVMain.s), highest.s);
 							highest.v = Math.max(getRange(HSV.v, HSVMain.v), highest.v);
 						}
@@ -212,7 +212,7 @@ function getRange(n1, n2) {
 
 // https://stackoverflow.com/questions/35113979/calculate-distance-between-colors-in-hsv-space/35114586#35114586
 function getHueDistance(h0, h1) {
-	return Math.min(Math.abs(h1-h0), 360-Math.abs(h1-h0))
+	return Math.min( Math.abs(h1 - h0), 360 - Math.abs(h1 - h0) )
 }
 
 // based on https://stackoverflow.com/questions/2348597/why-doesnt-this-javascript-rgb-to-hsl-code-work/2348659#2348659
