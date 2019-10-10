@@ -214,31 +214,30 @@ function getHueDistance(h0, h1) {
 	return Math.min(Math.abs(h1-h0), 360-Math.abs(h1-h0))
 }
 
-// https://stackoverflow.com/questions/2348597/why-doesnt-this-javascript-rgb-to-hsl-code-work/2348659#2348659 slightly edited
+// based on https://stackoverflow.com/questions/2348597/why-doesnt-this-javascript-rgb-to-hsl-code-work/2348659#2348659
 function rgbToHsv(r, g, b) {
-    var
-        min = Math.min(r, g, b),
-        max = Math.max(r, g, b),
-        delta = max - min,
-        h, s, v = max;
+	const min = Math.min(r, g, b);
+	const max = Math.max(r, g, b);
+	const delta = max - min;
+	var h = s = v = 0;
 
-    v = Math.round(max / 255 * 100);
-    if ( max != 0 )
-        s = Math.round(delta / max * 100);
-    else {
-        // black
-        return [0, 0, 0];
-    }
+	if (max == 0) // black
+		return {h, s, v};
 
-    if( r == max )
-        h = ( g - b ) / delta;         // between yellow & magenta
-    else if( g == max )
-        h = 2 + ( b - r ) / delta;     // between cyan & yellow
-    else
-        h = 4 + ( r - g ) / delta;     // between magenta & cyan
+	v = Math.round(max / 255 * 100);
+	s = Math.round(delta / max * 100);
 
-    h = Math.round(h * 60);            // degrees
-    if( h < 0 ) h += 360;
+	if (delta == 0)
+		h = 0;
+	else if (r == max)
+		h = (g - b) / delta;		 // between yellow & magenta
+	else if (g == max)
+		h = 2 + (b - r) / delta;	 // between cyan & yellow
+	else
+		h = 4 + (r - g) / delta;	 // between magenta & cyan
 
-    return {h, s, v};
+	h = Math.round(h * 60);			// degrees
+	if (h < 0) h += 360;
+
+	return {h, s, v};
 }
