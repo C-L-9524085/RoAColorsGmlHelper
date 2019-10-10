@@ -146,6 +146,13 @@ const vm = new Vue({
 		changeRowName: function(event, row) {
 			event.target.innerText = event.target.innerText.replace(/\n/g, "");
 			row.name = event.target.innerText;
+
+			this.generateGmlCode();
+			this.updateInput();
+		},
+		deleteRow: function(iRow) {
+			this.rows.splice(iRow, 1);
+
 			this.generateGmlCode();
 			this.updateInput();
 		},
