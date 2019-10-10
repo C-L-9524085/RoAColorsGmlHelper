@@ -8,11 +8,38 @@ const vm = new Vue({
 		targetRow: null,
 		calcFromFurthestHue: false,
 		//mainColor: null
+		previewImg: null,
+		colorProfilesMainColors: [[]],
+		ranges: [],
+		selectedColorProfile: 0,
 	},
 	methods: {
-		parseInput: function() {
-			console.log("parseInput()")
-			const txt = document.getElementById('txtinput').value;
+		parseGMLCodeToColorProfiles: function() {
+			console.log("parseGMLCodeToColorProfiles()")
+			const txt = document.getElementById('txtinputGML').value.replace(/\s/g, '');
+
+			//'(?:' means a non-capturing group
+			const reg = /set_color_profile_slot\(((?:\d{1,3},){4}\d{1,3})\);/g
+			var result;
+			while ((result = reg.exec(txt)) !== null) {
+				const [colorProfileSlot, shadeSlot, r, g, b] = result[1].split(',');
+				const rgb = {r, g, b};
+
+				if (!this.colorProfilesMainColors[colorProfileSlot])
+					this.colorProfilesMainColors[colorProfileSlot] = [];
+
+				console.log("adding shade", colorProfileSlot, shadeSlot, rgb)
+
+				this.colorProfilesMainColors[colorProfileSlot][shadeSlot] = {rgb, hsv: rgbToHsv(rgb.r, rgb.g, rgb.b)};
+			}
+
+			this.$forceUpdate();
+			this.generateGmlCode();
+			console.log("parseGMLCodeToColorProfiles", this.colorProfilesMainColors)
+		},
+		parseJSONInputToPalette: function() {
+			console.log("parseJSONInputToPalette()")
+			const txt = document.getElementById('txtinputJSON').value;
 			this.rows = [];
 
 			try {
@@ -167,6 +194,8 @@ const vm = new Vue({
 		},
 		generateGmlCode: function() {
 			console.log("generateGmlCode()")
+			this.colorProfilesMainColors[0] = [];
+			this.ranges = [];
 			var str = "// DEFAULT COLOR";
 
 			this.rows.forEach((row, iRow) => {
@@ -178,6 +207,7 @@ const vm = new Vue({
 					HSVs.push(HSV);
 
 					if (color.main) {
+						this.colorProfilesMainColors[0][iRow] = { hsv: HSV, rgb: {r: color.r, g: color.g, b: color.b} };
 						HSVMain = HSV;
 						str += `\n\n// ${row.name}\nset_color_profile_slot( 0, ${iRow}, ${color.r}, ${color.g}, ${color.b} );`;
 					}
@@ -189,8 +219,18 @@ const vm = new Vue({
 					const highest = this.calcHSVRange(HSVs, HSVMain);
 
 					str += `\nset_color_profile_slot_range( ${iRow}, ${highest.h + 1}, ${highest.s + 1}, ${highest.v + 1} );`;
+					this.colorProfilesMainColors[0][iRow].hsv = HSVMain;
+					this.ranges[iRow] = {
+						hL: wrap(360, HSVMain.h - highest.h - 1),
+						hH: wrap(360, HSVMain.h + highest.h + 1),
+						sL: Math.max(0, HSVMain.s - highest.s - 1),
+						sH: Math.min(100, HSVMain.s + highest.s + 1),
+						vL: Math.max(0, HSVMain.v - highest.v - 1),
+						vH: Math.min(100, HSVMain.v + highest.v + 1),
+					}
 				} else {
 					str += `\n\n// ${row.name}\n// (no main color selected)`;
+					this.colorProfilesMainColors[0][iRow] = null;
 				}
 
 				
@@ -223,10 +263,78 @@ const vm = new Vue({
 		},
 		updateInput: function() {
 			console.log("updateInput()")
-			document.getElementById('txtinput').value = JSON.stringify(this.rows, null, 4);
-		}
+			document.getElementById('txtinputJSON').value = JSON.stringify(this.rows, null, 4);
+		},
+		loadFilePreview: function(event) {
+			const pix = event.target.files[0];
+			const r = new FileReader();
+
+			r.onload = () => {
+				if (!this.previewImg) {
+					this.previewImg = new Image();
+					this.previewImg.onload = this.renderPreview;
+				}
+				this.previewImg.src = r.result;
+			};
+
+			r.readAsDataURL(pix);
+		},
+		renderPreview: function() {
+			console.log("rendering.....");
+			const canvas = document.getElementById("preview");
+			const ctx = canvas.getContext('2d');
+
+			const width = this.previewImg.width;
+			const height = this.previewImg.height;
+
+			ctx.clearRect(0, 0, width, height);
+			ctx.drawImage(this.previewImg, 0, 0)//, width, height);
+
+			
+			if (this.selectedColorProfile != 0) {
+				const imageData = ctx.getImageData(0, 0, width, height);
+				const dataArray = imageData.data;
+				console.log(imageData, "going to loop", dataArray.length / 4);
+
+				for (var i = 0; i < dataArray.length; i += 4) { //this is so ghetto I'm game
+					//console.log('px', i)
+					const hsv = rgbToHsv(dataArray[i], dataArray[i+1], dataArray[i+2]);
+
+					this.ranges.some((rangeDef, shadeIndex) => {
+						//console.log("px", i, "on shade", shadeIndex);
+						if(hsv.h >= rangeDef.hL && hsv.h <= rangeDef.hH
+						&& hsv.s >= rangeDef.sL && hsv.s <= rangeDef.sH
+						&& hsv.v >= rangeDef.vL && hsv.v <= rangeDef.vH
+						) {
+							const defaultColorForShade = this.colorProfilesMainColors[0][shadeIndex];
+							const mainColorForShade = this.colorProfilesMainColors[this.selectedColorProfile][shadeIndex];
+
+							const step = getHueDistance(hsv.h, defaultColorForShade.hsv.h); //todo need to handle direction????
+							const steppedHue = hsv.h > mainColorForShade.hsv.h ? mainColorForShade.hsv.h + step : mainColorForShade.hsv.h + step;
+							hsv.h = wrap(360, steppedHue);
+
+							const shiftedRgb = HSVtoRGB(hsv.h / 360, hsv.s / 100, hsv.v / 100);
+							dataArray[i] = shiftedRgb.r;
+							dataArray[i+1] = shiftedRgb.g;
+							dataArray[i+2] = shiftedRgb.b;
+
+							//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, step, shiftedRgb)
+							return true;
+						}
+					})
+				}
+
+				console.log("drawing recolored image");
+	    		ctx.putImageData(imageData, 0, 0);
+	    	}
+		},
 	}
 });
+
+// https://github.com/semibran/wrap-around im idiot
+function wrap(m, n) {
+  return n >= 0 ? n % m : (n % m + m) % m
+}
 
 function getRange(n1, n2) {
 	return n1 > n2 ? n1 - n2 : n2 - n1;
@@ -263,4 +371,34 @@ function rgbToHsv(r, g, b) {
 	if (h < 0) h += 360;
 
 	return {h, s, v};
+}
+
+/* accepts parameters
+ * h  Object = {h:x, s:y, v:z}
+ * OR 
+ * h, s, v
+*/
+function HSVtoRGB(h, s, v) {
+    var r, g, b, i, f, p, q, t;
+    if (arguments.length === 1) {
+        s = h.s, v = h.v, h = h.h;
+    }
+    i = Math.floor(h * 6);
+    f = h * 6 - i;
+    p = v * (1 - s);
+    q = v * (1 - f * s);
+    t = v * (1 - (1 - f) * s);
+    switch (i % 6) {
+        case 0: r = v, g = t, b = p; break;
+        case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
+    }
+    return {
+        r: Math.round(r * 255),
+        g: Math.round(g * 255),
+        b: Math.round(b * 255)
+    };
 }

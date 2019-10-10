@@ -47,6 +47,8 @@
 				border-radius: 10px;
 
 				padding: 10px;
+
+				display: inherit;
 			}
 
 			table {
@@ -84,13 +86,23 @@
 				font-size: 80%;
 				opacity: 0.7;
 			}
+			.colorSlot {
+				opacity: 0.7;
+			}
+			.colorSlot:hover {
+				opacity: 1;
+			}
 		</style>
 		<script src="vue.js"></script>
 	</head>
 	<body>
 		<div id="app">
 			<div id="iDontLikeWrappers">
-				<textarea id="txtinput" @input="parseInput">JSON representation of the palette</textarea>
+				<textarea id="txtinputJSON" @input="parseJSONInputToPalette">JSON representation of the palette</textarea>
+				<div style="display: flex; flex-direction: column; flex-grow: 1;">
+					<textarea id="txtoutput" readonly>colors.gml output</textarea>
+					<textarea id="txtinputGML" @input="parseGMLCodeToColorProfiles">colors.gml input</textarea>
+				</div>
 				<div id="wrappy">
 					<div>
 						<input id="colorInputR" :disabled="targetColor == null" @input="inputColorChange" placeholder="R" size="3"></input>
@@ -126,7 +138,25 @@
 						</tr>
 					</table>
 				</div>
-				<textarea id="txtoutput" readonly>colors.gml output</textarea>
+				<div>
+					<table id="colorProfiles">
+						<tr v-for="(colorSlot, colorSlotIndex) in colorProfilesMainColors"
+							class="colorSlot"
+							@click="selectedColorProfile=colorSlotIndex; if (previewImg) renderPreview();"
+						>
+							<td>{{colorSlotIndex}}</td>
+							<td v-for="shade in colorSlot"
+								class="color"
+								v-bind:style="{backgroundColor: shade ? `rgb(${shade.rgb.r}, ${shade.rgb.g}, ${shade.rgb.b})` : 'black'}"
+							></td>
+						</tr>
+					</table>
+					</div>
+					<div>
+						<input type="file" id="file" @change="loadFilePreview" style="display:inherit;"></input>
+						<canvas id="preview"></canvas>
+					</div>
+				</div>
 			</div>
 			<input type="checkbox" class="calcTypeToggle" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @click="generateGmlCode"></input>
 			<label for="calcFromFurthestHue" class="calcTypeToggle">{{ calcFromFurthestHue ? 'calculating ranges from main to furthest Hue only' : 'calculating ranges from main to biggest individual H, S, V values' }}</label>
