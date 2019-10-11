@@ -303,7 +303,10 @@ const vm = new Vue({
 
 				for (var i = 0; i < dataArray.length; i += 4) { //this is so ghetto I'm game
 					//console.log('px', i)
-					const hsv = rgbToHsv(dataArray[i], dataArray[i+1], dataArray[i+2]);
+					const r = dataArray[i],
+						g = dataArray[i+1],
+						b = dataArray[i+2],
+						hsv = rgbToHsv(r, g, b);
 
 					this.ranges.some((rangeDef, shadeIndex) => {
 						//console.log("px", i, "on shade", shadeIndex);
@@ -311,9 +314,20 @@ const vm = new Vue({
 						&& hsv.s >= rangeDef.sL && hsv.s <= rangeDef.sH
 						&& hsv.v >= rangeDef.vL && hsv.v <= rangeDef.vH
 						) {
-							const defaultColorForShade = this.colorProfilesMainColors[0][shadeIndex];
 							const mainColorForShade = this.colorProfilesMainColors[this.selectedColorProfile][shadeIndex];
 
+							//don't shade shift if current color is same as main color
+							if (r === mainColorForShade.rgb.r && g === mainColorForShade.rgb.g && b === mainColorForShade.rgb.b)
+								return true;
+
+							const defaultColorForShade = this.colorProfilesMainColors[0][shadeIndex];
+
+							//don't shade shift if main color is same as default color
+							if(defaultColorForShade.rgb.r === mainColorForShade.rgb.r
+							&& defaultColorForShade.rgb.g === mainColorForShade.rgb.g
+							&& defaultColorForShade.rgb.b === mainColorForShade.rgb.b)
+								return true;
+								
 							const stepHue = getHueDistance(hsv.h, defaultColorForShade.hsv.h); //todo need to handle direction????
 							const steppedHue = hsv.h > mainColorForShade.hsv.h ? mainColorForShade.hsv.h - stepHue : mainColorForShade.hsv.h + stepHue;
 							hsv.h = wrap(360, steppedHue);
