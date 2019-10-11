@@ -142,7 +142,7 @@
 					<table id="colorProfiles">
 						<tr v-for="(colorSlot, colorSlotIndex) in colorProfilesMainColors"
 							class="colorSlot"
-							@click="selectedColorProfile=colorSlotIndex; if (previewImg) renderPreview();"
+							@click="selectedColorProfile=colorSlotIndex; renderPreview();"
 						>
 							<td>{{colorSlotIndex}}</td>
 							<td v-for="shade in colorSlot"

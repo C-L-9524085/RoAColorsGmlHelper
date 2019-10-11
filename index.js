@@ -101,8 +101,7 @@ const vm = new Vue({
 			}
 
 			this.$forceUpdate();
-			this.generateGmlCode();
-			this.updateInput();
+			this.updateDisplays();
 		},
 		setTargetColor: function(colorSlot, row) {
 			console.log("setTargetColor", colorSlot, row)
@@ -150,8 +149,7 @@ const vm = new Vue({
 
 				this.setHSVDisplay(this.targetColor);
 				this.$forceUpdate();
-				this.generateGmlCode();
-				this.updateInput();
+				this.updateDisplays();
 			} else {
 				console.warn("color input but no target color set")
 			}
@@ -168,8 +166,7 @@ const vm = new Vue({
 						this.targetRow.colors.splice(colorIndex, 1);
 
 						this.$forceUpdate();
-						this.generateGmlCode();
-						this.updateInput();
+						this.updateDisplays();
 					}
 					else
 						console.warn("deleteColor() couldn't find color in row");
@@ -189,8 +186,12 @@ const vm = new Vue({
 		deleteRow: function(iRow) {
 			this.rows.splice(iRow, 1);
 
+			this.updateDisplays();
+		},
+		updateDisplays: function() {
 			this.generateGmlCode();
 			this.updateInput();
+			this.renderPreview();
 		},
 		generateGmlCode: function() {
 			console.log("generateGmlCode()")
@@ -280,6 +281,11 @@ const vm = new Vue({
 			r.readAsDataURL(pix);
 		},
 		renderPreview: function() {
+			if (!this.previewImg) {
+				console.info("no previewImg to render");
+				return;
+			}
+
 			console.log("rendering.....");
 			const canvas = document.getElementById("preview");
 			const ctx = canvas.getContext('2d');
@@ -290,11 +296,10 @@ const vm = new Vue({
 			ctx.clearRect(0, 0, width, height);
 			ctx.drawImage(this.previewImg, 0, 0)//, width, height);
 
-			
+				
 			if (this.selectedColorProfile != 0) {
 				const imageData = ctx.getImageData(0, 0, width, height);
 				const dataArray = imageData.data;
-				console.log(imageData, "going to loop", dataArray.length / 4);
 
 				for (var i = 0; i < dataArray.length; i += 4) { //this is so ghetto I'm game
 					//console.log('px', i)
@@ -331,8 +336,8 @@ const vm = new Vue({
 				}
 
 				console.log("drawing recolored image");
-	    		ctx.putImageData(imageData, 0, 0);
-	    	}
+				ctx.putImageData(imageData, 0, 0);
+			}
 		},
 	}
 });
