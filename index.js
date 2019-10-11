@@ -309,9 +309,15 @@ const vm = new Vue({
 							const defaultColorForShade = this.colorProfilesMainColors[0][shadeIndex];
 							const mainColorForShade = this.colorProfilesMainColors[this.selectedColorProfile][shadeIndex];
 
-							const step = getHueDistance(hsv.h, defaultColorForShade.hsv.h); //todo need to handle direction????
-							const steppedHue = hsv.h > mainColorForShade.hsv.h ? mainColorForShade.hsv.h + step : mainColorForShade.hsv.h + step;
+							const stepHue = getHueDistance(hsv.h, defaultColorForShade.hsv.h); //todo need to handle direction????
+							const steppedHue = hsv.h > mainColorForShade.hsv.h ? mainColorForShade.hsv.h - stepHue : mainColorForShade.hsv.h + stepHue;
 							hsv.h = wrap(360, steppedHue);
+
+							const stepSat = hsv.s - defaultColorForShade.hsv.s;
+							hsv.s = Math.max(0, Math.min(100, mainColorForShade.hsv.s + stepSat));
+
+							const stepVal = hsv.v - defaultColorForShade.hsv.v;
+							hsv.v = Math.max(0, Math.min(100, mainColorForShade.hsv.v + stepVal));
 
 							const shiftedRgb = HSVtoRGB(hsv.h / 360, hsv.s / 100, hsv.v / 100);
 							dataArray[i] = shiftedRgb.r;
