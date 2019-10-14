@@ -11,6 +11,7 @@ const vm = new Vue({
 		previewImg: null,
 		colorProfilesMainColors: [[]],
 		ranges: [],
+		cachedColorTransforms: null,
 		selectedColorProfile: 0,
 	},
 	methods: {
@@ -296,6 +297,7 @@ const vm = new Vue({
 			console.log("rendering.....");
 			const canvas = document.getElementById("preview");
 			const ctx = canvas.getContext('2d');
+			this.cachedColorTransforms = new Map();
 
 			const width = this.previewImg.width;
 			const height = this.previewImg.height;
@@ -314,6 +316,15 @@ const vm = new Vue({
 						g = dataArray[i+1],
 						b = dataArray[i+2],
 						hsv = rgbToHsv(r, g, b);
+
+					const cachedColor = this.cachedColorTransforms.get(`${r},${g},${b}`);
+					if (cachedColor) {
+						dataArray[i] = cachedColor.r;
+						dataArray[i+1] = cachedColor.g;
+						dataArray[i+2] = cachedColor.b;
+
+						continue ;
+					}
 
 					this.ranges.some((rangeDef, shadeIndex) => {
 						//console.log("px", i, "on shade", shadeIndex);
@@ -353,6 +364,8 @@ const vm = new Vue({
 							dataArray[i] = shiftedRgb.r;
 							dataArray[i+1] = shiftedRgb.g;
 							dataArray[i+2] = shiftedRgb.b;
+
+							this.cachedColorTransforms.set(`${r},${g},${b}`, shiftedRgb);
 
 							//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, step, shiftedRgb)
 							return true;
