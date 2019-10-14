@@ -279,14 +279,24 @@ const vm = new Vue({
 			const r = new FileReader();
 
 			r.onload = () => {
-				if (!this.previewImg) {
-					this.previewImg = new Image();
-					this.previewImg.onload = this.renderPreview;
-				}
+				if (this.previewImg)
+					this.clearCanvas();
+
+				this.previewImg = new Image();
+				this.previewImg.onload = this.renderPreview;
+
 				this.previewImg.src = r.result;
 			};
 
 			r.readAsDataURL(pix);
+		},
+		clearCanvas: function(ctx) {
+			if (!ctx) {
+				const canvas = document.getElementById("preview");
+				ctx = canvas.getContext('2d');
+			}
+			
+			ctx.clearRect(0, 0, this.previewImg.width, this.previewImg.height);
 		},
 		renderPreview: function() {
 			if (!this.previewImg) {
@@ -297,12 +307,13 @@ const vm = new Vue({
 			console.log("rendering.....");
 			const canvas = document.getElementById("preview");
 			const ctx = canvas.getContext('2d');
+
+			this.clearCanvas(ctx);
 			this.cachedColorTransforms = new Map();
 
 			const width = this.previewImg.width;
 			const height = this.previewImg.height;
 
-			ctx.clearRect(0, 0, width, height);
 			ctx.drawImage(this.previewImg, 0, 0)//, width, height);
 
 				
