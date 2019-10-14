@@ -2,14 +2,12 @@ const vm = new Vue({
 	el: '#app',
 	data: {
 		rows: [],
-		highestColorSlot: 0,
-		highestshadeSlot: 0,
 		targetColor: null,
 		targetRow: null,
 		calcFromFurthestHue: false,
 		//mainColor: null
 		previewImg: null,
-		colorProfilesMainColors: [[]],
+		colorProfilesMainColors: [],
 		ranges: [],
 		cachedColorTransforms: null,
 		selectedColorProfile: 0,
@@ -17,7 +15,10 @@ const vm = new Vue({
 	methods: {
 		parseGMLCodeToColorProfiles: function() {
 			console.log("parseGMLCodeToColorProfiles()")
-			const txt = document.getElementById('txtinputGML').value.replace(/\s/g, '');
+			const txt = document.getElementById('txtinputGML').value
+				.replace(/\/\/.*/g, '') //remove comments
+				.replace(/[ \t]/g, ''); //remove spaces
+			console.log(txt);
 
 			//'(?:' means a non-capturing group
 			const reg = /set_color_profile_slot\(((?:\d{1,3},){4}\d{1,3})\);/g
@@ -27,16 +28,30 @@ const vm = new Vue({
 				const rgb = {r, g, b};
 
 				if (!this.colorProfilesMainColors[colorProfileSlot])
-					this.colorProfilesMainColors[colorProfileSlot] = [];
+					this.colorProfilesMainColors[colorProfileSlot] = {shades: []};
 
 				console.log("adding shade", colorProfileSlot, shadeSlot, rgb)
 
-				this.colorProfilesMainColors[colorProfileSlot][shadeSlot] = {
+				this.colorProfilesMainColors[colorProfileSlot].shades[shadeSlot] = {
 					rgb,
 					hsv: rgbToHsv(rgb.r, rgb.g, rgb.b),
 					accurateHSV: rgbToHsv_noRounding(rgb.r, rgb.g, rgb.b)
 				};
 			}
+
+			const regComment = /^\/\/[ \t]*(.*)/g
+			var i = 1;
+			document.getElementById('txtinputGML').value.split('\n').forEach(line => {
+				if (line.trim().startsWith('//')) { //keep only comments
+					if (!line.includes("set_color_profile_slot(") && !line.includes("set_color_profile_slot_range(")) {
+						console.log("name:", line)
+						if (this.colorProfilesMainColors[i])
+							this.colorProfilesMainColors[i].name = line.trim().replace(/^\/\//, '').trim();
+
+						i++;
+					}
+				}
+			})
 
 			this.$forceUpdate();
 			this.generateGmlCode();
@@ -193,6 +208,13 @@ const vm = new Vue({
 
 			this.updateDisplays();
 		},
+		changeSlotName: function(event, slot) {
+			event.target.innerText = event.target.innerText.replace(/\n/g, "");
+			slot.name = event.target.innerText;
+
+			this.generateGmlCode();
+			this.updateInput();
+		},
 		updateDisplays: function() {
 			this.generateGmlCode();
 			this.updateInput();
@@ -200,7 +222,7 @@ const vm = new Vue({
 		},
 		generateGmlCode: function() {
 			console.log("generateGmlCode()")
-			this.colorProfilesMainColors[0] = [];
+			this.colorProfilesMainColors[0] = {name: "default", shades: []};
 			this.ranges = [];
 			var str = "// DEFAULT COLOR";
 
@@ -213,7 +235,7 @@ const vm = new Vue({
 					HSVs.push(HSV);
 
 					if (color.main) {
-						this.colorProfilesMainColors[0][iRow] = {
+						this.colorProfilesMainColors[0].shades[iRow] = {
 							hsv: HSV,
 							accurateHSV: rgbToHsv_noRounding(color.r, color.g, color.b),
 							rgb: {r: color.r, g: color.g, b: color.b}
@@ -239,10 +261,8 @@ const vm = new Vue({
 					}
 				} else {
 					str += `\n\n// ${row.name}\n// (no main color selected)`;
-					this.colorProfilesMainColors[0][iRow] = null;
+					this.colorProfilesMainColors[0].shades[iRow] = null;
 				}
-
-				
 			})
 
 			document.getElementById('txtoutput').value = str;
@@ -343,13 +363,13 @@ const vm = new Vue({
 						&& hsv.s >= rangeDef.sL && hsv.s <= rangeDef.sH
 						&& hsv.v >= rangeDef.vL && hsv.v <= rangeDef.vH
 						) {
-							const mainColorForShade = this.colorProfilesMainColors[this.selectedColorProfile][shadeIndex];
+							const mainColorForShade = this.colorProfilesMainColors[this.selectedColorProfile].shades[shadeIndex];
 
 							//don't shade shift if current color is same as main color
 							if (r === mainColorForShade.rgb.r && g === mainColorForShade.rgb.g && b === mainColorForShade.rgb.b)
 								return true;
 
-							const defaultColorForShade = this.colorProfilesMainColors[0][shadeIndex];
+							const defaultColorForShade = this.colorProfilesMainColors[0].shades[shadeIndex];
 
 							//don't shade shift if main color is same as default color
 							if(defaultColorForShade.rgb.r === mainColorForShade.rgb.r

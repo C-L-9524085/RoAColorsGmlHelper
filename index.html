@@ -145,7 +145,8 @@
 							@click="selectedColorProfile=colorSlotIndex; renderPreview();"
 						>
 							<td>{{colorSlotIndex}}</td>
-							<td v-for="shade in colorSlot"
+							<td class="shadeSlotName" contenteditable="true" @blur="changeSlotName($event, colorSlot)">{{colorSlot.name || ""}}</td>
+							<td v-for="shade in colorSlot.shades"
 								class="color"
 								v-bind:style="{backgroundColor: shade ? `rgb(${shade.rgb.r}, ${shade.rgb.g}, ${shade.rgb.b})` : 'black'}"
 							></td>
