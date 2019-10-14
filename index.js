@@ -265,6 +265,19 @@ const vm = new Vue({
 				}
 			})
 
+			str += "\n\n\n// ALTERNATE COLORS"
+
+			for (let i = 1; i < this.colorProfilesMainColors.length; i++) {
+				const colorSlot = this.colorProfilesMainColors[i];
+
+				str += `\n\n// ${colorSlot.name || i}`;
+				colorSlot.shades.forEach((shade, shadeIndex) => {
+					str += `\nset_color_profile_slot( ${i}, ${shadeIndex}, ${shade.rgb.r}, ${shade.rgb.g}, ${shade.rgb.b} );`;
+					if (this.rows[shadeIndex])
+						str += ` //${this.rows[shadeIndex].name}`;
+				})
+			}
+
 			document.getElementById('txtoutput').value = str;
 		},
 		calcHSVRange: function(HSVArray, HSVMain) {
