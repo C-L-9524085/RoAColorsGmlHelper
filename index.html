@@ -77,8 +77,10 @@
 			.shadeRow div:hover {
 				background-color: rgba(0, 0, 0, 0.3);
 			}
-			#wrappy {
+			.bigmargin {
 				margin: 50px;
+			}
+			.centertxt {
 				text-align: center;
 			}
 			.calcTypeToggle {
@@ -92,17 +94,20 @@
 			.colorSlot:hover {
 				opacity: 1;
 			}
+			.darkerbg {
+				background-color: rgba(0, 0, 0, 0.1);
+			}
 		</style>
 		<script src="vue.js"></script>
 	</head>
 	<body>
 		<div id="app">
 			<div id="iDontLikeWrappers">
-				<div style="display: flex; flex-direction: column; flex-grow: 1;">
-					copy-paste your current colors.gml's file content in here, it'll be edited in real time (and forced into this tool's formatting because it's easier for me)
+				<div class="darkerbg">
+					copy-paste your current colors.gml's file content in here, it'll be edited in real time (and forced into this tool's formatting because it's easier for me). Note that adding comments might break the palette names if it's after // ALTERNATE COLORS.
 					<textarea id="gmlDisplay" @input="parseInputGml"></textarea>
 				</div>
-				<div id="wrappy">
+				<div class="centertxt bigmargin darkerbg">
 					<div>
 						<input id="colorInputR" :disabled="targetColor == null" @input="inputColorChange" placeholder="R" size="3"></input>
 						<input id="colorInputG" :disabled="targetColor == null" @input="inputColorChange" placeholder="G" size="3"></input>
@@ -137,7 +142,7 @@
 						</tr>
 					</table>
 				</div>
-				<div>
+				<div class="bigmargin darkerbg">
 					<table id="colorProfiles">
 						<tr v-for="(colorSlot, colorSlotIndex) in colorProfilesMainColors"
 							class="colorSlot"
@@ -151,10 +156,10 @@
 							></td>
 						</tr>
 					</table>
-					<div>
-						<input type="file" id="file" @change="loadFilePreview" style="display:inherit;"></input>
-						<canvas id="preview"></canvas>
-					</div>
+				</div>
+				<div class="bigmargin darkerbg">
+					<input type="file" id="file" @change="loadFilePreview" style="display:inherit;"></input>
+					<canvas id="preview"></canvas>
 				</div>
 			</div>
 			<input type="checkbox" class="calcTypeToggle" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @click="generateGmlCode"></input>
