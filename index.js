@@ -278,6 +278,10 @@ const vm = new Vue({
 				})
 			}
 
+			str += "\n\n/* Below is used by that one RoA Color Generator Tool to store the palette\n// === BEGIN JSON PALETTE (version:0.5.1) ===\n"
+			str += JSON.stringify(this.rows);
+			str += "\n// === END JSON PALETTE ===\n*/"
+
 			document.getElementById('txtoutput').value = str;
 		},
 		calcHSVRange: function(HSVArray, HSVMain) {
