@@ -1,3 +1,6 @@
+const jsonPaletteHeaderStart = "=== BEGIN JSON PALETTE ===";
+const jsonPaletteHeaderEnd = "=== END JSON PALETTE ===";
+
 const vm = new Vue({
 	el: '#app',
 	data: {
@@ -13,10 +16,32 @@ const vm = new Vue({
 		selectedColorProfile: 0,
 	},
 	methods: {
-		parseGMLCodeToColorProfiles: function() {
+		parseInputGml: function() {
+			console.log("parseInputGml")
+			const txt = document.getElementById("gmlDisplay").value;
+
+			const paletteDataStart = txt.lastIndexOf(jsonPaletteHeaderStart);
+			if (paletteDataStart > -1) {
+				const paletteDataTxt = txt.substring(paletteDataStart + jsonPaletteHeaderStart.length, txt.lastIndexOf(jsonPaletteHeaderEnd));
+				try {
+					const paletteDataJSON = JSON.parse(paletteDataTxt);
+
+					//todo something with paletteDataJSON.formatversion to upgrade data if I ever change the data format
+
+					this.parseJSONInputToPalette(paletteDataJSON.data)
+				} catch(e) {
+					console.error("parseInputGml: unable to parse json palette", e)
+				}
+			}
+
+			this.parseGMLCodeToColorProfiles(txt)
+
+		},
+		parseGMLCodeToColorProfiles: function(originalTxt) {
 			console.log("parseGMLCodeToColorProfiles()")
-			const txt = document.getElementById('txtinputGML').value
-				.replace(/\/\/.*/g, '') //remove comments
+			const txt = originalTxt
+				.replace(/\/\/.*/g, '') //remove single-line comments
+				.replace(/\/\*[\S\s]*\*\\/g, '') //remove multi-line comments
 				.replace(/[ \t]/g, ''); //remove spaces
 			console.log(txt);
 
@@ -41,7 +66,7 @@ const vm = new Vue({
 
 			const regComment = /^\/\/[ \t]*(.*)/g
 			var i = 1;
-			document.getElementById('txtinputGML').value.split('\n').forEach(line => {
+			originalTxt.split('\n').forEach(line => {
 				if (line.trim().startsWith('//')) { //keep only comments
 					if (!line.includes("set_color_profile_slot(") && !line.includes("set_color_profile_slot_range(")) {
 						console.log("name:", line)
@@ -57,13 +82,12 @@ const vm = new Vue({
 			this.generateGmlCode();
 			console.log("parseGMLCodeToColorProfiles", this.colorProfilesMainColors)
 		},
-		parseJSONInputToPalette: function() {
+		parseJSONInputToPalette: function(json) {
 			console.log("parseJSONInputToPalette()")
-			const txt = document.getElementById('txtinputJSON').value;
 			this.rows = [];
 
 			try {
-				this.rows = JSON.parse(txt);
+				this.rows = json;
 
 				console.log("checking", this.rows.length, "rows")
 				for (let i = 0; i < this.rows.length; i++) {
@@ -278,11 +302,12 @@ const vm = new Vue({
 				})
 			}
 
-			str += "\n\n/* Below is used by that one RoA Color Generator Tool to store the palette\n// === BEGIN JSON PALETTE (version:0.5.1) ===\n"
-			str += JSON.stringify(this.rows);
-			str += "\n// === END JSON PALETTE ===\n*/"
+			str += "\n\n/* This is used by that one RoA colors.gml generator tool to store palette data\n"
+				+ jsonPaletteHeaderStart + "\n"
+				+ JSON.stringify({formatversion: 1, data: this.rows})
+				+ "\n" + jsonPaletteHeaderEnd + "\n*/\n"
 
-			document.getElementById('txtoutput').value = str;
+			document.getElementById('gmlDisplay').value = str;
 		},
 		calcHSVRange: function(HSVArray, HSVMain) {
 			var highestRanges = {h: 0, s: 0, v: 0};
@@ -309,7 +334,8 @@ const vm = new Vue({
 		},
 		updateInput: function() {
 			console.log("updateInput()")
-			document.getElementById('txtinputJSON').value = JSON.stringify(this.rows, null, 4);
+			//todo just edit json, don't regenerate gml if unchanged
+			this.generateGmlCode()
 		},
 		loadFilePreview: function(event) {
 			const pix = event.target.files[0];

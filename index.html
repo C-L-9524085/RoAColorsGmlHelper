@@ -98,10 +98,9 @@
 	<body>
 		<div id="app">
 			<div id="iDontLikeWrappers">
-				<textarea id="txtinputJSON" @input="parseJSONInputToPalette">JSON representation of the palette</textarea>
 				<div style="display: flex; flex-direction: column; flex-grow: 1;">
-					<textarea id="txtoutput" readonly>colors.gml output</textarea>
-					<textarea id="txtinputGML" @input="parseGMLCodeToColorProfiles">colors.gml input</textarea>
+					copy-paste your current colors.gml's file content in here, it'll be edited in real time (and forced into this tool's formatting because it's easier for me)
+					<textarea id="gmlDisplay" @input="parseInputGml"></textarea>
 				</div>
 				<div id="wrappy">
 					<div>
