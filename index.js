@@ -1,5 +1,6 @@
 const jsonPaletteHeaderStart = "=== BEGIN JSON PALETTE ===";
 const jsonPaletteHeaderEnd = "=== END JSON PALETTE ===";
+const alternateColorsHeader = "// ALTERNATE COLORS";
 
 const vm = new Vue({
 	el: '#app',
@@ -66,14 +67,22 @@ const vm = new Vue({
 
 			const regComment = /^\/\/[ \t]*(.*)/g
 			var i = 1;
+			var reachedAltcolors = false;
 			originalTxt.split('\n').forEach(line => {
 				if (line.trim().startsWith('//')) { //keep only comments
 					if (!line.includes("set_color_profile_slot(") && !line.includes("set_color_profile_slot_range(")) {
-						console.log("name:", line)
-						if (this.colorProfilesMainColors[i])
-							this.colorProfilesMainColors[i].name = line.trim().replace(/^\/\//, '').trim();
 
-						i++;
+						//lazy fix to not include comments before // ALTERNATE COLORS segment (like palette row names)
+						if (line.includes "alternateColorsHeader")
+							reachedAltcolors = true;
+
+						if (reachedAltcolors) {
+							console.log("name:", line)
+							if (this.colorProfilesMainColors[i])
+								this.colorProfilesMainColors[i].name = line.trim().replace(/^\/\//, '').trim();
+
+							i++;
+						}
 					}
 				}
 			})
@@ -289,7 +298,7 @@ const vm = new Vue({
 				}
 			})
 
-			str += "\n\n\n// ALTERNATE COLORS"
+			str += "\n\n\n" + alternateColorsHeader;
 
 			for (let i = 1; i < this.colorProfilesMainColors.length; i++) {
 				const colorSlot = this.colorProfilesMainColors[i];
@@ -302,7 +311,7 @@ const vm = new Vue({
 				})
 			}
 
-			str += "\n\n/* This is used by that one RoA colors.gml generator tool to store palette data\n"
+			str += "\n\n\n/* This is used by that one RoA colors.gml generator tool to store palette data\n"
 				+ jsonPaletteHeaderStart + "\n"
 				+ JSON.stringify({formatversion: 1, data: this.rows})
 				+ "\n" + jsonPaletteHeaderEnd + "\n*/\n"
