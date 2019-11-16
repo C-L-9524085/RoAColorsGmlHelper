@@ -137,9 +137,9 @@ const vm = new Vue({
 			console.log("setMainColor", colorSlot, row)
 
 			if (colorSlot.main) {
-				colorSlot.main = false;
+				delete colorSlot.main;
 			} else {
-				row.colors.forEach(color => color.main = false);
+				row.colors.forEach(color => delete color.main);
 				colorSlot.main = true;
 				//this.mainColor = colorSlot;
 			}
@@ -154,7 +154,7 @@ const vm = new Vue({
 			document.getElementById('colorInputB').value = colorSlot.b || 0;
 			
 			if (this.targetColor)
-				this.targetColor.isTarget = false;
+				delete this.targetColor.isTarget;
 
 			colorSlot.isTarget = true;
 
