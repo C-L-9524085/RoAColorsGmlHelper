@@ -13,7 +13,6 @@ const vm = new Vue({
 		previewImg: null,
 		colorProfilesMainColors: [],
 		ranges: [],
-		cachedColorTransforms: null,
 		selectedColorProfile: 0,
 	},
 	methods: {
@@ -381,17 +380,17 @@ const vm = new Vue({
 			const ctx = canvas.getContext('2d');
 
 			this.clearCanvas(ctx);
-			this.cachedColorTransforms = new Map();
 
 			const width = canvas.width = this.previewImg.width;
 			const height = canvas.height = this.previewImg.height;
 
 			ctx.drawImage(this.previewImg, 0, 0)//, width, height);
-
 				
 			if (this.selectedColorProfile != 0) {
 				const imageData = ctx.getImageData(0, 0, width, height);
 				const dataArray = imageData.data;
+
+				const cachedColorTransforms = new Map();
 
 				for (var i = 0; i < dataArray.length; i += 4) { //this is so ghetto I'm game
 					//console.log('px', i)
@@ -400,7 +399,7 @@ const vm = new Vue({
 						b = dataArray[i+2],
 						hsv = rgbToHsv(r, g, b);
 
-					const cachedColor = this.cachedColorTransforms.get(`${r},${g},${b}`);
+					const cachedColor = cachedColorTransforms.get(`${r},${g},${b}`);
 					if (cachedColor) {
 						dataArray[i] = cachedColor.r;
 						dataArray[i+1] = cachedColor.g;
@@ -448,7 +447,7 @@ const vm = new Vue({
 							dataArray[i+1] = shiftedRgb.g;
 							dataArray[i+2] = shiftedRgb.b;
 
-							this.cachedColorTransforms.set(`${r},${g},${b}`, shiftedRgb);
+							cachedColorTransforms.set(`${r},${g},${b}`, shiftedRgb);
 
 							//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, step, shiftedRgb)
 							return true;
