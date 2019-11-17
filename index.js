@@ -72,8 +72,10 @@ const vm = new Vue({
 					if (!line.includes("set_color_profile_slot(") && !line.includes("set_color_profile_slot_range(")) {
 
 						//lazy fix to not include comments before // ALTERNATE COLORS segment (like palette row names)
-						if (line.includes(alternateColorsHeader))
+						if (line.includes(alternateColorsHeader)) {
 							reachedAltcolors = true;
+							return;
+						}
 
 						if (reachedAltcolors) {
 							console.log("name:", line)
