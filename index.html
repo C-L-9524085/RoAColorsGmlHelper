@@ -159,7 +159,8 @@
 				</div>
 				<div class="bigmargin darkerbg">
 					<input type="file" id="file" @change="loadFilePreview" style="display:inherit;"></input>
-					<canvas id="preview"></canvas>
+					<canvas id="preview" @click="previewClick"></canvas>
+					<p id="colorPickDisplay">click on the preview to pick a color</p>
 				</div>
 			</div>
 			<input type="checkbox" class="calcTypeToggle" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @click="generateGmlCode"></input>

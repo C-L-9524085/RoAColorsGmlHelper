@@ -460,6 +460,19 @@ const vm = new Vue({
 				ctx.putImageData(imageData, 0, 0);
 			}
 		},
+		previewClick: function(ev) {
+			const canvas = document.getElementById("preview");
+
+			const relX = ev.x + window.scrollX - canvas.offsetLeft;
+			const relY = ev.y + window.scrollY - canvas.offsetTop;
+
+			const ctx = canvas.getContext('2d');
+
+			const imageData = ctx.getImageData(relX, relY, 1, 1);
+			const [r, g, b, a] = imageData.data;
+
+			document.getElementById("colorPickDisplay").innerText = `${r}, ${g}, ${b}, ${a}`;
+		}
 	}
 });
 
