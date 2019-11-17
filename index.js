@@ -383,8 +383,8 @@ const vm = new Vue({
 			this.clearCanvas(ctx);
 			this.cachedColorTransforms = new Map();
 
-			const width = this.previewImg.width;
-			const height = this.previewImg.height;
+			const width = canvas.width = this.previewImg.width;
+			const height = canvas.height = this.previewImg.height;
 
 			ctx.drawImage(this.previewImg, 0, 0)//, width, height);
 
