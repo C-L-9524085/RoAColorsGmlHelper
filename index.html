@@ -55,9 +55,9 @@
 					<table id="colorProfiles">
 						<tr v-for="(colorSlot, colorSlotIndex) in colorProfilesMainColors"
 							class="colorSlot"
-							@click="selectedColorProfile=colorSlotIndex; renderPreview();"
 						>
-							<td>{{colorSlotIndex}}</td>
+							<td><input type="radio" :id=`$ColorSlot_${colorSlotIndex}` v-bind:value="colorSlotIndex" v-model="selectedColorProfile">
+							<td><label :for=`$ColorSlot_${colorSlotIndex}`>{{colorSlotIndex}}</label></td>
 							<td class="shadeSlotName" contenteditable="true" @blur="changeSlotName($event, colorSlot)">{{colorSlot.name || ""}}</td>
 							<td v-for="shade in colorSlot.shades"
 								class="color"

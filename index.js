@@ -15,6 +15,11 @@ const vm = new Vue({
 		ranges: [],
 		selectedColorProfile: 0,
 	},
+	watch: {
+		selectedColorProfile: function() {
+			this.renderPreview();
+		}
+	},
 	methods: {
 		parseInputGml: function() {
 			console.log("parseInputGml")
