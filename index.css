@@ -1,0 +1,111 @@
+body {
+	background-color: #534388;
+	color: white;
+}
+#flexContent {
+	display: flex;
+	flex-wrap: wrap;
+}
+#containerRight {
+	flex: 1 0 auto;				
+}
+#flexContainerRight {
+	display:flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+#flexContainerRight > div {
+	margin-left: 8px
+}
+#flexContainerRight > div + div {
+  margin-top: 8px;
+}
+.shadeRow {
+}
+.shadeSlotName {
+	padding-left: 5px;
+	padding-right: 5px;
+}
+.color {
+	width: 20px;
+	height: 20px;
+
+	max-width: 20px;
+	max-height: 20px;
+
+	box-sizing: border-box;
+}
+.main {
+	box-shadow: 0 0 0 1px white inset;
+}
+.target {
+	outline: 1px solid red;
+	outline-offset: -2px;
+}
+
+textarea {
+	float: left;
+	width: 550px;
+
+	height: 50vh;
+
+	background-color: #34246b;
+	color: white;
+	border: none;
+	border-radius: 10px;
+
+	padding: 0px;
+	margin: 0px;
+}
+@media (max-width: 860px) {
+	textarea {
+		float: none;
+	}
+}
+}
+
+table {
+	border-collapse: collapse;
+	margin: auto;
+}
+
+td {
+	padding: 0px;
+	margin: 0px;
+
+	user-select: none;
+}
+
+.shadeRow div {
+	cursor: pointer;
+
+	width: 20px;
+	height: 20px;
+
+	max-width: 20px;
+	max-height: 20px;
+
+	box-sizing: border-box;
+}
+.shadeRow div:hover {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+.bigmargin {
+}
+.centertxt {
+	text-align: center;
+}
+.sneakyText {
+	margin-top: 10px;
+	font-size: 80%;
+	opacity: 0.7;
+}
+.colorSlot {
+	opacity: 0.7;
+}
+.colorSlot:hover {
+	opacity: 1;
+}
+.darkerbg {
+	background-color: rgba(0, 0, 0, 0.1);
+}

@@ -3,143 +3,52 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>ROA Colors.gml generator</title>
-		<style>
-			body {
-				background-color: #534388;
-				color: white;
-			}
-			#iDontLikeWrappers {
-				display: flex;
-				flex-wrap: wrap;
-				justify-content: center;
-				height: 90vh;
-				width: 90vw;
-			}
-			.shadeRow {
-			}
-			.shadeSlotName {
-				padding-left: 5px;
-				padding-right: 5px;
-			}
-			.color {
-				width: 20px;
-				height: 20px;
-
-				max-width: 20px;
-				max-height: 20px;
-
-				box-sizing: border-box;
-			}
-			.main {
-				box-shadow: 0 0 0 1px white inset;
-			}
-
-			.target {
-				outline: 1px solid red;
-				outline-offset: -2px;
-			}
-
-			textarea {
-				min-width: 500px;
-				background-color: #34246b;
-				color: white;
-				border: none;
-				border-radius: 10px;
-
-				padding: 10px;
-
-				display: inherit;
-			}
-
-			table {
-				border-collapse: collapse;
-				margin: auto;
-			}
-
-			td {
-				padding: 0px;
-				margin: 0px;
-
-				user-select: none;
-			}
-
-			.shadeRow div {
-				cursor: pointer;
-
-				width: 20px;
-				height: 20px;
-
-				max-width: 20px;
-				max-height: 20px;
-
-				box-sizing: border-box;
-			}
-			.shadeRow div:hover {
-				background-color: rgba(0, 0, 0, 0.3);
-			}
-			.bigmargin {
-				margin: 50px;
-			}
-			.centertxt {
-				text-align: center;
-			}
-			.calcTypeToggle {
-				margin-top: 10px;
-				font-size: 80%;
-				opacity: 0.7;
-			}
-			.colorSlot {
-				opacity: 0.7;
-			}
-			.colorSlot:hover {
-				opacity: 1;
-			}
-			.darkerbg {
-				background-color: rgba(0, 0, 0, 0.1);
-			}
-		</style>
+		<link rel="stylesheet" href="index.css">
 		<script src="vue.js"></script>
 	</head>
 	<body>
 		<div id="app">
-			<div id="iDontLikeWrappers">
-				<div class="darkerbg">
-					copy-paste your current colors.gml's file content in here, it'll be edited in real time (and forced into this tool's formatting because it's easier for me). Note that adding comments might break the palette names if it's after // ALTERNATE COLORS.
-					<textarea id="gmlDisplay" @input="parseInputGml"></textarea>
+			<textarea id="gmlDisplay" @input="parseInputGml"></textarea>
+
+			<div id="flexContainerRight">
+				<div class="bigmargin darkerbg">
+					<input type="file" id="file" @change="loadFilePreview" style="display:inherit;"></input>
+					<canvas id="preview" @click="previewClick" class="darkerbg"></canvas>
+					<div id="colorPickDisplay">click on the preview to pick a color</div>
+					<!--todo make a pallette of colors in the picture?-->
 				</div>
 				<div class="centertxt bigmargin darkerbg">
-					<div>
-						<input id="colorInputR" :disabled="targetColor == null" @input="inputColorChange" placeholder="R" size="3"></input>
-						<input id="colorInputG" :disabled="targetColor == null" @input="inputColorChange" placeholder="G" size="3"></input>
-						<input id="colorInputB" :disabled="targetColor == null" @input="inputColorChange" placeholder="B" size="3"></input>
-						<button @click="deleteColor" :disabled="targetColor == null">🗑️</button>
-						<code id="hsv" style="display:block;">hsv(H, S, V)</code>
-						<!-- <code id="range" style="display:block;">range(H, S, V)</code> -->
-					</div>
-					<hr>
-					<p>
-						click to edit color
-						<br>ctrl-click to set as main color
-						<br>you can copy and re-paste the JSON
-					</p>
-					<table id="colors">
-						<tr class="shadeRow" v-for="(row, iRow) in rows">
-							<td class="rowDeletButton" @click="deleteRow(iRow)"><div>🗑️</div></td>
-							<td class="shadeSlotName" contenteditable="true" @blur="changeRowName($event, row)">{{row.name}}</td>
-							<td 
-								class="color"
-								v-for="colorSlot in row.colors"
-								@click="clickOnColor($event, colorSlot, row)"
-								v-bind:style="{backgroundColor: `rgb(${colorSlot.r}, ${colorSlot.g}, ${colorSlot.b})`}"
-								v-bind:class="{ main: colorSlot.main, target:colorSlot.isTarget }"
-							></td>
-							<td class="color"><div @click="addSlot(row)" name="add Color Slot">+</div></td>
-						</tr>
-						<tr>
-							<td colspan=100% style="padding-top: 2px;">
-								<button style="width: 100%;" @click="addRow" name="add Shade Row">+</button>
-							</td>
-						</tr>
+				<div>
+					<input id="colorInputR" :disabled="targetColor == null" @input="inputColorChange" placeholder="R" size="3"></input>
+					<input id="colorInputG" :disabled="targetColor == null" @input="inputColorChange" placeholder="G" size="3"></input>
+					<input id="colorInputB" :disabled="targetColor == null" @input="inputColorChange" placeholder="B" size="3"></input>
+					<button @click="deleteColor" :disabled="targetColor == null">🗑️</button>
+					<code id="hsv" style="display:block;">hsv(H, S, V)</code>
+					<!-- <code id="range" style="display:block;">range(H, S, V)</code> -->
+				</div>
+				<hr>
+				<p>
+					click to edit color
+					<br>ctrl-click to set as main color
+				</p>
+				<table id="colors">
+					<tr class="shadeRow" v-for="(row, iRow) in rows">
+						<td class="rowDeletButton" @click="deleteRow(iRow)"><div>🗑️</div></td>
+						<td class="shadeSlotName" contenteditable="true" @blur="changeRowName($event, row)">{{row.name}}</td>
+						<td
+							class="color"
+							v-for="colorSlot in row.colors"
+							@click="clickOnColor($event, colorSlot, row)"
+							v-bind:style="{backgroundColor: `rgb(${colorSlot.r}, ${colorSlot.g}, ${colorSlot.b})`}"
+							v-bind:class="{ main: colorSlot.main, target:colorSlot.isTarget }"
+						></td>
+						<td class="color"><div @click="addSlot(row)" name="add Color Slot">+</div></td>
+					</tr>
+					<tr>
+						<td colspan=100% style="padding-top: 2px;">
+							<button style="width: 100%;" @click="addRow" name="add Shade Row">+</button>
+						</td>
+					</tr>
 					</table>
 				</div>
 				<div class="bigmargin darkerbg">
@@ -157,14 +66,18 @@
 						</tr>
 					</table>
 				</div>
-				<div class="bigmargin darkerbg">
-					<input type="file" id="file" @change="loadFilePreview" style="display:inherit;"></input>
-					<canvas id="preview" @click="previewClick"></canvas>
-					<p id="colorPickDisplay">click on the preview to pick a color</p>
-				</div>
 			</div>
-			<input type="checkbox" class="calcTypeToggle" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @click="generateGmlCode"></input>
-			<label for="calcFromFurthestHue" class="calcTypeToggle">{{ calcFromFurthestHue ? 'calculating ranges from main to furthest Hue only' : 'calculating ranges from main to biggest individual H, S, V values' }}</label>
+
+			<footer>
+				<p>Copy-paste your current colors.gml's file content in the text field on the right, or start defining colors.
+				<br>The text field will be updated in real time (and forced into this tool's format because it's easier for me, sorry!)
+				<br>Copy-paste it back into your colors.gml file once you're done.
+				<br>You can load a sprite to preview recolors (The tool is completely local, nothing gets uploaded anywhere.)
+				<br>You can rename rows and slots by clicking on their name. This will update the header comment in the .gml file.
+				</p>
+				<input type="checkbox" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @click="generateGmlCode"></input>
+				<label for="calcFromFurthestHue">{{ calcFromFurthestHue ? 'calculating ranges from main to furthest Hue only' : 'calculating ranges from main to biggest individual H, S, V values' }}</label>
+			</footer>
 		</div>
 
 		<script src="index.js"></script>
