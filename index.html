@@ -7,6 +7,48 @@
 		<script src="vue.js"></script>
 	</head>
 	<body>
+
+		<!-- Heavily based on https://vuejsexamples.com/vue-color-picker/ - "a cool Color Picker with vue.js BY Florian Schulz." -->
+		<template id="color-picker-template">
+			<div class="color-picker">
+				<div class="color-picker__overlay" v-if="isVisible" v-on:click="hide"></div>
+				<transition name="pop">
+					<div class="color-picker__flyout" v-if="isVisible">
+						<div class="color-chip" v-bind:style="{'background': color}">
+							<div class="color-chip__inner">
+								RGB:
+								<input class="color-input" size="3" v-bind:value="r" @input="validateAndSendRgbColorUpdate($event, 'r')"></input>
+								<input class="color-input" size="3" v-bind:value="g" @input="validateAndSendRgbColorUpdate($event, 'g')"></input>
+								<input class="color-input" size="3" v-bind:value="b" @input="validateAndSendRgbColorUpdate($event, 'b')"></input>
+
+								<hr>
+
+								HSV:
+								<input class="color-input" placeholder="H (todo)" size="3"></input>
+								<input class="color-input" placeholder="S (todo)" size="3"></input>
+								<input class="color-input" placeholder="V (todo)" size="3"></input>
+
+								<hr>
+
+								HSL:
+								<input class="color-input" placeholder="H (todo)" size="3"></input>
+								<input class="color-input" placeholder="S (todo)" size="3"></input>
+								<input class="color-input" placeholder="L (todo)" size="3"></input>
+
+								<hr>
+
+								HEX: <input class="color-input" placeholder="hex (todo)" @input="validateAndUpdateHex"></input>
+								<br><br>
+								<span style="cursor:pointer;"@click="hide(); $emit('delete-color')">🗑️</span>
+							</div>
+						</div>
+					</div>
+				</transition>
+				<div class="swatch" v-bind:style="{'background': color}" v-on:click="toggle"></div>
+			</div>
+		</template>
+
+
 		<div id="app">
 			<textarea id="gmlDisplay" @input="parseInputGml"></textarea>
 
@@ -17,40 +59,43 @@
 					<div id="colorPickDisplay">click on the preview to pick a color</div>
 					<!--todo make a pallette of colors in the picture?-->
 				</div>
+
 				<div class="centertxt bigmargin darkerbg">
-				<div>
-					<input id="colorInputR" :disabled="targetColor == null" @input="inputColorChange" placeholder="R" size="3"></input>
-					<input id="colorInputG" :disabled="targetColor == null" @input="inputColorChange" placeholder="G" size="3"></input>
-					<input id="colorInputB" :disabled="targetColor == null" @input="inputColorChange" placeholder="B" size="3"></input>
-					<button @click="deleteColor" :disabled="targetColor == null">🗑️</button>
-					<code id="hsv" style="display:block;">hsv(H, S, V)</code>
-					<!-- <code id="range" style="display:block;">range(H, S, V)</code> -->
-				</div>
-				<hr>
-				<p>
-					click to edit color
-					<br>ctrl-click to set as main color
-				</p>
-				<table id="colors">
-					<tr class="shadeRow" v-for="(row, iRow) in rows">
-						<td class="rowDeletButton" @click="deleteRow(iRow)"><div>🗑️</div></td>
-						<td class="shadeSlotName" contenteditable="true" @blur="changeRowName($event, row)">{{row.name}}</td>
-						<td
-							class="color"
-							v-for="colorSlot in row.colors"
-							@click="clickOnColor($event, colorSlot, row)"
-							v-bind:style="{backgroundColor: `rgb(${colorSlot.r}, ${colorSlot.g}, ${colorSlot.b})`}"
-							v-bind:class="{ main: colorSlot.main, target:colorSlot.isTarget }"
-						></td>
-						<td class="color"><div @click="addSlot(row)" name="add Color Slot">+</div></td>
-					</tr>
-					<tr>
-						<td colspan=100% style="padding-top: 2px;">
-							<button style="width: 100%;" @click="addRow" name="add Shade Row">+</button>
+					<p>
+						click to edit color
+						<br>ctrl-click to set as main color
+					</p>
+					<hr>
+					<table id="colors">
+						<tr class="shadeRow" v-for="(row, iRow) in rows">
+							<td class="rowDeletButton" @click="deleteRow(iRow)"><div>🗑️</div></td>
+							<td class="shadeSlotName" contenteditable="true" @blur="changeRowName($event, row)">{{row.name}}</td>
+							<td
+								class="color"
+								v-for="(colorSlot, colorSlotIndex) in row.colors"
+							>
+								<color-picker
+									@click="clickOnColor($event, colorSlot, row)"
+									v-bind:class = "{ main: colorSlot.main }"
+
+									v-bind:r.sync = "colorSlot.r"
+									v-bind:g.sync = "colorSlot.g"
+									v-bind:b.sync = "colorSlot.b"
+
+									@delete-color = "deleteColor(colorSlotIndex, row)"
+								>
+								</color-picker>
 						</td>
-					</tr>
+							<td class="color"><div @click="addSlot(row)" name="add Color Slot">+</div></td>
+						</tr>
+						<tr>
+							<td colspan=100% style="padding-top: 2px;">
+								<button style="width: 100%;" @click="addRow" name="add Shade Row">+</button>
+							</td>
+						</tr>
 					</table>
 				</div>
+
 				<div class="bigmargin darkerbg">
 					<table id="colorProfiles">
 						<tr v-for="(colorSlot, colorSlotIndex) in colorProfilesMainColors"
@@ -74,6 +119,8 @@
 				<br>Copy-paste it back into your colors.gml file once you're done.
 				<br>You can load a sprite to preview recolors (The tool is completely local, nothing gets uploaded anywhere.)
 				<br>You can rename rows and slots by clicking on their name. This will update the header comment in the .gml file.
+				<br>
+				<br>Color picker heavily based on https://vuejsexamples.com/vue-color-picker/ - "a cool Color Picker with vue.js BY Florian Schulz."
 				</p>
 				<input type="checkbox" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @click="generateGmlCode"></input>
 				<label for="calcFromFurthestHue">{{ calcFromFurthestHue ? 'calculating ranges from main to furthest Hue only' : 'calculating ranges from main to biggest individual H, S, V values' }}</label>

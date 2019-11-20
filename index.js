@@ -6,8 +6,6 @@ const vm = new Vue({
 	el: '#app',
 	data: {
 		rows: [],
-		targetColor: null,
-		targetRow: null,
 		calcFromFurthestHue: false,
 		//mainColor: null
 		previewImg: null,
@@ -18,6 +16,11 @@ const vm = new Vue({
 	watch: {
 		selectedColorProfile: function() {
 			this.renderPreview();
+		},
+		rows: {
+			//not sure if I should have this or just call a function on color-picker's update:r instead of using .sync
+			deep: true,
+			handler: 'updateInput'
 		}
 	},
 	methods: {
@@ -115,8 +118,6 @@ const vm = new Vue({
 							console.log("beep", i2, row.colors.length, i2 <= row.colors.length)
 							if (row.colors[i2] == null)
 								row.colors[i2] = {r: 0, g: 0, b: 0};
-							else if (row.colors[i2].isTarget)
-								this.setTargetColor(row.colors[i2], row);
 						}
 					}
 				}
@@ -135,7 +136,6 @@ const vm = new Vue({
 		},
 		addSlot: function(inRow) {
 			const len = inRow.colors.push({r: 0, g: 0, b: 0});
-			this.setTargetColor(inRow.colors[len - 1], inRow);
 
 			this.$forceUpdate();
 			this.updateInput();
@@ -145,8 +145,6 @@ const vm = new Vue({
 
 			if (event.ctrlKey)
 				this.setMainColor(colorSlot, row);
-			else
-				this.setTargetColor(colorSlot, row);
 		},
 		setMainColor: function(colorSlot, row) {
 			console.log("setMainColor", colorSlot, row)
@@ -162,78 +160,12 @@ const vm = new Vue({
 			this.$forceUpdate();
 			this.updateDisplays();
 		},
-		setTargetColor: function(colorSlot, row) {
-			console.log("setTargetColor", colorSlot, row)
-			document.getElementById('colorInputR').value = colorSlot.r || 0;
-			document.getElementById('colorInputG').value = colorSlot.g || 0;
-			document.getElementById('colorInputB').value = colorSlot.b || 0;
-			
-			if (this.targetColor)
-				delete this.targetColor.isTarget;
-
-			colorSlot.isTarget = true;
-
-			this.targetColor = colorSlot;
-			this.targetRow = row;
-
-			this.setHSVDisplay(colorSlot);
-			this.updateInput();
-		},
-		setHSVDisplay: function(color) {
-			const hsv = rgbToHsv(color.r, color.g, color.b);
-			document.getElementById('hsv').innerText = `hsv(${hsv.h}°, ${hsv.s}%, ${hsv.v}%)`;
-
-			/*const mainColor = this.rows
-			if (this.mainColor) {
-				const hsvMain = rgbToHsv(this.mainColor.r, this.mainColor.g, this.mainColor.b);
-				document.getElementById('range').innerText = `range(${getRange(hsv.h, hsvMain.h)}, ${getRange(hsv.h, hsvMain.h)}, ${getRange(hsv.h, hsvMain.h)})`;
-				
-			}*/
-		},
-		inputColorChange: function() {
-			console.log("inputColorChange()", this.targetColor);
-			if (this.targetColor) {
-				//ghetto yolo
-				const ciR = document.getElementById('colorInputR')
-				const ciG = document.getElementById('colorInputG')
-				const ciB = document.getElementById('colorInputB')
-
-				ciR.value = parseInt(ciR.value.replace(/[^\d]/g, "") || 0);
-				ciG.value = parseInt(ciG.value.replace(/[^\d]/g, "") || 0);
-				ciB.value = parseInt(ciB.value.replace(/[^\d]/g, "") || 0);
-
-				this.targetColor.r = Math.min(255, ciR.value);
-				this.targetColor.g = Math.min(255, ciG.value);
-				this.targetColor.b = Math.min(255, ciB.value);
-
-				this.setHSVDisplay(this.targetColor);
-				this.$forceUpdate();
-				this.updateDisplays();
-			} else {
-				console.warn("color input but no target color set")
-			}
-		},
-		deleteColor: function() {
+		deleteColor: function(colorSlotIndex, row) {
 			console.log("deleteColor()");
+			row.colors.splice(colorSlotIndex, 1);
 
-			if (this.targetColor) {
-				if (this.targetRow) {
-					console.log("target row:", this.targetRow.colors)
-					const colorIndex = this.targetRow.colors.indexOf(this.targetColor);
-
-					if (colorIndex >= 0) {
-						this.targetRow.colors.splice(colorIndex, 1);
-
-						this.$forceUpdate();
-						this.updateDisplays();
-					}
-					else
-						console.warn("deleteColor() couldn't find color in row");
-				}
-				else
-					console.warn("deleteColor() called but targetRow not set");
-			} else
-				console.warn("deleteColor() called but targetColor not set");
+			this.$forceUpdate();
+			this.updateDisplays();
 		},
 		changeRowName: function(event, row) {
 			event.target.innerText = event.target.innerText.replace(/\n/g, "");
@@ -590,3 +522,30 @@ function hsvToRgb_noRounding(h, s, v){
 
     return {r: r * 255, g: g * 255, b: b * 255};
 }
+
+
+Vue.component("color-picker", {
+	template: "#color-picker-template",
+	props: ["change", "r", "g", "b"],
+	data: function() {
+		return {
+			isVisible: false,
+		}
+	},
+	computed: {
+		color: function() { return `rgb(${this.r}, ${this.g}, ${this.b})` }
+	},
+	methods: {
+		show: function() { this.isVisible = true; },
+		hide: function() { this.isVisible = false; },
+		toggle: function() { this.isVisible = !this.isVisible; },
+		validateAndSendRgbColorUpdate: function(event, color) {
+			event.target.value = parseInt(event.target.value.toString().replace(/[^\d]/g, "") || 0);
+			event.target.value = Math.min(255, event.target.value);
+			this.$emit("update:" + color, parseInt(event.target.value));
+		},
+		validateAndUpdateHex: function(event) {
+			console.log("todo")
+		}
+	}
+})
