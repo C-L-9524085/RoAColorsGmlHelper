@@ -109,6 +109,11 @@
 								v-bind:style="{backgroundColor: shade ? `rgb(${shade.rgb.r}, ${shade.rgb.g}, ${shade.rgb.b})` : 'black'}"
 							></td>
 						</tr>
+						<tr v-if="colorProfilesMainColors.length < 16">
+							<td colspan=100% style="padding-top: 2px;">
+								<button style="width: 100%;" @click="addColorProfileRow" name="add color profile row">+</button>
+							</td>
+						</tr>
 					</table>
 				</div>
 			</div>

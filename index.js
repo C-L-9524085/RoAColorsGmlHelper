@@ -144,6 +144,10 @@ const vm = new Vue({
 			this.$forceUpdate();
 			this.updateInput();
 		},
+		addColorProfileRow: function() {
+			this.colorProfilesMainColors.push({name: this.colorProfilesMainColors.length.toString(), colors: []});
+			this.updateInput();
+		},
 		clickOnColor: function(event, colorSlot, row) {
 			console.log("clickOnColor", arguments)
 
