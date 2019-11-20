@@ -17,6 +17,11 @@ const vm = new Vue({
 		ranges: [],
 		selectedColorProfile: 0,
 	},
+	beforeMount: function() { //i suppose this is the right place for this?
+		while (this.colorProfilesMainColors.length < MIN_ALT_PALETTES) {
+			this.addColorProfileRow()
+		}
+	},
 	watch: {
 		selectedColorProfile: function() {
 			this.renderPreview();
@@ -101,10 +106,14 @@ const vm = new Vue({
 			})
 
 			//only keep 16 color profiles
-			if (this.colorProfilesMainColors.length > 16)
+			if (this.colorProfilesMainColors.length > MAX_ALT_PALETTES)
 				this.colorProfilesMainColors.splice(15, this.colorProfilesMainColors.length - 1)
 
 			this.colorProfilesMainColors.forEach(this.fillShadeSlotsUpToAmountOfRows)
+
+			while (this.colorProfilesMainColors.length < MIN_ALT_PALETTES) {
+				this.addColorProfileRow()
+			}
 
 			this.$forceUpdate();
 			this.generateGmlCode();
@@ -163,7 +172,7 @@ const vm = new Vue({
 			this.colorProfilesMainColors.push(colorProfile);
 			this.updateInput();
 		},
-		fillShadeSlotsUpToAmountOfRows(colorProfile) {
+		fillShadeSlotsUpToAmountOfRows: function(colorProfile) {
 			while (colorProfile.shades.length < this.rows.length) {
 				colorProfile.shades.push({
 					rgb: {r: 0, g: 0, b: 0},
