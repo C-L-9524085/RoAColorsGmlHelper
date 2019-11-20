@@ -2,6 +2,9 @@ const jsonPaletteHeaderStart = "=== BEGIN JSON PALETTE ===";
 const jsonPaletteHeaderEnd = "=== END JSON PALETTE ===";
 const alternateColorsHeader = "// ALTERNATE COLORS";
 
+const MIN_ALT_PALETTES = 6;
+const MAX_ALT_PALETTES = 16;
+
 const vm = new Vue({
 	el: '#app',
 	data: {
@@ -237,6 +240,7 @@ const vm = new Vue({
 			})
 
 			str += "\n\n\n" + alternateColorsHeader;
+			str += "\nset_num_palettes( " + clamp(MIN_ALT_PALETTES, this.colorProfilesMainColors.length, MAX_ALT_PALETTES) + " );";
 
 			for (let i = 1; i < this.colorProfilesMainColors.length; i++) {
 				const colorSlot = this.colorProfilesMainColors[i];
@@ -521,6 +525,10 @@ function hsvToRgb_noRounding(h, s, v){
     }
 
     return {r: r * 255, g: g * 255, b: b * 255};
+}
+
+function clamp(min, nb, max) {
+	return Math.max(Math.min(max, nb), min);
 }
 
 
