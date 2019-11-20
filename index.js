@@ -100,6 +100,12 @@ const vm = new Vue({
 				}
 			})
 
+			//only keep 16 color profiles
+			if (this.colorProfilesMainColors.length > 16)
+				this.colorProfilesMainColors.splice(15, this.colorProfilesMainColors.length - 1)
+
+			this.colorProfilesMainColors.forEach(this.fillShadeSlotsUpToAmountOfRows)
+
 			this.$forceUpdate();
 			this.generateGmlCode();
 			console.log("parseGMLCodeToColorProfiles", this.colorProfilesMainColors)
@@ -145,8 +151,28 @@ const vm = new Vue({
 			this.updateInput();
 		},
 		addColorProfileRow: function() {
-			this.colorProfilesMainColors.push({name: this.colorProfilesMainColors.length.toString(), colors: []});
+			const colorProfile = {
+				name: this.colorProfilesMainColors.length.toString(),
+				shades: []
+			}
+
+			//not sure if I should take the main color's colors but I guess it's more explicit that this is a placeholder?
+			this.fillShadeSlotsUpToAmountOfRows(colorProfile);
+
+
+			this.colorProfilesMainColors.push(colorProfile);
 			this.updateInput();
+		},
+		fillShadeSlotsUpToAmountOfRows(colorProfile) {
+			while (colorProfile.shades.length < this.rows.length) {
+				colorProfile.shades.push({
+					rgb: {r: 0, g: 0, b: 0},
+					hsv: rgbToHsv(0, 0, 0),
+					accurateHSV: rgbToHsv_noRounding(0, 0, 0)
+				});
+			};
+
+			//return colorProfile;
 		},
 		clickOnColor: function(event, colorSlot, row) {
 			console.log("clickOnColor", arguments)
@@ -185,6 +211,10 @@ const vm = new Vue({
 		},
 		deleteRow: function(iRow) {
 			this.rows.splice(iRow, 1);
+
+			this.colorProfilesMainColors.forEach(colorProfile => {
+				colorProfile.shades.splice(iRow, 1);
+			})
 
 			this.updateDisplays();
 		},
