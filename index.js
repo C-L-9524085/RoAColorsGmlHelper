@@ -161,7 +161,7 @@ const vm = new Vue({
 		},
 		addColorProfileRow: function() {
 			const colorProfile = {
-				name: this.colorProfilesMainColors.length.toString(),
+				name: "unnamed alt palette",
 				shades: []
 			}
 
@@ -171,6 +171,11 @@ const vm = new Vue({
 
 			this.colorProfilesMainColors.push(colorProfile);
 			this.updateInput();
+		},
+		deleteColorSlotRow: function(colorSlotIndex) {
+			this.colorProfilesMainColors.splice(colorSlotIndex, 1);
+
+			this.updateDisplays();
 		},
 		fillShadeSlotsUpToAmountOfRows: function(colorProfile) {
 			while (colorProfile.shades.length < this.rows.length) {

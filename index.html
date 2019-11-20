@@ -108,6 +108,7 @@
 								class="color"
 								v-bind:style="{backgroundColor: shade ? `rgb(${shade.rgb.r}, ${shade.rgb.g}, ${shade.rgb.b})` : 'black'}"
 							></td>
+							<td v-if="colorSlotIndex > 5" class="rowDeletButton" @click="deleteColorSlotRow(colorSlotIndex)"><div>🗑️</div></td>
 						</tr>
 						<tr v-if="colorProfilesMainColors.length < 16">
 							<td colspan=100% style="padding-top: 2px;">
