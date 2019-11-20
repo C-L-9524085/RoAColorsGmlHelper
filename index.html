@@ -104,10 +104,26 @@
 							<td><input type="radio" :id=`$ColorSlot_${colorSlotIndex}` v-bind:value="colorSlotIndex" v-model="selectedColorProfile">
 							<td><label :for=`$ColorSlot_${colorSlotIndex}`>{{colorSlotIndex}}</label></td>
 							<td class="shadeSlotName" contenteditable="true" @blur="changeSlotName($event, colorSlot)">{{colorSlot.name || ""}}</td>
-							<td v-for="shade in colorSlot.shades"
-								class="color"
+							<!--
+								the vue style guide says to not do v-for with v-if because v-if has priority but this is what I need it to do...?
+								don't use a color-picker for the 1st row
+							-->
+							<td v-if="colorSlotIndex == 0"
+								v-for="shade in colorSlot.shades"
 								v-bind:style="{backgroundColor: shade ? `rgb(${shade.rgb.r}, ${shade.rgb.g}, ${shade.rgb.b})` : 'black'}"
-							></td>
+							>
+							<td v-if="colorSlotIndex > 0"
+								v-for="shade in colorSlot.shades"
+								class="color"
+							>
+								<color-picker
+									v-bind:r.sync = "shade.rgb.r"
+									v-bind:g.sync = "shade.rgb.g"
+									v-bind:b.sync = "shade.rgb.b"
+									@updatepls = "calcShadesHSV(shade); $forceUpdate(); updateDisplays();"
+								>
+								</color-picker>
+							</td>
 							<td v-if="colorSlotIndex > 5" class="rowDeletButton" @click="deleteColorSlotRow(colorSlotIndex)"><div>🗑️</div></td>
 						</tr>
 						<tr v-if="colorProfilesMainColors.length < 16">

@@ -74,11 +74,8 @@ const vm = new Vue({
 
 				console.log("adding shade", colorProfileSlot, shadeSlot, rgb)
 
-				this.colorProfilesMainColors[colorProfileSlot].shades[shadeSlot] = {
-					rgb,
-					hsv: rgbToHsv(rgb.r, rgb.g, rgb.b),
-					accurateHSV: rgbToHsv_noRounding(rgb.r, rgb.g, rgb.b)
-				};
+				this.colorProfilesMainColors[colorProfileSlot].shades[shadeSlot] = { rgb };
+				this.calcShadesHSV(this.colorProfilesMainColors[colorProfileSlot].shades[shadeSlot]);
 			}
 
 			const regComment = /^\/\/[ \t]*(.*)/g
@@ -118,6 +115,10 @@ const vm = new Vue({
 			this.$forceUpdate();
 			this.generateGmlCode();
 			console.log("parseGMLCodeToColorProfiles", this.colorProfilesMainColors)
+		},
+		calcShadesHSV: function(shade) {
+			shade.hsv = rgbToHsv(shade.rgb.r, shade.rgb.g, shade.rgb.b);
+			shade.accurateHSV = rgbToHsv_noRounding(shade.rgb.r, shade.rgb.g, shade.rgb.b);
 		},
 		parseJSONInputToPalette: function(json) {
 			console.log("parseJSONInputToPalette()")
@@ -243,7 +244,7 @@ const vm = new Vue({
 		},
 		updateDisplays: function() {
 			this.generateGmlCode();
-			this.updateInput();
+			//this.updateInput();
 			this.renderPreview();
 		},
 		generateGmlCode: function() {
@@ -603,6 +604,7 @@ Vue.component("color-picker", {
 			event.target.value = parseInt(event.target.value.toString().replace(/[^\d]/g, "") || 0);
 			event.target.value = Math.min(255, event.target.value);
 			this.$emit("update:" + color, parseInt(event.target.value));
+			this.$emit("updatepls")
 		},
 		validateAndUpdateHex: function(event) {
 			console.log("todo")
