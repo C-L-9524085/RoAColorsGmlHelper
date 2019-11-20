@@ -4,6 +4,7 @@ const alternateColorsHeader = "// ALTERNATE COLORS";
 
 const MIN_ALT_PALETTES = 6;
 const MAX_ALT_PALETTES = 16;
+const MAX_SHADE_ROWS = 8;
 
 const vm = new Vue({
 	el: '#app',
@@ -108,7 +109,7 @@ const vm = new Vue({
 			this.rows = [];
 
 			try {
-				this.rows = json;
+				this.rows = json.splice(0, MAX_SHADE_ROWS);
 
 				console.log("checking", this.rows.length, "rows")
 				for (let i = 0; i < this.rows.length; i++) {

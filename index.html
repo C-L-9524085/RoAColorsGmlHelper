@@ -88,7 +88,7 @@
 						</td>
 							<td class="color"><div @click="addSlot(row)" name="add Color Slot">+</div></td>
 						</tr>
-						<tr>
+						<tr v-if="rows.length < 8">
 							<td colspan=100% style="padding-top: 2px;">
 								<button style="width: 100%;" @click="addRow" name="add Shade Row">+</button>
 							</td>
