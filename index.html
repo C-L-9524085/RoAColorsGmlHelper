@@ -73,9 +73,9 @@
 							<td
 								class="color"
 								v-for="(colorSlot, colorSlotIndex) in row.colors"
+								@click="clickOnColor($event, colorSlot, row)"
 							>
 								<color-picker
-									@click="clickOnColor($event, colorSlot, row)"
 									v-bind:class = "{ main: colorSlot.main }"
 
 									v-bind:r.sync = "colorSlot.r"

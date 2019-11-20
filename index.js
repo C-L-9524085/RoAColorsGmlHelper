@@ -151,8 +151,9 @@ const vm = new Vue({
 		clickOnColor: function(event, colorSlot, row) {
 			console.log("clickOnColor", arguments)
 
-			if (event.ctrlKey)
+			if (event.ctrlKey) {
 				this.setMainColor(colorSlot, row);
+			}
 		},
 		setMainColor: function(colorSlot, row) {
 			console.log("setMainColor", colorSlot, row)
