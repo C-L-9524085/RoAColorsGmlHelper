@@ -151,6 +151,8 @@ const vm = new Vue({
 		},
 		addRow: function() {
 			this.rows.push({name: "unnamed color row", colors: []})
+			this.colorProfilesMainColors.forEach(this.fillShadeSlotsUpToAmountOfRows)
+
 			this.updateInput();
 		},
 		addSlot: function(inRow) {
