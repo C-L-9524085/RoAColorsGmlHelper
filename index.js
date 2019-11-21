@@ -508,8 +508,8 @@ const vm = new Vue({
 			const imageData = ctx.getImageData(relX, relY, 1, 1);
 			const [r, g, b, a] = imageData.data;
 
-			document.getElementById("colorPickDisplay").innerText = `${r}, ${g}, ${b}, ${a}`;
-		}
+			document.getElementById("colorPickDisplay").innerText = `${r}, ${g}, ${b}, ${a} (x:${relX} y:${relY})`;
+		},
 	}
 });
 
