@@ -400,6 +400,9 @@ const vm = new Vue({
 				const cachedColorTransforms = new Map();
 
 				for (var i = 0; i < imageDataArray.length; i += 4) {
+				if (imageDataArray[i+3] == 0) //skip transparent (/alpha 0) pixels
+						continue;
+
 					const r = imageDataArray[i],
 						g = imageDataArray[i+1],
 						b = imageDataArray[i+2],
