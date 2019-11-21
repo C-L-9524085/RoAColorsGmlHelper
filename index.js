@@ -376,16 +376,16 @@ const vm = new Vue({
 			console.log("rendering.....");
 			//drawingcanvas is just used for recoloring and isn't shown
 			const canvas = this.drawingCanvas;
+			const width = canvas.width = this.previewImg.width;
+			const height = canvas.height = this.previewImg.height;
 			const ctx = canvas.getContext('2d');
 
 			const realCanvas = document.getElementById("preview");
+			realCanvas.width = width * this.zoomFactor;
+			realCanvas.height = height * this.zoomFactor;
 			const realCtx = realCanvas.getContext('2d');
 
-			const width = ctx.width = this.previewImg.width;
-			const height = ctx.height = this.previewImg.height;
 
-			realCtx.width = width * this.zoomFactor;
-			realCtx.height = height * this.zoomFactor;
 
 			this.clearCanvas(ctx);
 			this.clearCanvas(realCtx);
@@ -400,7 +400,7 @@ const vm = new Vue({
 				const cachedColorTransforms = new Map();
 
 				for (var i = 0; i < imageDataArray.length; i += 4) {
-				if (imageDataArray[i+3] == 0) //skip transparent (/alpha 0) pixels
+					if (imageDataArray[i+3] == 0) //skip transparent (/alpha 0) pixels
 						continue;
 
 					const r = imageDataArray[i],
