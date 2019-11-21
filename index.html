@@ -54,7 +54,10 @@
 
 			<div id="flexContainerRight">
 				<div class="bigmargin darkerbg">
-					<input type="file" id="file" @change="loadFilePreview" style="display:inherit;"></input>
+					<div>
+						<input type="file" id="file" @change="loadFilePreview"></input>
+						<input type="number" name="zoom" min="1" style="width: 40px" v-model:value="zoomFactor" @input="zoomFactor=Math.max(1, parseInt(zoomFactor))"></input>
+					</div>
 					<canvas id="preview" @click="previewClick" class="darkerbg"></canvas>
 					<div id="colorPickDisplay">click on the preview to pick a color</div>
 					<!--todo make a pallette of colors in the picture?-->

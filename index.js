@@ -16,6 +16,8 @@ const vm = new Vue({
 		colorProfilesMainColors: [],
 		ranges: [],
 		selectedColorProfile: 0,
+		drawingCanvas: document.createElement("canvas"),
+		zoomFactor: 1,
 	},
 	beforeMount: function() { //i suppose this is the right place for this?
 		while (this.colorProfilesMainColors.length < MIN_ALT_PALETTES) {
@@ -30,7 +32,8 @@ const vm = new Vue({
 			//not sure if I should have this or just call a function on color-picker's update:r instead of using .sync
 			deep: true,
 			handler: 'updateInput'
-		}
+		},
+		zoomFactor: 'renderPreview'
 	},
 	methods: {
 		parseInputGml: function() {
@@ -342,13 +345,12 @@ const vm = new Vue({
 			this.generateGmlCode()
 		},
 		loadFilePreview: function(event) {
+			this.zoomFactor = 1;
+
 			const pix = event.target.files[0];
 			const r = new FileReader();
 
 			r.onload = () => {
-				if (this.previewImg)
-					this.clearCanvas();
-
 				this.previewImg = new Image();
 				this.previewImg.onload = this.renderPreview;
 
@@ -363,7 +365,7 @@ const vm = new Vue({
 				ctx = canvas.getContext('2d');
 			}
 			
-			ctx.clearRect(0, 0, this.previewImg.width, this.previewImg.height);
+			ctx.clearRect(0, 0, ctx.width, ctx.height);
 		},
 		renderPreview: function() {
 			if (!this.previewImg) {
@@ -372,87 +374,120 @@ const vm = new Vue({
 			}
 
 			console.log("rendering.....");
-			const canvas = document.getElementById("preview");
+			//drawingcanvas is just used for recoloring and isn't shown
+			const canvas = this.drawingCanvas;
 			const ctx = canvas.getContext('2d');
 
-			this.clearCanvas(ctx);
+			const realCanvas = document.getElementById("preview");
+			const realCtx = realCanvas.getContext('2d');
 
-			const width = canvas.width = this.previewImg.width;
-			const height = canvas.height = this.previewImg.height;
+			const width = ctx.width = this.previewImg.width;
+			const height = ctx.height = this.previewImg.height;
+
+			realCtx.width = width * this.zoomFactor;
+			realCtx.height = height * this.zoomFactor;
+
+			this.clearCanvas(ctx);
+			this.clearCanvas(realCtx);
 
 			ctx.drawImage(this.previewImg, 0, 0)//, width, height);
-				
+			const imageData = ctx.getImageData(0, 0, width, height);
+			const imageDataArray = imageData.data;
+
 			if (this.selectedColorProfile != 0) {
-				const imageData = ctx.getImageData(0, 0, width, height);
-				const dataArray = imageData.data;
+				console.log("recoloring...")
 
 				const cachedColorTransforms = new Map();
 
-				for (var i = 0; i < dataArray.length; i += 4) { //this is so ghetto I'm game
-					//console.log('px', i)
-					const r = dataArray[i],
-						g = dataArray[i+1],
-						b = dataArray[i+2],
+				for (var i = 0; i < imageDataArray.length; i += 4) {
+					const r = imageDataArray[i],
+						g = imageDataArray[i+1],
+						b = imageDataArray[i+2],
 						hsv = rgbToHsv(r, g, b);
 
-					const cachedColor = cachedColorTransforms.get(`${r},${g},${b}`);
-					if (cachedColor) {
-						dataArray[i] = cachedColor.r;
-						dataArray[i+1] = cachedColor.g;
-						dataArray[i+2] = cachedColor.b;
-
-						continue ;
-					}
-
-					this.ranges.some((rangeDef, shadeIndex) => {
-						//console.log("px", i, "on shade", shadeIndex);
-						if(hsv.h >= rangeDef.hL && hsv.h <= rangeDef.hH
-						&& hsv.s >= rangeDef.sL && hsv.s <= rangeDef.sH
-						&& hsv.v >= rangeDef.vL && hsv.v <= rangeDef.vH
-						) {
-							const mainColorForShade = this.colorProfilesMainColors[this.selectedColorProfile].shades[shadeIndex];
-
-							//don't shade shift if current color is same as main color
-							if (r === mainColorForShade.rgb.r && g === mainColorForShade.rgb.g && b === mainColorForShade.rgb.b)
-								return true;
-
-							const defaultColorForShade = this.colorProfilesMainColors[0].shades[shadeIndex];
-
-							//don't shade shift if main color is same as default color
-							if(defaultColorForShade.rgb.r === mainColorForShade.rgb.r
-							&& defaultColorForShade.rgb.g === mainColorForShade.rgb.g
-							&& defaultColorForShade.rgb.b === mainColorForShade.rgb.b)
-								return true;
-
-
-							const accurateHSV = rgbToHsv_noRounding(r, g, b);
-
-							const stepHue = defaultColorForShade.accurateHSV.h - accurateHSV.h;
-							accurateHSV.h = mainColorForShade.accurateHSV.h - stepHue;
-							if (accurateHSV.h < 0 || accurateHSV.h > 1)
-								accurateHSV.h = wrap(1, accurateHSV.h);
-
-							const stepSat = defaultColorForShade.accurateHSV.s - accurateHSV.s;
-							accurateHSV.s = Math.max(0, Math.min(1, mainColorForShade.accurateHSV.s - stepSat));
-
-							const stepVal = defaultColorForShade.accurateHSV.v - accurateHSV.v;
-							accurateHSV.v = Math.max(0, Math.min(1, mainColorForShade.accurateHSV.v - stepVal));
-
-							const shiftedRgb = hsvToRgb_noRounding(accurateHSV.h, accurateHSV.s, accurateHSV.v);
-							dataArray[i] = shiftedRgb.r;
-							dataArray[i+1] = shiftedRgb.g;
-							dataArray[i+2] = shiftedRgb.b;
-
-							cachedColorTransforms.set(`${r},${g},${b}`, shiftedRgb);
-
-							//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, step, shiftedRgb)
-							return true;
+					if (this.selectedColorProfile != 0) {
+						const cachedColor = cachedColorTransforms.get(`${r},${g},${b}`);
+						if (cachedColor) {
+							imageDataArray[i] = cachedColor.r;
+							imageDataArray[i+1] = cachedColor.g;
+							imageDataArray[i+2] = cachedColor.b;
 						}
-					})
-				}
+						else {
+							this.ranges.some((rangeDef, shadeIndex) => {
+								//console.log("px", i, "on shade", shadeIndex);
+								//those ranges are precalculated in generateGmlCode so that we don't have to math them here
+								if(hsv.h >= rangeDef.hL && hsv.h <= rangeDef.hH
+								&& hsv.s >= rangeDef.sL && hsv.s <= rangeDef.sH
+								&& hsv.v >= rangeDef.vL && hsv.v <= rangeDef.vH
+								) {
+									const mainColorForShade = this.colorProfilesMainColors[this.selectedColorProfile].shades[shadeIndex];
 
-				console.log("drawing recolored image");
+									//don't shade shift if current color is same as main color
+									if (r === mainColorForShade.rgb.r && g === mainColorForShade.rgb.g && b === mainColorForShade.rgb.b)
+										return true;
+
+									const defaultColorForShade = this.colorProfilesMainColors[0].shades[shadeIndex];
+
+									//don't shade shift if main color is same as default color
+									if(defaultColorForShade.rgb.r === mainColorForShade.rgb.r
+									&& defaultColorForShade.rgb.g === mainColorForShade.rgb.g
+									&& defaultColorForShade.rgb.b === mainColorForShade.rgb.b)
+										return true;
+
+
+									const accurateHSV = rgbToHsv_noRounding(r, g, b);
+
+									const stepHue = defaultColorForShade.accurateHSV.h - accurateHSV.h;
+									accurateHSV.h = mainColorForShade.accurateHSV.h - stepHue;
+									if (accurateHSV.h < 0 || accurateHSV.h > 1)
+										accurateHSV.h = wrap(1, accurateHSV.h);
+
+									const stepSat = defaultColorForShade.accurateHSV.s - accurateHSV.s;
+									accurateHSV.s = Math.max(0, Math.min(1, mainColorForShade.accurateHSV.s - stepSat));
+
+									const stepVal = defaultColorForShade.accurateHSV.v - accurateHSV.v;
+									accurateHSV.v = Math.max(0, Math.min(1, mainColorForShade.accurateHSV.v - stepVal));
+
+									const shiftedRgb = hsvToRgb_noRounding(accurateHSV.h, accurateHSV.s, accurateHSV.v);
+									imageDataArray[i] = shiftedRgb.r;
+									imageDataArray[i+1] = shiftedRgb.g;
+									imageDataArray[i+2] = shiftedRgb.b;
+
+									cachedColorTransforms.set(`${r},${g},${b}`, shiftedRgb);
+
+									//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, step, shiftedRgb)
+									return true;
+								}
+							})
+						}
+					}
+				}
+			}
+
+			console.log("drawing recolored image");
+
+			if (this.zoomFactor == 1) { //draw image directly
+				realCtx.putImageData(imageData, 0, 0);
+				console.log("done")
+			} else { //.scale() doewn't work with raw .putImageData() so we put it in an image that we then draw, which is scaled
 				ctx.putImageData(imageData, 0, 0);
+
+				const img = new Image();
+				img.onload = () => {
+					this.clearCanvas(realCtx);
+
+					realCtx.save(); //save/restoring because otherwise it'd scale over the previous scaling
+
+					realCtx.scale(this.zoomFactor, this.zoomFactor);
+					realCtx.imageSmoothingEnabled=false;
+
+					realCtx.drawImage(img, 0, 0);
+
+					realCtx.restore();
+
+					console.log("done");
+				}
+				img.src = canvas.toDataURL();
 			}
 		},
 		previewClick: function(ev) {
