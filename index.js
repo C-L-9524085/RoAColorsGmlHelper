@@ -357,15 +357,18 @@ const vm = new Vue({
 				this.previewImg.src = r.result;
 			};
 
+
+
 			r.readAsDataURL(pix);
 		},
-		clearCanvas: function(ctx) {
-			if (!ctx) {
+		clearCanvas: function(canvas, ctx) {
+			if (!canvas) {
 				const canvas = document.getElementById("preview");
-				ctx = canvas.getContext('2d');
 			}
+			if (!ctx)
+				ctx = canvas.getContext('2d');
 			
-			ctx.clearRect(0, 0, ctx.width, ctx.height);
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 		},
 		renderPreview: function() {
 			if (!this.previewImg) {
@@ -385,10 +388,7 @@ const vm = new Vue({
 			realCanvas.height = height * this.zoomFactor;
 			const realCtx = realCanvas.getContext('2d');
 
-
-
-			this.clearCanvas(ctx);
-			this.clearCanvas(realCtx);
+			this.clearCanvas(canvas, ctx);
 
 			ctx.drawImage(this.previewImg, 0, 0)//, width, height);
 			const imageData = ctx.getImageData(0, 0, width, height);
@@ -481,7 +481,7 @@ const vm = new Vue({
 
 				const img = new Image();
 				img.onload = () => {
-					this.clearCanvas(realCtx);
+					//this.clearCanvas(realCanvas, realCtx);
 
 					realCtx.save(); //save/restoring because otherwise it'd scale over the previous scaling
 
