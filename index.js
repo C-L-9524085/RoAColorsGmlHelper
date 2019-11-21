@@ -413,7 +413,7 @@ const vm = new Vue({
 							imageDataArray[i+2] = cachedColor.b;
 						}
 						else {
-							this.ranges.some((rangeDef, shadeIndex) => {
+							if (!this.ranges.some((rangeDef, shadeIndex) => {
 								//console.log("px", i, "on shade", shadeIndex);
 								//those ranges are precalculated in generateGmlCode so that we don't have to math them here
 								if(hsv.h >= rangeDef.hL && hsv.h <= rangeDef.hH
@@ -458,7 +458,11 @@ const vm = new Vue({
 									//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, step, shiftedRgb)
 									return true;
 								}
-							})
+							})) {
+								//reaching here means the color wasn't fitting in any range
+								console.log("unmatched color", r, g, b);
+								cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
+							}
 						}
 					}
 				}
