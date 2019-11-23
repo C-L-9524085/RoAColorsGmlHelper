@@ -13,11 +13,35 @@ const vm = new Vue({
 		calcFromFurthestHue: false,
 		//mainColor: null
 		previewImg: null,
+		colorsInImg: [],
 		colorProfilesMainColors: [],
 		ranges: [],
 		selectedColorProfile: 0,
 		drawingCanvas: document.createElement("canvas"),
 		zoomFactor: 1,
+	},
+	computed: {
+		colorsNotInPalette: function() {
+			const colors = [];
+			this.colorsInImg.forEach(colorInImg => {
+				if (!this.rows.some(row => row.colors.some(color => color.r === colorInImg.r && color.g === colorInImg.g && color.b === colorInImg.b)))
+					colors.push(colorInImg)
+			});
+
+			return colors;
+		},
+		colorsByRangeMatch: function() {
+			const matchedColors = [];
+			const unmatchedColors = [];
+			this.colorsInImg.forEach(color => {
+				if (this.ranges.some(rangeDef => color.hsv.h >= rangeDef.hL && color.hsv.h <= rangeDef.hH && color.hsv.s >= rangeDef.sL && color.hsv.s <= rangeDef.sH && color.hsv.v >= rangeDef.vL && color.hsv.v <= rangeDef.vH))
+					matchedColors.push(color);
+				else
+					unmatchedColors.push(color);
+			})
+
+			return {matchedColors, unmatchedColors};
+		}
 	},
 	beforeMount: function() { //i suppose this is the right place for this?
 		while (this.colorProfilesMainColors.length < MIN_ALT_PALETTES) {
@@ -55,7 +79,6 @@ const vm = new Vue({
 			}
 
 			this.parseGMLCodeToColorProfiles(txt)
-
 		},
 		parseGMLCodeToColorProfiles: function(originalTxt) {
 			console.log("parseGMLCodeToColorProfiles()")
@@ -352,12 +375,13 @@ const vm = new Vue({
 
 			r.onload = () => {
 				this.previewImg = new Image();
-				this.previewImg.onload = this.renderPreview;
+				this.previewImg.onload = () => {
+					this.renderPreview();
+					this.getColorsInImg();
+				}
 
 				this.previewImg.src = r.result;
 			};
-
-
 
 			r.readAsDataURL(pix);
 		},
@@ -497,6 +521,33 @@ const vm = new Vue({
 				img.src = canvas.toDataURL();
 			}
 		},
+		getColorsInImg: function() {
+			console.log("getColorsInImg()");
+			const knownColors = new Map();
+
+			const canvas = this.drawingCanvas;
+			const width = this.previewImg.width;
+			const height = this.previewImg.height;
+			const ctx = canvas.getContext('2d');
+			ctx.drawImage(this.previewImg, 0, 0)//, width, height);
+			const imageData = ctx.getImageData(0, 0, width, height);
+			const imageDataArray = imageData.data;
+
+			for (var i = 0; i < imageDataArray.length; i += 4) {
+				if (imageDataArray[i+3] == 0) //skip transparent (/alpha 0) pixels
+					continue;
+
+				const r = imageDataArray[i],
+					g = imageDataArray[i+1],
+					b = imageDataArray[i+2],
+					hsv = rgbToHsv(r, g, b);
+
+				if (!knownColors.has(`${r},${g},${b}`))
+					knownColors.set(`${r},${g},${b}`, {r, g, b, hsv});
+			}
+
+			this.colorsInImg = Array.from(knownColors.values());
+		},
 		previewClick: function(ev) {
 			const canvas = document.getElementById("preview");
 
@@ -629,7 +680,7 @@ function clamp(min, nb, max) {
 
 Vue.component("color-picker", {
 	template: "#color-picker-template",
-	props: ["change", "r", "g", "b"],
+	props: ["change", "r", "g", "b", "readonly"],
 	data: function() {
 		return {
 			isVisible: false,

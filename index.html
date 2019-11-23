@@ -17,27 +17,27 @@
 						<div class="color-chip" v-bind:style="{'background': color}">
 							<div class="color-chip__inner">
 								RGB:
-								<input class="color-input" size="3" v-bind:value="r" @input="validateAndSendRgbColorUpdate($event, 'r')"></input>
-								<input class="color-input" size="3" v-bind:value="g" @input="validateAndSendRgbColorUpdate($event, 'g')"></input>
-								<input class="color-input" size="3" v-bind:value="b" @input="validateAndSendRgbColorUpdate($event, 'b')"></input>
+								<input class="color-input" size="3" v-bind:value="r" @input="validateAndSendRgbColorUpdate($event, 'r')" v-bind:disabled="readonly"></input>
+								<input class="color-input" size="3" v-bind:value="g" @input="validateAndSendRgbColorUpdate($event, 'g')" v-bind:disabled="readonly"></input>
+								<input class="color-input" size="3" v-bind:value="b" @input="validateAndSendRgbColorUpdate($event, 'b')" v-bind:disabled="readonly"></input>
 
 								<hr>
 
 								HSV:
-								<input class="color-input" placeholder="H (todo)" size="3"></input>
-								<input class="color-input" placeholder="S (todo)" size="3"></input>
-								<input class="color-input" placeholder="V (todo)" size="3"></input>
+								<input class="color-input" placeholder="H (todo)" size="3" v-bind:disabled="readonly"></input>
+								<input class="color-input" placeholder="S (todo)" size="3" v-bind:disabled="readonly"></input>
+								<input class="color-input" placeholder="V (todo)" size="3" v-bind:disabled="readonly"></input>
 
 								<hr>
 
 								HSL:
-								<input class="color-input" placeholder="H (todo)" size="3"></input>
-								<input class="color-input" placeholder="S (todo)" size="3"></input>
-								<input class="color-input" placeholder="L (todo)" size="3"></input>
+								<input class="color-input" placeholder="H (todo)" size="3" v-bind:disabled="readonly"></input>
+								<input class="color-input" placeholder="S (todo)" size="3" v-bind:disabled="readonly"></input>
+								<input class="color-input" placeholder="L (todo)" size="3" v-bind:disabled="readonly"></input>
 
 								<hr>
 
-								HEX: <input class="color-input" placeholder="hex (todo)" @input="validateAndUpdateHex"></input>
+								HEX: <input class="color-input" placeholder="hex (todo)" @input="validateAndUpdateHex" v-bind:disabled="readonly"></input>
 								<br><br>
 								<span style="cursor:pointer;"@click="hide(); $emit('delete-color')">🗑️</span>
 							</div>
@@ -48,22 +48,55 @@
 			</div>
 		</template>
 
-
 		<div id="app">
 			<textarea id="gmlDisplay" @input="parseInputGml"></textarea>
 
 			<div id="flexContainerRight">
-				<div class="bigmargin darkerbg">
+				<div class="darkerbg">
 					<div>
 						<input type="file" id="file" @change="loadFilePreview"></input>
 						<input type="number" name="zoom" min="1" style="width: 40px" v-model:value="zoomFactor" @input="zoomFactor=Math.max(1, parseInt(zoomFactor))"></input>
 					</div>
 					<canvas id="preview" @click="previewClick" class="darkerbg"></canvas>
 					<div id="colorPickDisplay">click on the preview to pick a color</div>
-					<!--todo make a pallette of colors in the picture?-->
+					<table>
+						<tr>
+							<td>colors not in palette:</td>
+							<td v-for="color in colorsNotInPalette">
+								<color-picker
+									v-bind:r = "color.r"
+									v-bind:g = "color.g"
+									v-bind:b = "color.b"
+									readonly="true"
+								></color-picker>
+							</td>
+						</tr>
+						<tr>
+							<td>unmatched colors:</td>
+							<td v-for="color in colorsByRangeMatch.unmatchedColors">
+								<color-picker
+									v-bind:r = "color.r"
+									v-bind:g = "color.g"
+									v-bind:b = "color.b"
+									readonly="true"
+								></color-picker>
+							</td>
+						</tr>
+						<tr>
+							<td>matched colors:</td>
+							<td v-for="color in colorsByRangeMatch.matchedColors">
+								<color-picker
+									v-bind:r = "color.r"
+									v-bind:g = "color.g"
+									v-bind:b = "color.b"
+									readonly="true"
+								></color-picker>
+							</td>
+						</tr>
+					</table>
 				</div>
 
-				<div class="centertxt bigmargin darkerbg">
+				<div class="centertxt darkerbg">
 					<p>
 						click to edit color
 						<br>ctrl-click to set as main color
@@ -84,6 +117,7 @@
 									v-bind:r.sync = "colorSlot.r"
 									v-bind:g.sync = "colorSlot.g"
 									v-bind:b.sync = "colorSlot.b"
+									readonly="false"
 
 									@delete-color = "deleteColor(colorSlotIndex, row)"
 								>
@@ -99,7 +133,7 @@
 					</table>
 				</div>
 
-				<div class="bigmargin darkerbg">
+				<div class="darkerbg">
 					<table id="colorProfiles">
 						<tr v-for="(colorSlot, colorSlotIndex) in colorProfilesMainColors"
 							class="colorSlot"
