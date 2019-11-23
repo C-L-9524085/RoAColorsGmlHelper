@@ -47,6 +47,7 @@ const vm = new Vue({
 		selectedColorProfile: 0,
 		drawingCanvas: document.createElement("canvas"),
 		zoomFactor: 1,
+		colorSpelling: "color",
 	},
 	computed: {
 		colorsNotInPalette: function() {

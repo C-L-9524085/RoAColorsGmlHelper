@@ -69,7 +69,7 @@
 					</div>
 					<table>
 						<tr>
-							<td>colors not in palette:</td>
+							<td>{{colorSpelling}}s not in palette:</td>
 							<td v-for="color in colorsNotInPalette">
 								<color-picker
 									v-bind:r = "color.r"
@@ -80,7 +80,7 @@
 							</td>
 						</tr>
 						<tr>
-							<td>unmatched colors:</td>
+							<td>unmatched {{colorSpelling}}s:</td>
 							<td v-for="color in colorsByRangeMatch.unmatchedColors">
 								<color-picker
 									v-bind:r = "color.r"
@@ -91,7 +91,7 @@
 							</td>
 						</tr>
 						<tr>
-							<td>matched colors:</td>
+							<td>matched {{colorSpelling}}s:</td>
 							<td v-for="color in colorsByRangeMatch.matchedColors">
 								<color-picker
 									v-bind:r = "color.r"
@@ -106,8 +106,8 @@
 
 				<div class="centertxt darkerbg">
 					<p>
-						click to edit color
-						<br>ctrl-click to set as main color
+						click to edit {{colorSpelling}}
+						<br>ctrl-click to set as main {{colorSpelling}}
 					</p>
 					<hr>
 					<table id="colors">
@@ -173,7 +173,7 @@
 						</tr>
 						<tr v-if="colorProfilesMainColors.length < 16">
 							<td colspan=100% style="padding-top: 2px;">
-								<button style="width: 100%;" @click="addColorProfileRow" name="add color profile row">+</button>
+								<button style="width: 100%;" @click="addColorProfileRow" name="add {{colorSpelling}} profile row">+</button>
 							</td>
 						</tr>
 					</table>
@@ -181,16 +181,19 @@
 			</div>
 
 			<footer>
-				<p style="clear:both;">Copy-paste your current colors.gml's file content in the text field on the right, or start defining colors.
+				<p style="clear:both;">Copy-paste your current colors.gml's file content in the text field on the right, or start defining {{colorSpelling}}s.
 				<br>The text field will be updated in real time (and forced into this tool's format because it's easier for me, sorry!)
 				<br>Copy-paste it back into your colors.gml file once you're done.
-				<br>You can load a sprite to preview recolors (The tool is completely local, nothing gets uploaded anywhere.)
+				<br>You can load a sprite to preview re{{colorSpelling}}s (The tool is completely local, nothing gets uploaded anywhere.)
 				<br>You can rename rows and slots by clicking on their name. This will update the header comment in the .gml file.
 				<br>
 				<br>Color picker heavily based on https://vuejsexamples.com/vue-color-picker/ - "a cool Color Picker with vue.js BY Florian Schulz."
 				</p>
 				<input type="checkbox" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @click="generateGmlCode"></input>
 				<label for="calcFromFurthestHue">{{ calcFromFurthestHue ? 'calculating ranges from main to furthest Hue only' : 'calculating ranges from main to biggest individual H, S, V values' }}</label>
+				<br>
+				<input type="checkbox" id="calcFromFurthestHue" v-model="colorSpelling" true-value="colour" false-value="color"></input>
+				<label for="calcFromFurthestHue">U.K. mode 🇬🇧</label>
 			</footer>
 		</div>
 
