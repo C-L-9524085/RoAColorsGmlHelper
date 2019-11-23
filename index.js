@@ -6,10 +6,38 @@ const MIN_ALT_PALETTES = 6;
 const MAX_ALT_PALETTES = 16;
 const MAX_SHADE_ROWS = 8;
 
+Vue.component("color-picker", {
+	template: "#color-picker-template",
+	props: ["change", "r", "g", "b", "readonly"],
+	data: function() {
+		return {
+			isVisible: false,
+		}
+	},
+	computed: {
+		color: function() { return `rgb(${this.r}, ${this.g}, ${this.b})` }
+	},
+	methods: {
+		show: function() { this.isVisible = true; },
+		hide: function() { this.isVisible = false; },
+		toggle: function() { this.isVisible = !this.isVisible; },
+		validateAndSendRgbColorUpdate: function(event, color) {
+			event.target.value = parseInt(event.target.value.toString().replace(/[^\d]/g, "") || 0);
+			event.target.value = Math.min(255, event.target.value);
+			this.$emit("update:" + color, parseInt(event.target.value));
+			this.$emit("updatepls")
+		},
+		validateAndUpdateHex: function(event) {
+			console.log("todo")
+		}
+	}
+})
+
 const vm = new Vue({
 	el: '#app',
 	data: {
 		rows: [],
+		pickedColor: { r: 0, g: 0, b: 0, a: 0, x: 0, y: 0 },
 		calcFromFurthestHue: false,
 		//mainColor: null
 		previewImg: null,
@@ -559,7 +587,7 @@ const vm = new Vue({
 			const imageData = ctx.getImageData(relX, relY, 1, 1);
 			const [r, g, b, a] = imageData.data;
 
-			document.getElementById("colorPickDisplay").innerText = `${r}, ${g}, ${b}, ${a} (x:${relX} y:${relY})`;
+			this.pickedColor = {r, g, b, a, x:relX, y:relY};
 		},
 	}
 });
@@ -676,31 +704,3 @@ function hsvToRgb_noRounding(h, s, v){
 function clamp(min, nb, max) {
 	return Math.max(Math.min(max, nb), min);
 }
-
-
-Vue.component("color-picker", {
-	template: "#color-picker-template",
-	props: ["change", "r", "g", "b", "readonly"],
-	data: function() {
-		return {
-			isVisible: false,
-		}
-	},
-	computed: {
-		color: function() { return `rgb(${this.r}, ${this.g}, ${this.b})` }
-	},
-	methods: {
-		show: function() { this.isVisible = true; },
-		hide: function() { this.isVisible = false; },
-		toggle: function() { this.isVisible = !this.isVisible; },
-		validateAndSendRgbColorUpdate: function(event, color) {
-			event.target.value = parseInt(event.target.value.toString().replace(/[^\d]/g, "") || 0);
-			event.target.value = Math.min(255, event.target.value);
-			this.$emit("update:" + color, parseInt(event.target.value));
-			this.$emit("updatepls")
-		},
-		validateAndUpdateHex: function(event) {
-			console.log("todo")
-		}
-	}
-})
