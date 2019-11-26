@@ -99,12 +99,6 @@ Vue.component("color-picker", {
 		this.b = this._b;
 
 		this.updateColorDisplays();
-
-		//setting those here instead of in watch{} to avoid triggering them from the above updateColorDisplays()
-		this.$watch('hex', this.updateFromHex);
-		this.$watch('h', this.updateFromHsl);
-		this.$watch('s', this.updateFromHsl);
-		this.$watch('l', this.updateFromHsl);
 	},
 	methods: {
 		askRerender: function() {
@@ -121,8 +115,10 @@ Vue.component("color-picker", {
 			this.$emit("color-update");
 		},
 		updateFromHsl: function() {
-			const color = tinycolor(`hsl(${this.h}, ${this.percentS}%, ${this.percentL}%)`);
+			//const color = tinycolor(`hsl(${this.h}, ${this.percentS}%, ${this.percentL}%)`);
 			//const color = tinycolor(this.hsl);
+			// ?? either my sliders are messed up or there's a bug in tinycolor (updateColorDisplays too if you fix this)
+			const color = tinycolor({h: this.h, s: this.s, v: this.l});
 			console.log("updateFromHsl: color:", color)
 
 			const rgb = color.toRgb();
@@ -130,8 +126,7 @@ Vue.component("color-picker", {
 			this.g = rgb.g;
 			this.b = rgb.b;
 
-			//this'll trigger updateFromHex
-			//this.hex = color.toHexString();
+			this.hex = color.toHexString();
 		},
 		updateFromHex: function() {
 			const color = tinycolor(this.hex);
@@ -141,12 +136,10 @@ Vue.component("color-picker", {
 			this.g = rgb.g;
 			this.b = rgb.b;
 
-			/* this'll trigger updateFromHsl
 			const hsl = color.toHsl();
 			this.h = hsl.h;
 			this.s = hsl.s;
 			this.l = hsl.l;
-			*/
 		},
 		updateAll: function(rgb) {
 			console.log("updateAll", rgb)
@@ -159,10 +152,11 @@ Vue.component("color-picker", {
 			console.log("updateColorDisplays()")
 			const color = tinycolor(this.rgb)
 
-			const hsl = color.toHsl();
-			this.h = hsl.h;
-			this.s = hsl.s;
-			this.l = hsl.l;
+			// ?? either my sliders are messed up or there's a bug in tinycolor
+			const hsv = color.toHsv();
+			this.h = hsv.h;
+			this.s = hsv.s;
+			this.l = hsv.v;
 
 			this.hex = color.toHexString();
 		}
