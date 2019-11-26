@@ -6,32 +6,197 @@ const MIN_ALT_PALETTES = 6;
 const MAX_ALT_PALETTES = 16;
 const MAX_SHADE_ROWS = 8;
 
+
+/* 
+	this is a mess of synchronization
+	_r, _g, _b are sync'd with the actual palette/shade rgb, when they change r, g, b are updated to match
+	r, g, b are proxies used to generate the color_chip's color (and shown in the r, g, b inputs), because you can't (/shouldn't) set prop values
+	when h, s, v change(as in 'input' is triggered from sliding the controls) it changes r, g, b and doesn't actually update the palette, but updates the r,g,b inputs and the color chip
+	when h, s, v are set (as in 'change' is triggered by mouseUp on the controls), it updates _r, _g, _b which syncs the palette and redraws render and syncs r, g, b which updates the chip
+	so the sliders are kind of inaccurate because of all the conversions but they're sliders anyway
+	hex is updated the same way as HSV
+*/
 Vue.component("color-picker", {
 	template: "#color-picker-template",
-	props: ["change", "r", "g", "b", "readonly"],
+	props: ["change", "_r", "_g", "_b", "readonly"],
 	data: function() {
 		return {
 			isVisible: false,
+
+			r: 0,
+			g: 0,
+			b: 0,
+
+			h: 0,
+			s: 0,
+			l: 0,
+			hex: "000"
 		}
 	},
 	computed: {
-		color: function() { return `rgb(${this.r}, ${this.g}, ${this.b})` }
+		color: function() { return `rgb(${this.r}, ${this.g}, ${this.b})` },
+		rgb: function() { return {r: this.r, g: this.g, b: this.b} },
+		hsl: function() { return {h: this.h, s: this.s, l: this.l} },
+		hslStr: function() { return tinycolor({h: this.h, s: this.s, l: this.l}).toHslString()},
+		hsvStr: function() { return tinycolor({h: this.h, s: this.s, l: this.l}).toHsvString()},
+		percentS: function() { return this.s * 100 },
+		percentL: function() { return this.l * 100 },
+		gradientH: function() {
+			var stops = [];
+			for (var i = 0; i < 7; i++) {
+				var h = i * 60;
+				
+				var hsl = hsb2hsl(parseFloat(h / 360), this.s, this.l)
+				
+				var c = hsl.h + ", " + hsl.s + "%, " + hsl.l + "%"
+				stops.push("hsl(" + c + ")")
+			}
+
+			return {
+				backgroundImage: "linear-gradient(to right, " + stops.join(', ') + ")"
+			}
+		},
+		gradientS: function() {
+			var stops = [];
+			var c;
+			var hsl = hsb2hsl(parseFloat(this.h / 360), 0, this.l)
+			c = hsl.h + ", " + hsl.s + "%, " + hsl.l + "%"
+			stops.push("hsl(" + c + ")")
+
+			var hsl = hsb2hsl(parseFloat(this.h / 360), 1, this.l)
+			c = hsl.h + ", " + hsl.s + "%, " + hsl.l + "%"
+			stops.push("hsl(" + c + ")")
+
+			return {
+				backgroundImage: "linear-gradient(to right, " + stops.join(', ') + ")"
+			}
+		},
+		gradientL: function() {
+			var stops = [];
+			var c;
+
+			var hsl = hsb2hsl(parseFloat(this.h / 360), 0, 0)
+			c = hsl.h + ", " + hsl.s + "%, " + hsl.l + "%"
+			stops.push("hsl(" + c + ")")
+
+			var hsl = hsb2hsl(parseFloat(this.h / 360), this.s, 1)
+			stops.push(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`)
+
+			return {
+				backgroundImage: "linear-gradient(to right, " + stops.join(', ') + ")"
+
+			}
+		}
+	},
+	watch: {
+		'_r': function() { this.r = this._r; this.updateColorDisplays(); },
+		'_g': function() { this.g = this._g; this.updateColorDisplays(); },
+		'_b': function() { this.b = this._b; this.updateColorDisplays(); },
+	},
+	mounted: function() {
+		this.r = this._r;
+		this.g = this._g;
+		this.b = this._b;
+
+		this.updateColorDisplays();
+
+		//setting those here instead of in watch{} to avoid triggering them from the above updateColorDisplays()
+		this.$watch('hex', this.updateFromHex);
+		this.$watch('h', this.updateFromHsl);
+		this.$watch('s', this.updateFromHsl);
+		this.$watch('l', this.updateFromHsl);
 	},
 	methods: {
+		askRerender: function() {
+			this.updateAll(this.rgb);
+			this.$emit("rerender");
+		},
 		show: function() { this.isVisible = true; },
 		hide: function() { this.isVisible = false; },
 		toggle: function() { this.isVisible = !this.isVisible; },
 		validateAndSendRgbColorUpdate: function(event, color) {
 			event.target.value = parseInt(event.target.value.toString().replace(/[^\d]/g, "") || 0);
 			event.target.value = Math.min(255, event.target.value);
-			this.$emit("update:" + color, parseInt(event.target.value));
-			this.$emit("updatepls")
+			this.$emit("update:_" + color, parseInt(event.target.value));
+			this.$emit("color-update");
 		},
-		validateAndUpdateHex: function(event) {
-			console.log("todo")
+		updateFromHsl: function() {
+			const color = tinycolor(`hsl(${this.h}, ${this.percentS}%, ${this.percentL}%)`);
+			//const color = tinycolor(this.hsl);
+			console.log("updateFromHsl: color:", color)
+
+			const rgb = color.toRgb();
+			this.r = rgb.r;
+			this.g = rgb.g;
+			this.b = rgb.b;
+
+			//this'll trigger updateFromHex
+			//this.hex = color.toHexString();
+		},
+		updateFromHex: function() {
+			const color = tinycolor(this.hex);
+
+			const rgb = color.toRgb();
+			this.r = rgb.r;
+			this.g = rgb.g;
+			this.b = rgb.b;
+
+			/* this'll trigger updateFromHsl
+			const hsl = color.toHsl();
+			this.h = hsl.h;
+			this.s = hsl.s;
+			this.l = hsl.l;
+			*/
+		},
+		updateAll: function(rgb) {
+			console.log("updateAll", rgb)
+			this.$emit("update:_r", rgb.r);
+			this.$emit("update:_g", rgb.g);
+			this.$emit("update:_b", rgb.b);
+			this.$emit("color-update");
+		},
+		updateColorDisplays: function() {
+			console.log("updateColorDisplays()")
+			const color = tinycolor(this.rgb)
+
+			const hsl = color.toHsl();
+			this.h = hsl.h;
+			this.s = hsl.s;
+			this.l = hsl.l;
+
+			this.hex = color.toHexString();
 		}
 	}
 })
+
+function hsb2hsl(h, s, b) {
+  var hsl = {
+    h: h
+  };
+  hsl.l = (2 - s) * b;
+  hsl.s = s * b;
+
+  if (hsl.l <= 1 && hsl.l > 0) {
+    hsl.s /= hsl.l;
+  } else {
+    hsl.s /= 2 - hsl.l;
+  }
+
+  hsl.l /= 2;
+
+  if (hsl.s > 1) {
+    hsl.s = 1;
+  }
+  
+  if (!hsl.s > 0) hsl.s = 0
+
+
+  hsl.h *= 360;
+  hsl.s *= 100;
+  hsl.l *= 100;
+
+  return hsl;
+}
 
 const vm = new Vue({
 	el: '#app',
@@ -47,7 +212,7 @@ const vm = new Vue({
 		selectedColorProfile: 0,
 		drawingCanvas: document.createElement("canvas"),
 		zoomFactor: 1,
-		colorSpelling: "color",
+		colorspelling: "color",
 	},
 	computed: {
 		colorsNotInPalette: function() {

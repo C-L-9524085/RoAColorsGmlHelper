@@ -5,6 +5,7 @@
 		<title>ROA Colors.gml generator</title>
 		<link rel="stylesheet" href="index.css">
 		<script src="vue.js"></script>
+		<script src="tinycolor.js"></script>
 	</head>
 	<body>
 
@@ -16,30 +17,35 @@
 					<div class="color-picker__flyout" v-if="isVisible">
 						<div class="color-chip" v-bind:style="{'background': color}">
 							<div class="color-chip__inner">
-								RGB:
-								<input class="color-input" size="3" v-bind:value="r" @input="validateAndSendRgbColorUpdate($event, 'r')" v-bind:disabled="readonly"></input>
-								<input class="color-input" size="3" v-bind:value="g" @input="validateAndSendRgbColorUpdate($event, 'g')" v-bind:disabled="readonly"></input>
-								<input class="color-input" size="3" v-bind:value="b" @input="validateAndSendRgbColorUpdate($event, 'b')" v-bind:disabled="readonly"></input>
-
-								<hr>
-
-								HSV:
-								<input class="color-input" placeholder="H (todo)" size="3" v-bind:disabled="readonly"></input>
-								<input class="color-input" placeholder="S (todo)" size="3" v-bind:disabled="readonly"></input>
-								<input class="color-input" placeholder="V (todo)" size="3" v-bind:disabled="readonly"></input>
-
-								<hr>
-
-								HSL:
-								<input class="color-input" placeholder="H (todo)" size="3" v-bind:disabled="readonly"></input>
-								<input class="color-input" placeholder="S (todo)" size="3" v-bind:disabled="readonly"></input>
-								<input class="color-input" placeholder="L (todo)" size="3" v-bind:disabled="readonly"></input>
-
-								<hr>
-
-								HEX: <input class="color-input" placeholder="hex (todo)" @input="validateAndUpdateHex" v-bind:disabled="readonly"></input>
-								<br><br>
-								<span style="cursor:pointer;"@click="hide(); $emit('delete-color')">🗑️</span>
+								<table>
+									<tr>
+										<td>RGB:</td>
+										<td><input class="color-input" size="3" v-bind:value="r" @input="validateAndSendRgbColorUpdate($event, 'r')" @change="askRerender" v-bind:disabled="readonly"></input></td>
+										<td><input class="color-input" size="3" v-bind:value="g" @input="validateAndSendRgbColorUpdate($event, 'g')" @change="askRerender" v-bind:disabled="readonly"></input></td>
+										<td><input class="color-input" size="3" v-bind:value="b" @input="validateAndSendRgbColorUpdate($event, 'b')" @change="askRerender" v-bind:disabled="readonly"></input></td>
+									</tr>
+									<tr>
+										<td>HEX:</td>
+										<td colspan=3><input class="color-input" v-model="hex" @change="askRerender" v-bind:disabled="readonly"></input></td>
+									</tr>
+								</table>
+								<br>
+								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">copy</button><br>
+								<br><input class="color-input" v-bind:value="color" v-bind:disabled="readonly"></input><br>
+								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">paste</button>
+								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">remove</button>
+								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">set main</button>
+							</div>
+						</div>
+						<div class="color-picker__inner">
+							<div class="control" v-bind:style="gradientH">
+								<input type="range" min="0" max="360" v-model="h" v-on:change="askRerender" />
+							</div>
+							<div class="control" v-bind:style="gradientS">
+								<input type="range" min="0" max="100" v-bind:value="percentS" v-on:input="s = Number($event.target.value) / 100" v-on:change="askRerender"/>
+							</div>
+							<div class="control" v-bind:style="gradientL">
+								<input type="range" min="0" max="100" v-bind:value="percentL" v-on:input="l = Number($event.target.value) / 100" v-on:change="askRerender" />
 							</div>
 						</div>
 					</div>
@@ -60,43 +66,43 @@
 					<canvas id="preview" @click="previewClick" class="darkerbg"></canvas>
 					<div>
 						<color-picker style="display:inline-block"
-							v-bind:r = "pickedColor.r"
-							v-bind:g = "pickedColor.g"
-							v-bind:b = "pickedColor.b"
+							v-bind:_r = "pickedColor.r"
+							v-bind:_g = "pickedColor.g"
+							v-bind:_b = "pickedColor.b"
 							readonly="true"
 						></color-picker>
 						rgb({{pickedColor.r}}, {{pickedColor.g}}, {{pickedColor.b}}) (x: {{pickedColor.x}}, y: {{pickedColor.y}})
 					</div>
 					<table>
 						<tr>
-							<td>{{colorSpelling}}s not in palette:</td>
+							<td>{{colorspelling}}s not in palette:</td>
 							<td v-for="color in colorsNotInPalette">
 								<color-picker
-									v-bind:r = "color.r"
-									v-bind:g = "color.g"
-									v-bind:b = "color.b"
+									v-bind:_r = "color.r"
+									v-bind:_g = "color.g"
+									v-bind:_b = "color.b"
 									readonly="true"
 								></color-picker>
 							</td>
 						</tr>
 						<tr>
-							<td>unmatched {{colorSpelling}}s:</td>
+							<td>unmatched {{colorspelling}}s:</td>
 							<td v-for="color in colorsByRangeMatch.unmatchedColors">
 								<color-picker
-									v-bind:r = "color.r"
-									v-bind:g = "color.g"
-									v-bind:b = "color.b"
+									v-bind:_r = "color.r"
+									v-bind:_g = "color.g"
+									v-bind:_b = "color.b"
 									readonly="true"
 								></color-picker>
 							</td>
 						</tr>
 						<tr>
-							<td>matched {{colorSpelling}}s:</td>
+							<td>matched {{colorspelling}}s:</td>
 							<td v-for="color in colorsByRangeMatch.matchedColors">
 								<color-picker
-									v-bind:r = "color.r"
-									v-bind:g = "color.g"
-									v-bind:b = "color.b"
+									v-bind:_r = "color.r"
+									v-bind:_g = "color.g"
+									v-bind:_b = "color.b"
 									readonly="true"
 								></color-picker>
 							</td>
@@ -106,8 +112,8 @@
 
 				<div class="centertxt darkerbg">
 					<p>
-						click to edit {{colorSpelling}}
-						<br>ctrl-click to set as main {{colorSpelling}}
+						click to edit {{colorspelling}}
+						<br>ctrl-click to set as main {{colorspelling}}
 					</p>
 					<hr>
 					<table id="colors">
@@ -122,9 +128,9 @@
 								<color-picker
 									v-bind:class = "{ main: colorSlot.main }"
 
-									v-bind:r.sync = "colorSlot.r"
-									v-bind:g.sync = "colorSlot.g"
-									v-bind:b.sync = "colorSlot.b"
+									v-bind:_r.sync = "colorSlot.r"
+									v-bind:_g.sync = "colorSlot.g"
+									v-bind:_b.sync = "colorSlot.b"
 									readonly="false"
 
 									@delete-color = "deleteColor(colorSlotIndex, row)"
@@ -162,10 +168,11 @@
 								class="color"
 							>
 								<color-picker
-									v-bind:r.sync = "shade.rgb.r"
-									v-bind:g.sync = "shade.rgb.g"
-									v-bind:b.sync = "shade.rgb.b"
-									@updatepls = "calcShadesHSV(shade); $forceUpdate(); updateDisplays();"
+									v-bind:_r.sync = "shade.rgb.r"
+									v-bind:_g.sync = "shade.rgb.g"
+									v-bind:_b.sync = "shade.rgb.b"
+									@color-update = "calcShadesHSV(shade); $forceUpdate(); generateGmlCode();"
+									@rerender = "renderPreview"
 								>
 								</color-picker>
 							</td>
@@ -173,7 +180,7 @@
 						</tr>
 						<tr v-if="colorProfilesMainColors.length < 16">
 							<td colspan=100% style="padding-top: 2px;">
-								<button style="width: 100%;" @click="addColorProfileRow" name="add {{colorSpelling}} profile row">+</button>
+								<button style="width: 100%" @click="addColorProfileRow">+</button>
 							</td>
 						</tr>
 					</table>
@@ -181,10 +188,10 @@
 			</div>
 
 			<footer>
-				<p style="clear:both;">Copy-paste your current colors.gml's file content in the text field on the right, or start defining {{colorSpelling}}s.
+				<p style="clear:both;">Copy-paste your current colors.gml's file content in the text field on the right, or start defining {{colorspelling}}s.
 				<br>The text field will be updated in real time (and forced into this tool's format because it's easier for me, sorry!)
 				<br>Copy-paste it back into your colors.gml file once you're done.
-				<br>You can load a sprite to preview re{{colorSpelling}}s (The tool is completely local, nothing gets uploaded anywhere.)
+				<br>You can load a sprite to preview re{{colorspelling}}s (The tool is completely local, nothing gets uploaded anywhere.)
 				<br>You can rename rows and slots by clicking on their name. This will update the header comment in the .gml file.
 				<br>
 				<br>Color picker heavily based on https://vuejsexamples.com/vue-color-picker/ - "a cool Color Picker with vue.js BY Florian Schulz."
@@ -192,7 +199,7 @@
 				<input type="checkbox" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @click="generateGmlCode"></input>
 				<label for="calcFromFurthestHue">{{ calcFromFurthestHue ? 'calculating ranges from main to furthest Hue only' : 'calculating ranges from main to biggest individual H, S, V values' }}</label>
 				<br>
-				<input type="checkbox" id="calcFromFurthestHue" v-model="colorSpelling" true-value="colour" false-value="color"></input>
+				<input type="checkbox" id="calcFromFurthestHue" v-model="colorspelling" true-value="colour" false-value="color"></input>
 				<label for="calcFromFurthestHue">U.K. mode 🇬🇧</label>
 			</footer>
 		</div>
