@@ -18,7 +18,7 @@ const MAX_SHADE_ROWS = 8;
 */
 Vue.component("color-picker", {
 	template: "#color-picker-template",
-	props: ["change", "_r", "_g", "_b", "readonly"],
+	props: ["change", "_r", "_g", "_b", "readonly", "showpalettecontrols"],
 	data: function() {
 		return {
 			isVisible: false,

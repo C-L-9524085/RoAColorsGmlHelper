@@ -118,12 +118,13 @@ td {
 }
 
 .color-picker__inner {
-  padding: 1.5rem 1rem;
+  padding: 1rem 1rem;
 }
 
 .color-chip {
-  height: 260px;
+  height: 160px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   color: white;

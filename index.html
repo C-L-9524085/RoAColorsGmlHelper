@@ -17,8 +17,6 @@
 					<div class="color-picker__flyout" v-if="isVisible">
 						<div class="color-chip" v-bind:style="{'background': color}">
 							<div class="color-chip__inner">
-								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">remove</button>
-								<button style="cursor:pointer;"@click="hide(); $emit('set-main')">set main</button>
 								<table>
 									<tr>
 										<td>RGB:</td>
@@ -46,6 +44,10 @@
 							</div>
 						</div>
 						<div class="color-picker__inner">
+							<div v-if="showpalettecontrols" style="margin-bottom: 1rem;">
+								<button @click="hide(); $emit('delete-color')">remove</button>
+								<button style="float:right;" @click="$emit('set-main')">set main</button>
+							</div>
 							<div class="control" v-bind:style="gradientH">
 								<input type="range" min="0" max="360" v-bind:value="h" v-on:input="h = Number($event.target.value); updateFromHsl();" v-on:change="askRerender" />
 							</div>
@@ -136,11 +138,13 @@
 								<color-picker
 									v-bind:class = "{ main: colorSlot.main }"
 
+									showpalettecontrols = "true"
 									v-bind:_r.sync = "colorSlot.r"
 									v-bind:_g.sync = "colorSlot.g"
 									v-bind:_b.sync = "colorSlot.b"
 
 									@delete-color = "deleteColor(colorSlotIndex, row)"
+									@set-main = "setMainColor(colorSlot, row)"
 								>
 								</color-picker>
 						</td>
@@ -178,6 +182,7 @@
 									v-bind:_r.sync = "shade.rgb.r"
 									v-bind:_g.sync = "shade.rgb.g"
 									v-bind:_b.sync = "shade.rgb.b"
+
 									@color-update = "calcShadesHSV(shade); $forceUpdate(); generateGmlCode();"
 									@rerender = "renderPreview"
 								>
