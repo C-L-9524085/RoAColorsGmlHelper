@@ -200,8 +200,11 @@
 				<br>Copy-paste it back into your colors.gml file once you're done.
 				<br>You can load a sprite to preview re{{colorspelling}}s (The tool is completely local, nothing gets uploaded anywhere.)
 				<br>You can rename rows and slots by clicking on their name. This will update the header comment in the .gml file.
+				<br>You can ctrl+c / ctrl+v a color as soon as you open it's picker.
 				<br>
-				<br>Color picker heavily based on https://vuejsexamples.com/vue-color-picker/ - "a cool Color Picker with vue.js BY Florian Schulz."
+				<br>It uses <a href="http://bgrins.github.io/TinyColor/">TinyColor</a> for parsing, so it should support all the correctly-formatted formats you can throw at it.
+				<br>Color picker heavily based on <a href="https://vuejsexamples.com/vue-color-picker/">"a cool Color Picker with vue.js BY Florian Schulz."</a>
+				<br>Built with <a href="https://vuejs.org/">Vue.js</a>.
 				</p>
 				<input type="checkbox" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @click="generateGmlCode"></input>
 				<label for="calcFromFurthestHue">{{ calcFromFurthestHue ? 'calculating ranges from main to furthest Hue only' : 'calculating ranges from main to biggest individual H, S, V values' }}</label>
