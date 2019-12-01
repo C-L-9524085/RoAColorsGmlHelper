@@ -33,6 +33,9 @@ Vue.component("color-picker", {
 			hex: "000"
 		}
 	},
+	directives: {
+		focus: { inserted: function(el) { el.focus(); } }
+	},
 	computed: {
 		color: function() { return `rgb(${this.r}, ${this.g}, ${this.b})` },
 		rgb: function() { return {r: this.r, g: this.g, b: this.b} },
@@ -159,6 +162,18 @@ Vue.component("color-picker", {
 			this.l = hsv.v;
 
 			this.hex = color.toHexString();
+		},
+		handlePaste: function(event) {
+			const pasted = (event.clipboardData || window.clipboardData).getData('text');
+
+			if (pasted != this.color) { // don't do anything if we pasted the same color
+				const color = tinycolor(pasted);
+
+				if (color.isValid())
+					this.updateAll(color.toRgb());
+				else
+					event.target.value = color;
+			}
 		}
 	}
 })

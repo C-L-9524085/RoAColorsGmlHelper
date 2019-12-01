@@ -31,7 +31,13 @@
 								</table>
 								<br>
 								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">copy</button><br>
-								<br><input class="color-input" v-bind:value="color" v-bind:disabled="readonly"></input><br>
+								<br><input class="color-input"
+									v-bind:value="color"
+									v-focus
+									@focus="$event.target.select()"
+									@click="$event.target.select()"
+									@paste="handlePaste($event)"
+								></input><br>
 								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">paste</button>
 								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">remove</button>
 								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">set main</button>
