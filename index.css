@@ -137,9 +137,9 @@ td {
 }
 
 .color-input {
-	text-align: center;
+  text-align: center;
   border-radius: 4px;
-  border: 1px solid white;
+  border: 1px solid rgba(0, 0, 0, 0.5);
 }
 
 .control {
