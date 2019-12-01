@@ -120,8 +120,8 @@
 					</table>
 				</div>
 
-				<div class="centertxt darkerbg">
-					<p>
+				<div class="darkerbg">
+					<p class="centertxt">
 						click to edit {{colorspelling}}
 						<br>ctrl-click to set as main {{colorspelling}}
 					</p>
@@ -129,7 +129,7 @@
 					<table id="colors">
 						<tr class="shadeRow" v-for="(row, iRow) in rows">
 							<td class="rowDeletButton" @click="deleteRow(iRow)"><div>🗑️</div></td>
-							<td class="shadeSlotName" contenteditable="true" @blur="changeRowName($event, row)">{{row.name}}</td>
+							<td class="shadeSlotName centertxt" contenteditable="true" @blur="changeRowName($event, row)">{{row.name}}</td>
 							<td
 								class="color"
 								v-for="(colorSlot, colorSlotIndex) in row.colors"
@@ -148,7 +148,7 @@
 								>
 								</color-picker>
 						</td>
-							<td class="color"><div @click="addSlot(row)" name="add Color Slot">+</div></td>
+							<td class="color centertxt"><div @click="addSlot(row)" name="add Color Slot">+</div></td>
 						</tr>
 						<tr v-if="rows.length < 8">
 							<td colspan=100% style="padding-top: 2px;">
