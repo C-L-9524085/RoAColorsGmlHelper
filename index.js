@@ -29,7 +29,7 @@ Vue.component("color-picker", {
 
 			h: 0,
 			s: 0,
-			l: 0,
+			v: 0,
 			hex: "000"
 		}
 	},
@@ -39,17 +39,17 @@ Vue.component("color-picker", {
 	computed: {
 		color: function() { return `rgb(${this.r}, ${this.g}, ${this.b})` },
 		rgb: function() { return {r: this.r, g: this.g, b: this.b} },
-		hsl: function() { return {h: this.h, s: this.s, l: this.l} },
-		hslStr: function() { return tinycolor({h: this.h, s: this.s, l: this.l}).toHslString()},
-		hsvStr: function() { return tinycolor({h: this.h, s: this.s, l: this.l}).toHsvString()},
+		hsv: function() { return {h: this.h, s: this.s, v: this.v} },
+		hslStr: function() { return tinycolor({h: this.h, s: this.s, l: this.v}).toHslString()},
+		hsvStr: function() { return tinycolor({h: this.h, s: this.s, l: this.v}).toHsvString()},
 		percentS: function() { return this.s * 100 },
-		percentL: function() { return this.l * 100 },
+		percentV: function() { return this.v * 100 },
 		gradientH: function() {
 			var stops = [];
 			for (var i = 0; i < 7; i++) {
 				var h = i * 60;
 				
-				var hsl = hsb2hsl(parseFloat(h / 360), this.s, this.l)
+				var hsl = hsb2hsl(parseFloat(h / 360), this.s, this.v)
 				
 				var c = hsl.h + ", " + hsl.s + "%, " + hsl.l + "%"
 				stops.push("hsl(" + c + ")")
@@ -62,11 +62,11 @@ Vue.component("color-picker", {
 		gradientS: function() {
 			var stops = [];
 			var c;
-			var hsl = hsb2hsl(parseFloat(this.h / 360), 0, this.l)
+			var hsl = hsb2hsl(parseFloat(this.h / 360), 0, this.v)
 			c = hsl.h + ", " + hsl.s + "%, " + hsl.l + "%"
 			stops.push("hsl(" + c + ")")
 
-			var hsl = hsb2hsl(parseFloat(this.h / 360), 1, this.l)
+			var hsl = hsb2hsl(parseFloat(this.h / 360), 1, this.v)
 			c = hsl.h + ", " + hsl.s + "%, " + hsl.l + "%"
 			stops.push("hsl(" + c + ")")
 
@@ -74,7 +74,7 @@ Vue.component("color-picker", {
 				backgroundImage: "linear-gradient(to right, " + stops.join(', ') + ")"
 			}
 		},
-		gradientL: function() {
+		gradientV: function() {
 			var stops = [];
 			var c;
 
@@ -117,12 +117,11 @@ Vue.component("color-picker", {
 			this.$emit("update:_" + color, parseInt(event.target.value));
 			this.$emit("color-update");
 		},
-		updateFromHsl: function() {
+		updateFromHsv: function() {
 			//const color = tinycolor(`hsl(${this.h}, ${this.percentS}%, ${this.percentL}%)`);
 			//const color = tinycolor(this.hsl);
 			// ?? either my sliders are messed up or there's a bug in tinycolor (updateColorDisplays too if you fix this)
-			const color = tinycolor({h: this.h, s: this.s, v: this.l});
-			console.log("updateFromHsl: color:", color)
+			const color = tinycolor({h: this.h, s: this.s, v: this.v});
 
 			const rgb = color.toRgb();
 			this.r = rgb.r;
@@ -139,10 +138,10 @@ Vue.component("color-picker", {
 			this.g = rgb.g;
 			this.b = rgb.b;
 
-			const hsl = color.toHsl();
-			this.h = hsl.h;
-			this.s = hsl.s;
-			this.l = hsl.l;
+			const hsv = color.toHsv();
+			this.h = hsv.h;
+			this.s = hsv.s;
+			this.v = hsv.v;
 		},
 		updateAll: function(rgb) {
 			console.log("updateAll", rgb)
@@ -159,7 +158,7 @@ Vue.component("color-picker", {
 			const hsv = color.toHsv();
 			this.h = hsv.h;
 			this.s = hsv.s;
-			this.l = hsv.v;
+			this.v = hsv.v;
 
 			this.hex = color.toHexString();
 		},
