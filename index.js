@@ -164,16 +164,26 @@ Vue.component("color-picker", {
 			this.hex = color.toHexString();
 		},
 		handlePaste: function(event) {
-			const pasted = (event.clipboardData || window.clipboardData).getData('text');
+			if (this.readonly) {
+				event.target.value = color;
+			} else {
+				const pasted = (event.clipboardData || window.clipboardData).getData('text');
 
-			if (pasted != this.color) { // don't do anything if we pasted the same color
-				const color = tinycolor(pasted);
+				if (pasted != this.color) { // don't do anything if we pasted the same color
+					const color = tinycolor(pasted);
 
-				if (color.isValid())
-					this.updateAll(color.toRgb());
-				else
-					event.target.value = color;
+					if (color.isValid())
+						this.updateAll(color.toRgb());
+					else
+						event.target.value = color;
+				}
 			}
+		},
+		copyColor: function(event) {
+			console.log("copyColor()", event)
+			this.$refs.colorCopyPasteInput.select();
+			this.$refs.colorCopyPasteInput.setSelectionRange(0, 99999);
+			document.execCommand("copy");
 		}
 	}
 })

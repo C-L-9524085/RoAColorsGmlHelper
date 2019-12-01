@@ -17,6 +17,8 @@
 					<div class="color-picker__flyout" v-if="isVisible">
 						<div class="color-chip" v-bind:style="{'background': color}">
 							<div class="color-chip__inner">
+								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">remove</button>
+								<button style="cursor:pointer;"@click="hide(); $emit('set-main')">set main</button>
 								<table>
 									<tr>
 										<td>RGB:</td>
@@ -30,17 +32,17 @@
 									</tr>
 								</table>
 								<br>
-								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">copy</button><br>
-								<br><input class="color-input"
-									v-bind:value="color"
-									v-focus
-									@focus="$event.target.select()"
-									@click="$event.target.select()"
-									@paste="handlePaste($event)"
-								></input><br>
-								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">paste</button>
-								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">remove</button>
-								<button style="cursor:pointer;"@click="hide(); $emit('delete-color')">set main</button>
+								<div style="display: flex;">
+									<button style="padding:5px; border-radius: 5px 0px 0px 5px; border-width: 0px;" @click="copyColor">copy</button>
+									<input type="text" class="" style="width: 100%; text-align: center; border: none; border-radius: 0px 5px 5px 0px;"
+										ref="colorCopyPasteInput"
+										v-bind:value="color"
+										v-focus
+										@focus="$event.target.select()"
+										@click="$event.target.select()"
+										@paste="handlePaste($event)"
+									></input>
+								</div>
 							</div>
 						</div>
 						<div class="color-picker__inner">
