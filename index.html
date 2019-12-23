@@ -48,13 +48,13 @@
 							<button style="float:right;" @click="$emit('set-main')">set main</button>
 						</div>
 						<div class="control" v-bind:style="gradientH">
-							<input type="range" min="0" max="360" v-bind:value="h" v-on:input="h = Number($event.target.value); updateFromHsv();" v-on:change="askRerender" />
+							<input type="range" min="0" max="360" v-bind:value="h" v-on:input="h = Number($event.target.value); updateFromHsv();" v-on:change="askRerender" v-bind:disabled="readonly"/>
 						</div>
 						<div class="control" v-bind:style="gradientS">
-							<input type="range" min="0" max="100" v-bind:value="percentS" v-on:input="s = Number($event.target.value) / 100; updateFromHsv();" v-on:change="askRerender"/>
+							<input type="range" min="0" max="100" v-bind:value="percentS" v-on:input="s = Number($event.target.value) / 100; updateFromHsv();" v-on:change="askRerender" v-bind:disabled="readonly"/>
 						</div>
 						<div class="control" v-bind:style="gradientV">
-							<input type="range" min="0" max="100" v-bind:value="percentV" v-on:input="v = Number($event.target.value) / 100; updateFromHsv();" v-on:change="askRerender" />
+							<input type="range" min="0" max="100" v-bind:value="percentV" v-on:input="v = Number($event.target.value) / 100; updateFromHsv();" v-on:change="askRerender" v-bind:disabled="readonly"/>
 						</div>
 					</div>
 				</div>
