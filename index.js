@@ -246,7 +246,7 @@ const vm = new Vue({
 			const matchedColors = [];
 			const unmatchedColors = [];
 			this.colorsInImg.forEach(color => {
-				if (this.ranges.some(rangeDef => color.hsv.h >= rangeDef.hL && color.hsv.h <= rangeDef.hH && color.hsv.s >= rangeDef.sL && color.hsv.s <= rangeDef.sH && color.hsv.v >= rangeDef.vL && color.hsv.v <= rangeDef.vH))
+				if (this.ranges.some(rangeDef => isWrappingValueWithinRange(color.hsv.h, 0, 360, rangeDef.hL, rangeDef.hH) && color.hsv.s >= rangeDef.sL && color.hsv.s <= rangeDef.sH && color.hsv.v >= rangeDef.vL && color.hsv.v <= rangeDef.vH))
 					matchedColors.push(color);
 				else
 					unmatchedColors.push(color);
@@ -653,9 +653,18 @@ const vm = new Vue({
 						}
 						else {
 							if (!this.ranges.some((rangeDef, shadeIndex) => {
-								//console.log("px", i, "on shade", shadeIndex);
+								//console.log("px", i, "on shade", shadeIndex, "with range", rangeDef, "hsv:", hsv);
+								/*console.log("h", isWrappingValueWithinRange(hsv.h, 0, 360, rangeDef.hL, rangeDef.hH),
+									"hL", hsv.h >= rangeDef.hL,
+									"hH", hsv.h <= rangeDef.hH,
+									"sL", hsv.s >= rangeDef.sL,
+									"sH", hsv.s <= rangeDef.sH,
+									"vL", hsv.v >= rangeDef.vL,
+									"vH", hsv.v <= rangeDef.vH
+								)*/
+
 								//those ranges are precalculated in generateGmlCode so that we don't have to math them here
-								if(hsv.h >= rangeDef.hL && hsv.h <= rangeDef.hH
+								if(isWrappingValueWithinRange(hsv.h, 0, 360, rangeDef.hL, rangeDef.hH)
 								&& hsv.s >= rangeDef.sL && hsv.s <= rangeDef.sH
 								&& hsv.v >= rangeDef.vL && hsv.v <= rangeDef.vH
 								) {
@@ -779,6 +788,15 @@ const vm = new Vue({
 // https://github.com/semibran/wrap-around im idiot
 function wrap(m, n) {
   return n >= 0 ? n % m : (n % m + m) % m
+}
+
+function isWrappingValueWithinRange(value, wrappingStart, wrappingEnd, rangeStart, rangeEnd) {
+	if (rangeStart <= rangeEnd) {
+		return value >= rangeStart && value <= rangeEnd;
+	} else {
+		//const invert = wrappingStart - wrappingEnd;
+		return value >= rangeStart - wrappingEnd && value <= rangeEnd - wrappingStart;
+	}
 }
 
 function getRange(n1, n2) {

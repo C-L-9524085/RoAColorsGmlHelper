@@ -9,7 +9,7 @@ The general idea is that the game shifts the Hue, Saturation and Value of colors
 You can see a basic/bad usage video here: https://streamable.com/zkf5c
 where I load a picture, pick some colors, define main colors, and switch between recolors.
 
-This is still WIP (you can check progress in the issues). It has some quirks (most importantly, there's a bug where it doesn't recolor gray colors.) If something seems amiss, feel free to contact me and/or open an issue.
+This is still WIP (you can check progress in the issues). If something seems amiss, feel free to contact me and/or open an issue.
 
 ---
 
