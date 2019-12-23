@@ -13,53 +13,51 @@
 		<template id="color-picker-template">
 			<div class="color-picker">
 				<div class="color-picker__overlay" v-if="isVisible" v-on:click="hide"></div>
-				<transition name="pop">
-					<div class="color-picker__flyout" v-if="isVisible">
-						<div class="color-chip" v-bind:style="{'background': color}">
-							<div class="color-chip__inner">
-								<table>
-									<tr>
-										<td>RGB:</td>
-										<td><input class="color-input" size="3" v-bind:value="r" @input="validateAndSendRgbColorUpdate($event, 'r')" @change="askRerender" v-bind:disabled="readonly"></input></td>
-										<td><input class="color-input" size="3" v-bind:value="g" @input="validateAndSendRgbColorUpdate($event, 'g')" @change="askRerender" v-bind:disabled="readonly"></input></td>
-										<td><input class="color-input" size="3" v-bind:value="b" @input="validateAndSendRgbColorUpdate($event, 'b')" @change="askRerender" v-bind:disabled="readonly"></input></td>
-									</tr>
-									<tr>
-										<td>HEX:</td>
-										<td colspan=3><input class="color-input" v-bind:value="hex" @input="hex = $event.target.value; updateFromHex();" @change="askRerender" v-bind:disabled="readonly"></input></td>
-									</tr>
-								</table>
-								<br>
-								<div style="display: flex;">
-									<button style="padding:5px; border-radius: 5px 0px 0px 5px; border: 1px solid rgba(0, 0, 0, 0.5);" @click="copyColor">copy</button>
-									<input type="text" class="" style="width: 100%; text-align: center; border-radius: 0px 5px 5px 0px; border: 1px solid rgba(0, 0, 0, 0.5); border-left: none;"
-										ref="colorCopyPasteInput"
-										v-bind:value="color"
-										v-focus
-										@focus="$event.target.select()"
-										@click="$event.target.select()"
-										@paste="handlePaste($event)"
-									></input>
-								</div>
-							</div>
-						</div>
-						<div class="color-picker__inner">
-							<div v-if="showpalettecontrols" style="margin-bottom: 1rem;">
-								<button @click="hide(); $emit('delete-color')">remove</button>
-								<button style="float:right;" @click="$emit('set-main')">set main</button>
-							</div>
-							<div class="control" v-bind:style="gradientH">
-								<input type="range" min="0" max="360" v-bind:value="h" v-on:input="h = Number($event.target.value); updateFromHsv();" v-on:change="askRerender" />
-							</div>
-							<div class="control" v-bind:style="gradientS">
-								<input type="range" min="0" max="100" v-bind:value="percentS" v-on:input="s = Number($event.target.value) / 100; updateFromHsv();" v-on:change="askRerender"/>
-							</div>
-							<div class="control" v-bind:style="gradientV">
-								<input type="range" min="0" max="100" v-bind:value="percentV" v-on:input="v = Number($event.target.value) / 100; updateFromHsv();" v-on:change="askRerender" />
+				<div class="color-picker__flyout" v-if="isVisible">
+					<div class="color-chip" v-bind:style="{'background': color}">
+						<div class="color-chip__inner">
+							<table>
+								<tr>
+									<td>RGB:</td>
+									<td><input class="color-input" size="3" v-bind:value="r" @input="validateAndSendRgbColorUpdate($event, 'r')" @change="askRerender" v-bind:disabled="readonly"></input></td>
+									<td><input class="color-input" size="3" v-bind:value="g" @input="validateAndSendRgbColorUpdate($event, 'g')" @change="askRerender" v-bind:disabled="readonly"></input></td>
+									<td><input class="color-input" size="3" v-bind:value="b" @input="validateAndSendRgbColorUpdate($event, 'b')" @change="askRerender" v-bind:disabled="readonly"></input></td>
+								</tr>
+								<tr>
+									<td>HEX:</td>
+									<td colspan=3><input class="color-input" v-bind:value="hex" @input="hex = $event.target.value; updateFromHex();" @change="askRerender" v-bind:disabled="readonly"></input></td>
+								</tr>
+							</table>
+							<br>
+							<div style="display: flex;">
+								<button style="padding:5px; border-radius: 5px 0px 0px 5px; border: 1px solid rgba(0, 0, 0, 0.5);" @click="copyColor">copy</button>
+								<input type="text" class="" style="width: 100%; text-align: center; border-radius: 0px 5px 5px 0px; border: 1px solid rgba(0, 0, 0, 0.5); border-left: none;"
+									ref="colorCopyPasteInput"
+									v-bind:value="color"
+									v-focus
+									@focus="$event.target.select()"
+									@click="$event.target.select()"
+									@paste="handlePaste($event)"
+								></input>
 							</div>
 						</div>
 					</div>
-				</transition>
+					<div class="color-picker__inner">
+						<div v-if="showpalettecontrols" style="margin-bottom: 1rem;">
+							<button @click="hide(); $emit('delete-color')">remove</button>
+							<button style="float:right;" @click="$emit('set-main')">set main</button>
+						</div>
+						<div class="control" v-bind:style="gradientH">
+							<input type="range" min="0" max="360" v-bind:value="h" v-on:input="h = Number($event.target.value); updateFromHsv();" v-on:change="askRerender" />
+						</div>
+						<div class="control" v-bind:style="gradientS">
+							<input type="range" min="0" max="100" v-bind:value="percentS" v-on:input="s = Number($event.target.value) / 100; updateFromHsv();" v-on:change="askRerender"/>
+						</div>
+						<div class="control" v-bind:style="gradientV">
+							<input type="range" min="0" max="100" v-bind:value="percentV" v-on:input="v = Number($event.target.value) / 100; updateFromHsv();" v-on:change="askRerender" />
+						</div>
+					</div>
+				</div>
 				<div class="swatch" v-bind:style="{'background': color}" v-on:click="toggle"></div>
 			</div>
 		</template>

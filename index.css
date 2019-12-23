@@ -199,19 +199,3 @@ td {
 
 	box-sizing: border-box;
 }
-
-.swatch:hover {
-}
-
-.pop-enter-active,
-.pop-leave-active {
-  transition: transform .5s, opacity .5s;
-  transition-timing-function: cubic-bezier(.8, .3, 0.25, 1.75);
-  transform: scale(1);
-}
-
-.pop-enter,
-.pop-leave-active {
-  opacity: 0;
-  transform: scale(0);
-}
