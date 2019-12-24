@@ -382,7 +382,7 @@ const vm = new Vue({
 						for (let i2 = 0; i2 < row.colors.length; i2++) {
 							console.log("beep", i2, row.colors.length, i2 <= row.colors.length)
 							if (row.colors[i2] == null)
-								row.colors[i2] = {r: 0, g: 0, b: 0};
+								row.colors[i2] = {r: 0, g: 255, b: 0};
 						}
 					}
 				}
@@ -402,7 +402,7 @@ const vm = new Vue({
 			this.updateInput();
 		},
 		addSlot: function(inRow) {
-			const len = inRow.colors.push({r: 0, g: 0, b: 0});
+			const len = inRow.colors.push({r: 0, g: 255, b: 0});
 
 			this.$forceUpdate();
 			this.updateInput();
@@ -428,9 +428,9 @@ const vm = new Vue({
 		fillShadeSlotsUpToAmountOfRows: function(colorProfile) {
 			while (colorProfile.shades.length < this.rows.length) {
 				colorProfile.shades.push({
-					rgb: {r: 0, g: 0, b: 0},
-					hsv: rgbToHsv(0, 0, 0),
-					accurateHSV: rgbToHsv_noRounding(0, 0, 0)
+					rgb: {r: 0, g: 255, b: 0},
+					hsv: rgbToHsv(0, 255, 0),
+					accurateHSV: rgbToHsv_noRounding(0, 255, 0)
 				});
 			};
 
