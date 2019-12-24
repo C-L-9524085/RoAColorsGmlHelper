@@ -171,8 +171,10 @@ Vue.component("color-picker", {
 				if (pasted != this.color) { // don't do anything if we pasted the same color
 					const color = tinycolor(pasted);
 
-					if (color.isValid())
+					if (color.isValid()) {
 						this.updateAll(color.toRgb());
+						this.$emit("rerender");
+					}
 					else
 						event.target.value = color;
 				}
