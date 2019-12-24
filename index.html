@@ -209,11 +209,15 @@
 				<br>Color picker heavily based on <a href="https://vuejsexamples.com/vue-color-picker/">"a cool Color Picker with vue.js BY Florian Schulz."</a>
 				<br>Built with <a href="https://vuejs.org/">Vue.js</a>.
 				</p>
+				<input type="checkbox" id="skipConfirmRecolor" v-model="skipConfirmRecolor"></input>
+				<label for="skipConfirmRecolor">{{ (skipConfirmRecolor ? 'Not a' : 'A') + 'sking confirmation before recoloring big pictures' }}</label>
+				<br>
 				<input type="checkbox" id="calcFromFurthestHue" v-model="calcFromFurthestHue" @click="generateGmlCode"></input>
 				<label for="calcFromFurthestHue">{{ calcFromFurthestHue ? 'calculating ranges from main to furthest Hue only' : 'calculating ranges from main to biggest individual H, S, V values' }}</label>
 				<br>
-				<input type="checkbox" id="calcFromFurthestHue" v-model="colorspelling" true-value="colour" false-value="color"></input>
-				<label for="calcFromFurthestHue">U.K. mode 🇬🇧</label>
+				<input type="checkbox" id="ukMode" v-model="colorspelling" true-value="colour" false-value="color"></input>
+				<label for="ukMode">U.K. mode 🇬🇧</label>
+				<br>
 			</footer>
 		</div>
 

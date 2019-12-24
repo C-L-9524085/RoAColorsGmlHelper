@@ -5,6 +5,10 @@ const alternateColorsHeader = "// ALTERNATE COLORS";
 const MIN_ALT_PALETTES = 6;
 const MAX_ALT_PALETTES = 16;
 const MAX_SHADE_ROWS = 8;
+const PIC_PIXELS_TRESHOLD_FOR_WARNING = 100000;
+const PIC_RECOLOR_PIXELS_TRESHOLD_FOR_WARNING = 1000000;
+const PIC_COLORS_TRESHOLD_FOR_WARNING = 100;
+const PIC_COLORS_ACTUAL_TRESHOLD = PIC_COLORS_TRESHOLD_FOR_WARNING + PIC_COLORS_TRESHOLD_FOR_WARNING / 2;
 
 
 /* 
@@ -233,6 +237,7 @@ const vm = new Vue({
 		drawingCanvas: document.createElement("canvas"),
 		zoomFactor: 1,
 		colorspelling: "color",
+		skipConfirmRecolor: false,
 	},
 	computed: {
 		colorsNotInPalette: function() {
@@ -590,14 +595,23 @@ const vm = new Vue({
 			r.onload = () => {
 				this.previewImg = new Image();
 				this.previewImg.onload = () => {
-					this.renderPreview();
-					this.getColorsInImg();
+					//if (this.checkPicture()) {
+						this.renderPreview();
+						this.getColorsInImg();
+					//}
 				}
 
 				this.previewImg.src = r.result;
 			};
 
 			r.readAsDataURL(pix);
+		},
+		checkPicture: function() {
+			const pixels = this.previewImg.width * this.previewImg.height;
+			console.log("pixels in pic:", pixels)
+			if (pixels > PIC_PIXELS_TRESHOLD_FOR_WARNING)
+				return window.confirm("This image is pretty large - the browser might freeze while processing it. Are you sure you wanna continue?");
+			return true;
 		},
 		clearCanvas: function(canvas, ctx) {
 			if (!canvas) {
@@ -637,7 +651,15 @@ const vm = new Vue({
 
 				const cachedColorTransforms = new Map();
 
+				var confirmedContinue = this.skipConfirmRecolor;
 				for (var i = 0; i < imageDataArray.length; i += 4) {
+					if (i > PIC_RECOLOR_PIXELS_TRESHOLD_FOR_WARNING && !confirmedContinue) {
+						if (confirm("This picture looks pretty large - the browser might freeze while recoloring. Continue?"))
+							confirmedContinue = true;
+						else
+							break;
+					}
+
 					if (imageDataArray[i+3] == 0) //skip transparent (/alpha 0) pixels
 						continue;
 
@@ -710,7 +732,7 @@ const vm = new Vue({
 								}
 							})) {
 								//reaching here means the color wasn't fitting in any range
-								console.log("unmatched color", r, g, b);
+								//console.log("unmatched color", r, g, b);
 								cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
 							}
 						}
@@ -756,7 +778,16 @@ const vm = new Vue({
 			const imageData = ctx.getImageData(0, 0, width, height);
 			const imageDataArray = imageData.data;
 
+			var confirmedContinue = false;
+
 			for (var i = 0; i < imageDataArray.length; i += 4) {
+				if (knownColors.size > PIC_COLORS_ACTUAL_TRESHOLD && !confirmedContinue) {
+					if (confirm("There is more than " + PIC_COLORS_TRESHOLD_FOR_WARNING + " colors in this picture.\nLoading them all might freeze the browser while it processes. Continue?\n(Recoloring will still work if you skip this, but it'll probably be slow too.)"))
+						confirmedContinue = true;
+					else
+						break;
+				}
+
 				if (imageDataArray[i+3] == 0) //skip transparent (/alpha 0) pixels
 					continue;
 
