@@ -611,8 +611,6 @@ const vm = new Vue({
 			this.generateGmlCode()
 		},
 		loadFilePreview: function(event) {
-			this.zoomFactor = 1;
-
 			const pix = event.target.files[0];
 			const r = new FileReader();
 
@@ -620,6 +618,7 @@ const vm = new Vue({
 				this.previewImg = new Image();
 				this.previewImg.onload = () => {
 					//if (this.checkPicture()) {
+						this.getNiceZoomFactor();
 						this.renderPreview();
 						this.getColorsInImg();
 					//}
@@ -629,6 +628,17 @@ const vm = new Vue({
 			};
 
 			r.readAsDataURL(pix);
+		},
+		getNiceZoomFactor: function() {
+			this.zoomFactor = 1;
+			const width = this.previewImg.width;
+
+			if (width > 0 && window.innerWidth > 0) {
+				while ( window.innerWidth / (width * this.zoomFactor) > 5) { //lazy
+					console.log("getNiceZoomFactor", this.zoomFactor, (width * this.zoomFactor) / window.innerWidth > 5)
+					this.zoomFactor++;
+				}
+			}
 		},
 		checkPicture: function() {
 			const pixels = this.previewImg.width * this.previewImg.height;
