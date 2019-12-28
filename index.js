@@ -699,8 +699,13 @@ const vm = new Vue({
 
 					const r = imageDataArray[i],
 						g = imageDataArray[i+1],
-						b = imageDataArray[i+2],
-						hsv = rgbToHsv(r, g, b);
+						b = imageDataArray[i+2];
+
+					//skip gray outlines that the game ignores
+					if (r < 26 || g < 26 || b < 26)
+						continue;
+
+					const hsv = rgbToHsv(r, g, b);
 
 					if (this.selectedColorProfile != 0) {
 						const cachedColor = cachedColorTransforms.get(`${r},${g},${b}`);
@@ -834,7 +839,9 @@ const vm = new Vue({
 					knownColors.set(`${r},${g},${b}`, {r, g, b, hsv});
 			}
 
-			this.colorsInImg = Array.from(knownColors.values());
+			//filter out gray outlines that the game ignores
+			this.colorsInImg = Array.from(knownColors.values())
+				.filter(c => c.r > 25 && c.g > 25 && c.b > 25);
 		},
 		previewClick: function(ev) {
 			const canvas = document.getElementById("preview");
