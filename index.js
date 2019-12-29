@@ -868,8 +868,8 @@ function isWrappingValueWithinRange(value, wrappingStart, wrappingEnd, rangeStar
 	if (rangeStart <= rangeEnd) {
 		return value >= rangeStart && value <= rangeEnd;
 	} else {
-		//const invert = wrappingStart - wrappingEnd;
-		return value >= rangeStart - wrappingEnd && value <= rangeEnd - wrappingStart;
+		return (value >= rangeStart && value <= wrappingEnd)
+			|| (value <= rangeEnd   && value >= wrappingStart);
 	}
 }
 
