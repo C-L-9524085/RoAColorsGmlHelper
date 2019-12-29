@@ -255,7 +255,7 @@ const vm = new Vue({
 		//mainColor: null
 		previewImg: null,
 		colorsInImg: [],
-		colorProfilesMainColors: [],
+		colorProfilesMainColors: [{name: "default", shades: []}],
 		ranges: [],
 		selectedColorProfile: 0,
 		drawingCanvas: document.createElement("canvas"),
@@ -347,6 +347,12 @@ const vm = new Vue({
 				this.calcShadesHSV(this.colorProfilesMainColors[colorProfileSlot].shades[shadeSlot]);
 			}
 
+			this.colorProfilesMainColors[0].shades.forEach(shade => {
+				const newRow = this.addRow();
+				const newSlot = this.addSlot(newRow, {r, g, b} = shade.rgb);
+				this.setMainColor(newSlot, newRow);
+			})
+
 			const regComment = /^\/\/[ \t]*(.*)/g
 			var i = 1;
 			var reachedAltcolors = false;
@@ -420,16 +426,19 @@ const vm = new Vue({
 			this.generateGmlCode();
 		},
 		addRow: function() {
-			this.rows.push({name: "unnamed color row", colors: []})
+			const newRow = {name: "unnamed color row", colors: []}
+			this.rows.push(newRow)
 			this.colorProfilesMainColors.forEach(this.fillShadeSlotsUpToAmountOfRows)
 
 			this.updateInput();
+			return newRow;
 		},
-		addSlot: function(inRow) {
-			const len = inRow.colors.push({r: 0, g: 255, b: 0});
+		addSlot: function(inRow, color = {r: 0, g: 255, b: 0}) {
+			const len = inRow.colors.push(color);
 
 			this.$forceUpdate();
 			this.updateInput();
+			return color;
 		},
 		addColorProfileRow: function() {
 			const colorProfile = {
@@ -518,7 +527,7 @@ const vm = new Vue({
 		},
 		generateGmlCode: function() {
 			console.log("generateGmlCode()")
-			this.colorProfilesMainColors[0] = {name: "default", shades: []};
+			//this.colorProfilesMainColors[0] = {name: "default", shades: []};
 			this.ranges = [];
 			var str = "// DEFAULT COLOR";
 
