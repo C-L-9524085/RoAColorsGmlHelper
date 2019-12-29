@@ -70,7 +70,7 @@
 			<div id="flexContainerRight">
 				<div class="darkerbg">
 					<div>
-						<input type="file" id="file" @change="loadFilePreview"></input>
+						<input type="file" id="file" accept="image/*" @change="loadFilePreview"></input>
 						<input type="number" name="zoom" min="1" style="width: 40px" v-model:value="zoomFactor" @input="zoomFactor=Math.max(1, parseInt(zoomFactor))"></input>
 					</div>
 					<canvas id="preview" @click="previewClick" class="darkerbg"></canvas>
