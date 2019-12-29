@@ -251,7 +251,6 @@ const vm = new Vue({
 	data: {
 		rows: [],
 		pickedColor: { r: 0, g: 0, b: 0, a: 0, x: 0, y: 0 },
-		calcFromFurthestHue: false,
 		//mainColor: null
 		previewImg: null,
 		colorsInImg: [],
@@ -603,17 +602,9 @@ const vm = new Vue({
 				const hueDistance = getHueDistance(HSVMain.h, HSV.h) || 0; //brok on blak
 				console.info("hsv", HSV, HSVArray.length, "distance from main:", hueDistance)
 	
-				if (this.calcFromFurthestHue) {
-					if (hueDistance > highestRanges.h) {
-						highestRanges.h = hueDistance;
-						highestRanges.s = getRange(HSV.s, HSVMain.s);
-						highestRanges.v = getRange(HSV.v, HSVMain.v);
-					}
-				} else {
-					highestRanges.h = Math.max(hueDistance, highestRanges.h);
-					highestRanges.s = Math.max(getRange(HSV.s, HSVMain.s), highestRanges.s);
-					highestRanges.v = Math.max(getRange(HSV.v, HSVMain.v), highestRanges.v);
-				}
+				highestRanges.h = Math.max(hueDistance, highestRanges.h);
+				highestRanges.s = Math.max(getRange(HSV.s, HSVMain.s), highestRanges.s);
+				highestRanges.v = Math.max(getRange(HSV.v, HSVMain.v), highestRanges.v);
 			});
 
 			return highestRanges;
