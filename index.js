@@ -702,7 +702,7 @@ const vm = new Vue({
 						b = imageDataArray[i+2];
 
 					//skip gray outlines that the game ignores
-					if (r < 26 || g < 26 || b < 26)
+					if (r < 26 && g < 26 && b < 26)
 						continue;
 
 					const hsv = rgbToHsv(r, g, b);
@@ -841,7 +841,7 @@ const vm = new Vue({
 
 			//filter out gray outlines that the game ignores
 			this.colorsInImg = Array.from(knownColors.values())
-				.filter(c => c.r > 25 && c.g > 25 && c.b > 25);
+				.filter(c => !(c.r < 26 && c.g < 26 && c.b < 26)); // weird inversion here to match renderPreview()'s filter
 		},
 		previewClick: function(ev) {
 			const canvas = document.getElementById("preview");
