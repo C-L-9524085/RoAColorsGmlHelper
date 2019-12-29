@@ -6,8 +6,8 @@ The file is tedious to hand-write because of the color picking, conversion and t
 
 The general idea is that the game shifts the Hue, Saturation and Value of colors that match a "range" around a "main" color, with the difference between that range's "original" "main" color and the recolor's "main" color for the same slot.
 
-You can see a basic/bad usage video here: https://streamable.com/zkf5c
-where I load a picture, pick some colors, define main colors, and switch between recolors.
+![usage video](https://i.imgur.com/1NYuQ7d.gif)
+More usage videos [here](https://streamable.com/i5h69) and [here](https://streamable.com/zkf5c)
 
 This is still WIP (you can check progress in the issues). If something seems amiss, feel free to contact me and/or open an issue.
 
