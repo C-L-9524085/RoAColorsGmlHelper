@@ -57,7 +57,7 @@
 						<div class="control" v-bind:style="gradientV">
 							<input type="range" min="0" max="100" v-bind:value="percentV" v-on:input="v = Number($event.target.value) / 100; updateFromHsv();" v-on:change="askRerender" v-bind:disabled="readonly"/>
 						</div>
-						<p class="centertxt sneakyText" style="color: black; margin: 0px; margin-top: 5px; scale: 0.5">{{hslStr}}</p>
+						<p class="centertxt sneakyText" style="color: black; margin: 0px; margin-top: 5px; scale: 0.5">{{hsvStr}}</p>
 					</div>
 				</div>
 				<div class="swatch" v-bind:style="{'background': color}" v-on:click="toggle"></div>

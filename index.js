@@ -44,8 +44,8 @@ Vue.component("color-picker", {
 		color: function() { return `rgb(${this.r}, ${this.g}, ${this.b})` },
 		rgb: function() { return {r: this.r, g: this.g, b: this.b} },
 		hsv: function() { return {h: this.h, s: this.s, v: this.v} },
-		hslStr: function() { return tinycolor({h: this.h, s: this.s, l: this.v}).toHslString()},
-		hsvStr: function() { return tinycolor({h: this.h, s: this.s, l: this.v}).toHsvString()},
+		hslStr: function() { return tinycolor({r: this.r, g: this.g, b: this.b}).toHslString()},
+		hsvStr: function() { return tinycolor({r: this.r, g: this.g, b: this.b}).toHsvString()},
 		percentS: function() { return this.s * 100 },
 		percentV: function() { return this.v * 100 },
 		gradientH: function() {
