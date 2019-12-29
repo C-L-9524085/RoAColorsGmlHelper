@@ -200,17 +200,24 @@
 			</div>
 
 			<footer>
-				<p style="clear:both;">Copy-paste your current colors.gml's file content in the text field on the right, or start defining {{colorspelling}}s.
-				<br>The text field will be updated in real time (and forced into this tool's format because it's easier for me, sorry!)
-				<br>Copy-paste it back into your colors.gml file once you're done.
-				<br>You can load a sprite to preview re{{colorspelling}}s (The tool is completely local, nothing gets uploaded anywhere.)
-				<br>You can rename rows and slots by clicking on their name. This will update the header comment in the .gml file.
-				<br>You can ctrl+c / ctrl+v a color as soon as you open it's picker.
-				<br>
-				<br>It uses <a href="http://bgrins.github.io/TinyColor/">TinyColor</a> for parsing, so it should support all the correctly-formatted formats you can throw at it.
-				<br>Color picker heavily based on <a href="https://vuejsexamples.com/vue-color-picker/">"a cool Color Picker with vue.js BY Florian Schulz."</a>
-				<br>Built with <a href="https://vuejs.org/">Vue.js</a>.
+				<p style="clear:both;">Copy-paste your current colors.gml's file content in the text field on the right, and/or start defining {{colorspelling}}s.
+					<br>Ranges are automatically calculated from the palette <span class="sneakyText">(it doesn't read them from the code.)</span>
+					<br>The text field will be updated in real time <span class="sneakyText">(and forced into this tool's format because it's easier for me, sorry!)</span>
+					<br>Copy-paste the code back into your colors.gml file once you're done.
+					<br>
+					<br>Usage videos available <a href="https://i.imgur.com/1NYuQ7d.gif">here</a>, <a href="https://streamable.com/i5h69">here</a> and <a href="https://streamable.com/zkf5c">here</a>.
+					<br>You can load a sprite to preview re{{colorspelling}}s <span class="sneakyText">(The tool is completely local, nothing gets uploaded anywhere.)</span>
+					<br>You can rename rows and slots by clicking on their name. This will update the header comment in the .gml file.
+					<br>You can ctrl+c / ctrl+v a color as soon as you open it's picker.
 				</p>
+
+				<p class="sneakyText">
+					<br>Official doc about colors.gml <a href="https://www.rivalsofaether.com/workshop/colors-gml/">here</a>. Youtube video explanation<a href="https://www.youtube.com/watch?v=qo4hmRbW8lQ">here</a>.
+					<br>It uses <a href="http://bgrins.github.io/TinyColor/">TinyColor</a> for parsing, so it should support all the correctly-formatted color formats you can throw at it.
+					<br>Color picker heavily based on <a href="https://vuejsexamples.com/vue-color-picker/">"a cool Color Picker with vue.js BY Florian Schulz."</a>
+					<br>Built with <a href="https://vuejs.org/">Vue.js</a>.
+				</p>
+
 				<input type="checkbox" id="skipConfirmRecolor" v-model="skipConfirmRecolor"></input>
 				<label for="skipConfirmRecolor">{{ (skipConfirmRecolor ? 'Not a' : 'A') + 'sking confirmation before recoloring big pictures' }}</label>
 				<br>
