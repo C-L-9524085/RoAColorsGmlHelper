@@ -347,11 +347,15 @@ const vm = new Vue({
 				this.calcShadesHSV(this.colorProfilesMainColors[colorProfileSlot].shades[shadeSlot]);
 			}
 
-			this.colorProfilesMainColors[0].shades.forEach(shade => {
-				const newRow = this.addRow();
-				const newSlot = this.addSlot(newRow, {r, g, b} = shade.rgb);
-				this.setMainColor(newSlot, newRow);
-			})
+			if (this.rows.length == 0) {
+				console.log("filling palette with base colors")
+				this.colorProfilesMainColors[0].shades.forEach(shade => {
+					console.log("adding row and slot for", shade)
+					const newRow = this.addRow();
+					const newSlot = this.addSlot(newRow, {r, g, b} = shade.rgb);
+					this.setMainColor(newSlot, newRow);
+				})
+			}
 
 			const regComment = /^\/\/[ \t]*(.*)/g
 			var i = 1;
@@ -425,8 +429,8 @@ const vm = new Vue({
 
 			this.generateGmlCode();
 		},
-		addRow: function() {
-			const newRow = {name: "unnamed color row", colors: []}
+		addRow: function(name = "unnamed color row") {
+			const newRow = {name, colors: []}
 			this.rows.push(newRow)
 			this.colorProfilesMainColors.forEach(this.fillShadeSlotsUpToAmountOfRows)
 
