@@ -756,16 +756,20 @@ const vm = new Vue({
 									matched = true;
 
 									//don't shade shift if current color is same as main color
-									if (r === mainColorForShade.rgb.r && g === mainColorForShade.rgb.g && b === mainColorForShade.rgb.b)
-										return true;
+									if (r === mainColorForShade.rgb.r && g === mainColorForShade.rgb.g && b === mainColorForShade.rgb.b) {
+										cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
+										return;
+									}
 
 									const defaultColorForShade = this.colorProfilesMainColors[0].shades[shadeIndex];
 
 									//don't shade shift if main color is same as default color
 									if(defaultColorForShade.rgb.r === mainColorForShade.rgb.r
 									&& defaultColorForShade.rgb.g === mainColorForShade.rgb.g
-									&& defaultColorForShade.rgb.b === mainColorForShade.rgb.b)
-										return true;
+									&& defaultColorForShade.rgb.b === mainColorForShade.rgb.b) {
+										cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
+										return;
+									}
 
 
 									const accurateHSV = rgbToHsv_noRounding(r, g, b);
@@ -789,7 +793,6 @@ const vm = new Vue({
 									cachedColorTransforms.set(`${r},${g},${b}`, shiftedRgb);
 
 									//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, step, shiftedRgb)
-									return true;
 								}
 							})
 							if (!matched) {
