@@ -735,7 +735,8 @@ const vm = new Vue({
 							imageDataArray[i+2] = cachedColor.b;
 						}
 						else {
-							if (!this.ranges.some((rangeDef, shadeIndex) => {
+							let matched = false;
+							this.ranges.forEach((rangeDef, shadeIndex) => {
 								//console.log("px", i, "on shade", shadeIndex, "with range", rangeDef, "hsv:", hsv);
 								/*console.log("h", isWrappingValueWithinRange(hsv.h, 0, 360, rangeDef.hL, rangeDef.hH),
 									"hL", hsv.h >= rangeDef.hL,
@@ -752,6 +753,7 @@ const vm = new Vue({
 								&& hsv.v >= rangeDef.vL && hsv.v <= rangeDef.vH
 								) {
 									const mainColorForShade = this.colorProfilesMainColors[this.selectedColorProfile].shades[shadeIndex];
+									matched = true;
 
 									//don't shade shift if current color is same as main color
 									if (r === mainColorForShade.rgb.r && g === mainColorForShade.rgb.g && b === mainColorForShade.rgb.b)
@@ -789,7 +791,8 @@ const vm = new Vue({
 									//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, step, shiftedRgb)
 									return true;
 								}
-							})) {
+							})
+							if (!matched) {
 								//reaching here means the color wasn't fitting in any range
 								//console.log("unmatched color", r, g, b);
 								cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
