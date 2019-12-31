@@ -261,6 +261,7 @@ const vm = new Vue({
 		zoomFactor: 1,
 		colorspelling: "color",
 		skipConfirmRecolor: false,
+		autoMoveShades: true,
 	},
 	computed: {
 		colorsNotInPalette: function() {
@@ -521,6 +522,12 @@ const vm = new Vue({
 			console.log("moving", iRow, "up", row)
 			this.rows.splice(iRow - 1, 0, row);
 
+			if (this.autoMoveShades)
+				this.colorProfilesMainColors.forEach(profile => {
+					const shade = profile.shades.splice(iRow, 1)[0];
+					profile.shades.splice(iRow - 1, 0, shade);
+				})
+
 			this.generateGmlCode();
 			this.updateInput();
 		},
@@ -528,6 +535,12 @@ const vm = new Vue({
 			const row = this.rows.splice(iRow, 1)[0];
 			console.log("moving", iRow, "down", row)
 			this.rows.splice(iRow + 1, 0, row);
+
+			if (this.autoMoveShades)
+				this.colorProfilesMainColors.forEach(profile => {
+					const shade = profile.shades.splice(iRow, 1)[0];
+					profile.shades.splice(iRow + 1, 0, shade);
+				})
 
 			this.generateGmlCode();
 			this.updateInput();

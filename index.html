@@ -220,6 +220,9 @@
 					<br>Built with <a href="https://vuejs.org/">Vue.js</a>.
 				</p>
 
+				<input type="checkbox" id="autoMoveShades" v-model="autoMoveShades"></input>
+				<label for="autoMoveShades">{{ (autoMoveShades ? 'A' : 'Not a') + 'utomatically moving shades when palette rows are moved' }}</label>
+				<br>
 				<input type="checkbox" id="skipConfirmRecolor" v-model="skipConfirmRecolor"></input>
 				<label for="skipConfirmRecolor">{{ (skipConfirmRecolor ? 'Not a' : 'A') + 'sking confirmation before recoloring big pictures' }}</label>
 				<br>
