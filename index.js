@@ -516,6 +516,22 @@ const vm = new Vue({
 
 			this.updateDisplays();
 		},
+		moveRowUp: function(iRow) {
+			const row = this.rows.splice(iRow, 1)[0];
+			console.log("moving", iRow, "up", row)
+			this.rows.splice(iRow - 1, 0, row);
+
+			this.generateGmlCode();
+			this.updateInput();
+		},
+		moveRowDown: function(iRow) {
+			const row = this.rows.splice(iRow, 1)[0];
+			console.log("moving", iRow, "down", row)
+			this.rows.splice(iRow + 1, 0, row);
+
+			this.generateGmlCode();
+			this.updateInput();
+		},
 		changeSlotName: function(event, slot) {
 			event.target.innerText = event.target.innerText.replace(/\n/g, "");
 			slot.name = event.target.innerText;
