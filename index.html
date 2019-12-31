@@ -128,8 +128,8 @@
 					<hr>
 					<table id="colors">
 						<tr class="shadeRow" v-for="(row, iRow) in rows">
-							<td class="color centertxt"><div @click="moveRowUp(iRow)" name="move slot up">^</div></td>
-							<td class="color centertxt"><div @click="moveRowDown(iRow)" name="move slot down">v</div></td>
+							<td class="color centertxt"><div @click="moveRowUp(iRow)" name="move slot up">▲</div></td>
+							<td class="color centertxt"><div @click="moveRowDown(iRow)" name="move slot down">▼</div></td>
 							<td class="rowDeletButton" @click="deleteRow(iRow)"><div>🗑️</div></td>
 							<td class="shadeSlotName centertxt" contenteditable="true" @blur="changeRowName($event, row)">{{row.name}}</td>
 							<td
