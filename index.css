@@ -110,6 +110,22 @@ td {
   background-color: rgba(0, 255, 0, 0.5);
 }
 
+a:link {
+  color: #9ff;
+}
+
+a:visited {
+  color: #dff;
+}
+
+:active {
+  color: #dff;
+}
+
+a:hover {
+  color: #fff;
+}
+
 .color-picker {
   position: relative;
 }
