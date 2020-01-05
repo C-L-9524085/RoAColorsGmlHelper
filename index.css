@@ -118,7 +118,7 @@ a:visited {
   color: #dff;
 }
 
-:active {
+a:active {
   color: #dff;
 }
 
