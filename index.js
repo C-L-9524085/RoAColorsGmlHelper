@@ -462,6 +462,21 @@ const vm = new Vue({
 
 			this.updateDisplays();
 		},
+		moveShadeUp: function(colorSlotIndex) {
+			const row = this.colorProfilesMainColors.splice(colorSlotIndex, 1)[0];
+			console.log("moving shade", colorSlotIndex, "up", row)
+			this.colorProfilesMainColors.splice(colorSlotIndex - 1, 0, row);
+
+			this.updateDisplays();
+		},
+		moveShadeDown: function(colorSlotIndex) {
+			const row = this.colorProfilesMainColors.splice(colorSlotIndex, 1)[0];
+			console.log("moving shade", colorSlotIndex, "down", row)
+			this.colorProfilesMainColors.splice(colorSlotIndex + 1, 0, row);
+
+			this.generateGmlCode();
+			this.updateDisplays();
+		},
 		fillShadeSlotsUpToAmountOfRows: function(colorProfile) {
 			while (colorProfile.shades.length < this.rows.length) {
 				colorProfile.shades.push({

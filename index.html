@@ -165,6 +165,12 @@
 						<tr v-for="(colorSlot, colorSlotIndex) in colorProfilesMainColors"
 							class="colorSlot"
 						>
+							<td class="color centertxt">
+								<div v-if="colorSlotIndex > 0" class="fakebutton" @click="moveShadeUp(colorSlotIndex)" name="move alt palette up">▲</div>
+							</td>
+							<td class="color centertxt">
+								<div v-if="colorSlotIndex > 0" class="fakebutton" @click="moveShadeDown(colorSlotIndex)" name="move alt palette down">▼</div>
+							</td>
 							<td><input type="radio" :id=`$ColorSlot_${colorSlotIndex}` v-bind:value="colorSlotIndex" v-model="selectedColorProfile">
 							<td><label :for=`$ColorSlot_${colorSlotIndex}`>{{colorSlotIndex}}</label></td>
 							<td class="shadeSlotName" contenteditable="true" @blur="changeSlotName($event, colorSlot)">{{colorSlot.name || ""}}</td>
