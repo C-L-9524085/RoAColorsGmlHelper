@@ -577,26 +577,36 @@ const vm = new Vue({
 			this.updateHandler({type: "ALT_PALETTE_ROW_RENAME", doRerender: false, recalcRanges: false});
 		},
 		updateHandler: function({ type = "unspecified", jsonOnly = false, doRerender = true, forceUpdate = false, recalcRanges = true }) {
-			console.log("update", new Date().toISOString(), ":", type, "only regenerating JSON:", jsonOnly, "re-rendering:", doRerender)
+			console.log("update", new Date().toISOString(), ":", type,
+				"\nonly regenerating JSON:", jsonOnly,
+				"\nre-rendering:", doRerender,
+				"\nforce update", forceUpdate,
+				"\nrecalculating ranges:", recalcRanges
+			)
+
+			var rangesChanged = false;
+
 			if (jsonOnly == false)
-				this.generateGmlCode(recalcRanges);
+				rangesChanged = this.generateGmlCode(recalcRanges);
 
 			//TODO: store updateType along with regenerated code
-			//TODO: recalcRanges switch for generateGmlCode
-			//TODO: rerenderIfRangesChange option
 
 			if (forceUpdate)
 				this.$forceUpdate();
 
-			if (doRerender)
-				this.renderPreview();
-
+			if (doRerender) {
+				if (rangesChanged)
+					this.renderPreview();
+				else
+					console.info("ranges didn't change - not rerendering")
+			}
 		},
 		generateGmlCode: function(recalcRanges = true) {
-			console.log("generateGmlCode()")
+			//todo separate range calculation from code generation
+			console.log("generateGmlCode(), recalculating ranges:", recalcRanges)
 			//this.colorProfilesMainColors[0] = {name: "default", shades: []};
-			this.ranges = [];
 			var str = "// DEFAULT COLOR";
+			var rangesChanged = false;
 
 			this.rows.forEach((row, iRow) => {
 				const HSVs = [];
@@ -618,10 +628,16 @@ const vm = new Vue({
 				})
 
 				if (recalcRanges) {
-					console.log("recalculating ranges")
 					if (HSVMain) {
 						console.info("calculating range for", row.name, iRow);
 						const highest = this.calcHSVRange(HSVs, HSVMain);
+						if (this.ranges[iRow] &&
+							(this.ranges[iRow].highest.h != highest.h
+							|| this.ranges[iRow].highest.s != highest.s
+							|| this.ranges[iRow].highest.v != highest.v)
+						) {
+							rangesChanged = true;
+						}
 
 						str += `\nset_color_profile_slot_range( ${iRow}, ${highest.h + 1}, ${highest.s + 1}, ${highest.v + 1} );`;
 						this.ranges[iRow] = {
@@ -636,6 +652,7 @@ const vm = new Vue({
 					} else {
 						str += `\n\n// ${row.name}\n// (no main color selected)`;
 						this.colorProfilesMainColors[0].shades[iRow] = null;
+						this.ranges[iRow] = null;
 					}
 				} else {
 					console.log("not recalculating ranges")
@@ -660,6 +677,7 @@ const vm = new Vue({
 
 			this.codeOutputGml = str;
 			//document.getElementById('gmlDisplay').value = str;
+			return rangesChanged;
 		},
 		generateJSONCode: function() {
 			this.codeOutputJSON = "\n\n\n/* This is used by that one RoA colors.gml generator tool to store palette data\n"
