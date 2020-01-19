@@ -467,6 +467,7 @@ const vm = new Vue({
 			console.log("moving shade", colorSlotIndex, "up", row)
 			this.colorProfilesMainColors.splice(colorSlotIndex - 1, 0, row);
 
+			this.$forceUpdate();
 			this.updateDisplays();
 		},
 		moveShadeDown: function(colorSlotIndex) {
@@ -474,6 +475,7 @@ const vm = new Vue({
 			console.log("moving shade", colorSlotIndex, "down", row)
 			this.colorProfilesMainColors.splice(colorSlotIndex + 1, 0, row);
 
+			this.$forceUpdate();
 			this.generateGmlCode();
 			this.updateDisplays();
 		},
@@ -543,6 +545,7 @@ const vm = new Vue({
 					profile.shades.splice(iRow - 1, 0, shade);
 				})
 
+			this.$forceUpdate();
 			this.generateGmlCode();
 			this.updateInput();
 		},
@@ -557,6 +560,7 @@ const vm = new Vue({
 					profile.shades.splice(iRow + 1, 0, shade);
 				})
 
+			this.$forceUpdate();
 			this.generateGmlCode();
 			this.updateInput();
 		},
