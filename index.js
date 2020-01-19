@@ -694,7 +694,7 @@ const vm = new Vue({
 
 			HSVArray.forEach(HSV => {
 				const hueDistance = getHueDistance(HSVMain.h, HSV.h) || 0; //brok on blak
-				console.info("hsv", HSV, HSVArray.length, "distance from main:", hueDistance)
+				//console.info("hsv", HSV, HSVArray.length, "distance from main:", hueDistance)
 	
 				highestRanges.h = Math.max(hueDistance, highestRanges.h);
 				highestRanges.s = Math.max(getRange(HSV.s, HSVMain.s), highestRanges.s);
