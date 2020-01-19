@@ -262,6 +262,8 @@ const vm = new Vue({
 		colorspelling: "color",
 		skipConfirmRecolor: false,
 		autoMoveShades: true,
+		codeOutputGml: "",
+		codeOutputJSON: "",
 	},
 	computed: {
 		colorsNotInPalette: function() {
@@ -284,6 +286,9 @@ const vm = new Vue({
 			})
 
 			return {matchedColors, unmatchedColors};
+		},
+		codeOutput: function() {
+			return this.codeOutputGml + this.codeOutputJSON;
 		}
 	},
 	beforeMount: function() { //i suppose this is the right place for this?
@@ -298,7 +303,9 @@ const vm = new Vue({
 		rows: {
 			//not sure if I should have this or just call a function on color-picker's update:r instead of using .sync
 			deep: true,
-			handler: 'updateInput'
+			handler: function() {
+				this.updateHandler({type: "VUE_NOTICED_COLOR_PALETTE_UPDATE"});
+			}
 		},
 		zoomFactor: 'renderPreview'
 	},
@@ -321,7 +328,8 @@ const vm = new Vue({
 				}
 			}
 
-			this.parseGMLCodeToColorProfiles(txt)
+			this.parseGMLCodeToColorProfiles(txt);
+			this.updateHandler({type: "CODE_INPUT_PARSED", forceUpdate: true});
 		},
 		parseGMLCodeToColorProfiles: function(originalTxt) {
 			console.log("parseGMLCodeToColorProfiles()")
@@ -391,8 +399,6 @@ const vm = new Vue({
 				this.addColorProfileRow()
 			}
 
-			this.$forceUpdate();
-			this.generateGmlCode();
 			console.log("parseGMLCodeToColorProfiles", this.colorProfilesMainColors)
 		},
 		calcShadesHSV: function(shade) {
@@ -426,22 +432,19 @@ const vm = new Vue({
 				console.error("unable to parse input", e)
 				this.rows = [];
 			}
-
-			this.generateGmlCode();
 		},
-		addRow: function(name = "unnamed color row") {
+		addColorPaletteRow: function(name = "unnamed color row") {
 			const newRow = {name, colors: []}
 			this.rows.push(newRow)
 			this.colorProfilesMainColors.forEach(this.fillShadeSlotsUpToAmountOfRows)
 
-			this.updateInput();
+			this.updateHandler({type: "COLOR_PALETTE_ADD_ROW", jsonOnly: false, doRerender: false, recalcRanges: false});
 			return newRow;
 		},
-		addSlot: function(inRow, color = {r: 0, g: 255, b: 0}) {
+		addColorPaletteSlot: function(inRow, color = {r: 0, g: 255, b: 0}) {
 			const len = inRow.colors.push(color);
 
-			this.$forceUpdate();
-			this.updateInput();
+			this.updateHandler({type: "COLOR_PALETTE_ADD_SLOT", jsonOnly: true, doRerender: false, forceUpdate: true});
 			return color;
 		},
 		addColorProfileRow: function() {
@@ -455,26 +458,27 @@ const vm = new Vue({
 
 
 			this.colorProfilesMainColors.push(colorProfile);
-			this.updateInput();
+			this.updateHandler({type: "ALT_PALETTE_ROW_ADD", jsonOnly: false, doRerender: false, recalcRanges: false});
 		},
-		deleteColorSlotRow: function(colorSlotIndex) {
-			this.colorProfilesMainColors.splice(colorSlotIndex, 1);
+		deleteAltPaletteRow: function(rowIndex) {
+			this.colorProfilesMainColors.splice(rowIndex, 1);
 
-			this.updateDisplays();
+			//todo reset selection to 0 if rowIndex == currently selected row
+			this.updateHandler({type: "ALT_PALETTE_ROW_DELETE", recalcRanges: false});
 		},
-		moveShadeUp: function(colorSlotIndex) {
-			const row = this.colorProfilesMainColors.splice(colorSlotIndex, 1)[0];
-			console.log("moving shade", colorSlotIndex, "up", row)
-			this.colorProfilesMainColors.splice(colorSlotIndex - 1, 0, row);
+		moveAltPaletteUp: function(rowIndex) {
+			const row = this.colorProfilesMainColors.splice(rowIndex, 1)[0];
+			console.log("moving shade", rowIndex, "up", row)
+			this.colorProfilesMainColors.splice(rowIndex - 1, 0, row);
 
-			this.updateDisplays();
+			this.updateHandler({type: "ALT_PALETTE_ROW_MOVE_UP"});
 		},
-		moveShadeDown: function(colorSlotIndex) {
-			const row = this.colorProfilesMainColors.splice(colorSlotIndex, 1)[0];
-			console.log("moving shade", colorSlotIndex, "down", row)
-			this.colorProfilesMainColors.splice(colorSlotIndex + 1, 0, row);
+		moveAltPaletteDown: function(rowIndex) {
+			const row = this.colorProfilesMainColors.splice(rowIndex, 1)[0];
+			console.log("moving shade", rowIndex, "down", row)
+			this.colorProfilesMainColors.splice(rowIndex + 1, 0, row);
 
-			this.updateDisplays();
+			this.updateHandler({type: "ALT_PALETTE_ROW_MOVE_DOWN"});
 		},
 		fillShadeSlotsUpToAmountOfRows: function(colorProfile) {
 			while (colorProfile.shades.length < this.rows.length) {
@@ -505,69 +509,78 @@ const vm = new Vue({
 				//this.mainColor = colorSlot;
 			}
 
-			this.$forceUpdate();
-			this.updateDisplays();
+			//should only rerender if the range changes?
+			this.updateHandler({type: "COLOR_SET_MAIN", jsonOnly: false, doRerender: true, forceUpdate: true});
 		},
 		deleteColor: function(colorSlotIndex, row) {
 			console.log("deleteColor()");
 			row.colors.splice(colorSlotIndex, 1);
 
-			this.$forceUpdate();
-			this.updateDisplays();
+			//should only rerender if the range changes?
+			this.updateHandler({type: "COLOR_DELETE", jsonOnly: false, doRerender: true, forceUpdate: true});
 		},
-		changeRowName: function(event, row) {
+		renameColorPaletteRow: function(event, row) {
 			event.target.innerText = event.target.innerText.replace(/\n/g, "");
 			row.name = event.target.innerText;
 
-			this.generateGmlCode();
-			this.updateInput();
+			this.updateHandler({type: "COLOR_PALETTE_ROW_RENAME", jsonOnly: false, doRerender: false, recalcRanges: false});
 		},
-		deleteRow: function(iRow) {
+		deleteColorPaletteRow: function(iRow) {
 			this.rows.splice(iRow, 1);
 
 			this.colorProfilesMainColors.forEach(colorProfile => {
 				colorProfile.shades.splice(iRow, 1);
 			})
 
-			this.updateDisplays();
+			this.updateHandler({type: "COLOR_PALETTE_ROW_DELETE"});
 		},
-		moveRowUp: function(iRow) {
-			const row = this.rows.splice(iRow, 1)[0];
-			console.log("moving", iRow, "up", row)
-			this.rows.splice(iRow - 1, 0, row);
+		moveColorPaletteRowUp: function(rowIndex) {
+			const row = this.rows.splice(rowIndex, 1)[0];
+			console.log("moving", rowIndex, "up", row)
+			this.rows.splice(rowIndex - 1, 0, row);
 
 			if (this.autoMoveShades)
 				this.colorProfilesMainColors.forEach(profile => {
-					const shade = profile.shades.splice(iRow, 1)[0];
-					profile.shades.splice(iRow - 1, 0, shade);
+					const shade = profile.shades.splice(rowIndex, 1)[0];
+					profile.shades.splice(rowIndex - 1, 0, shade);
 				})
 
-			this.updateDisplays();
+			this.updateHandler({type: "COLOR_PALETTE_ROW_MOVE_UP"});
 		},
-		moveRowDown: function(iRow) {
-			const row = this.rows.splice(iRow, 1)[0];
-			console.log("moving", iRow, "down", row)
-			this.rows.splice(iRow + 1, 0, row);
+		moveColorPaletteRowDown: function(rowIndex) {
+			const row = this.rows.splice(rowIndex, 1)[0];
+			console.log("moving", rowIndex, "down", row)
+			this.rows.splice(rowIndex + 1, 0, row);
 
 			if (this.autoMoveShades)
 				this.colorProfilesMainColors.forEach(profile => {
-					const shade = profile.shades.splice(iRow, 1)[0];
-					profile.shades.splice(iRow + 1, 0, shade);
+					const shade = profile.shades.splice(rowIndex, 1)[0];
+					profile.shades.splice(rowIndex + 1, 0, shade);
 				})
 
-			this.updateDisplays();
+			this.updateHandler({type: "COLOR_PALETTE_ROW_MOVE_DOWN"});
 		},
-		changeSlotName: function(event, slot) {
-			event.target.innerText = event.target.innerText.replace(/\n/g, "");
-			slot.name = event.target.innerText;
+		renameAltPaletteRow: function(event, row) {
+			event.target.innerText = event.target.innerText.replace(/\n/g, ""); //todo remove this?
+			row.name = event.target.innerText;
 
-			this.generateGmlCode();
-			this.updateInput();
+			this.updateHandler({type: "ALT_PALETTE_ROW_RENAME", doRerender: false, recalcRanges: false});
 		},
-		updateDisplays: function() {
-			this.generateGmlCode();
-			//this.updateInput();
-			this.renderPreview();
+		updateHandler: function({ type = "unspecified", jsonOnly = false, doRerender = true, forceUpdate = false, recalcRanges = true }) {
+			console.log("update", new Date().toISOString(), ":", type, "only regenerating JSON:", jsonOnly, "re-rendering:", doRerender)
+			if (jsonOnly == false)
+				this.generateGmlCode(recalcRanges);
+
+			//TODO: store updateType along with regenerated code
+			//TODO: recalcRanges switch for generateGmlCode
+			//TODO: rerenderIfRangesChange option
+
+			if (forceUpdate)
+				this.$forceUpdate();
+
+			if (doRerender)
+				this.renderPreview();
+
 		},
 		generateGmlCode: function() {
 			console.log("generateGmlCode()")
@@ -628,12 +641,14 @@ const vm = new Vue({
 				})
 			}
 
-			str += "\n\n\n/* This is used by that one RoA colors.gml generator tool to store palette data\n"
+			this.codeOutputGml = str;
+			//document.getElementById('gmlDisplay').value = str;
+		},
+		generateJSONCode: function() {
+			this.codeOutputJSON = "\n\n\n/* This is used by that one RoA colors.gml generator tool to store palette data\n"
 				+ jsonPaletteHeaderStart + "\n"
 				+ JSON.stringify({formatversion: 1, data: this.rows})
 				+ "\n" + jsonPaletteHeaderEnd + "\n*/\n"
-
-			document.getElementById('gmlDisplay').value = str;
 		},
 		calcHSVRange: function(HSVArray, HSVMain) {
 			var highestRanges = {h: 0, s: 0, v: 0};
@@ -649,11 +664,6 @@ const vm = new Vue({
 			});
 
 			return highestRanges;
-		},
-		updateInput: function() {
-			console.log("updateInput()")
-			//todo just edit json, don't regenerate gml if unchanged
-			this.generateGmlCode()
 		},
 		loadFilePreview: function(event) {
 			const pix = event.target.files[0];

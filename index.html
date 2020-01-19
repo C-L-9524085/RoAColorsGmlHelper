@@ -128,10 +128,10 @@
 					<hr>
 					<table id="colors">
 						<tr class="shadeRow" v-for="(row, iRow) in rows">
-							<td class="color centertxt"><div v-if="iRow > 0" class="fakebutton" @click="moveRowUp(iRow)" name="move slot up">▲</div></td>
-							<td class="color centertxt"><div v-if="iRow < rows.length - 1" class="fakebutton" @click="moveRowDown(iRow)" name="move slot down">▼</div></td>
-							<td class="rowDeletButton" @click="deleteRow(iRow)"><div>🗑️</div></td>
-							<td class="shadeSlotName centertxt" contenteditable="true" @blur="changeRowName($event, row)" v-text="row.name"></td>
+							<td class="color centertxt"><div v-if="iRow > 0" class="fakebutton" @click="moveColorPaletteRowUp(iRow)" name="move slot up">▲</div></td>
+							<td class="color centertxt"><div v-if="iRow < rows.length - 1" class="fakebutton" @click="moveColorPaletteRowDown(iRow)" name="move slot down">▼</div></td>
+							<td class="rowDeletButton" @click="deleteColorPaletteRow(iRow)"><div>🗑️</div></td>
+							<td class="shadeSlotName centertxt" contenteditable="true" @blur="renameColorPaletteRow($event, row)" v-text="row.name"></td>
 							<td
 								class="color"
 								v-for="(colorSlot, colorSlotIndex) in row.colors"
@@ -150,11 +150,11 @@
 								>
 								</color-picker>
 						</td>
-							<td class="color centertxt"><div class="fakebutton" @click="addSlot(row)" name="add Color Slot">+</div></td>
+							<td class="color centertxt"><div class="fakebutton" @click="addColorPaletteSlot(row)" name="add Color Slot">+</div></td>
 						</tr>
 						<tr v-if="rows.length < 8">
 							<td colspan=100% style="padding-top: 2px;">
-								<button style="width: 100%;" @click="addRow()" name="add Shade Row">+</button>
+								<button style="width: 100%;" @click="addColorPaletteRow()" name="add Color Row">+</button>
 							</td>
 						</tr>
 					</table>
@@ -166,14 +166,14 @@
 							class="colorSlot"
 						>
 							<td class="color centertxt">
-								<div v-if="colorSlotIndex > 1" class="fakebutton" @click="moveShadeUp(colorSlotIndex)" name="move alt palette up">▲</div>
+								<div v-if="colorSlotIndex > 1" class="fakebutton" @click="moveAltPaletteUp(colorSlotIndex)" name="move alt palette up">▲</div>
 							</td>
 							<td class="color centertxt">
-								<div v-if="colorSlotIndex > 0 && colorSlotIndex < colorProfilesMainColors.length - 1" class="fakebutton" @click="moveShadeDown(colorSlotIndex)" name="move alt palette down">▼</div>
+								<div v-if="colorSlotIndex > 0 && colorSlotIndex < colorProfilesMainColors.length - 1" class="fakebutton" @click="moveAltPaletteDown(colorSlotIndex)" name="move alt palette down">▼</div>
 							</td>
 							<td><input type="radio" :id=`$ColorSlot_${colorSlotIndex}` v-bind:value="colorSlotIndex" v-model="selectedColorProfile">
 							<td><label :for=`$ColorSlot_${colorSlotIndex}`>{{colorSlotIndex}}</label></td>
-							<td class="shadeSlotName" contenteditable="true" @blur="changeSlotName($event, colorSlot)" v-text="colorSlot.name"></td>
+							<td class="shadeSlotName" contenteditable="true" @blur="renameAltPaletteRow($event, colorSlot)" v-text="colorSlot.name"></td>
 							<!--
 								the vue style guide says to not do v-for with v-if because v-if has priority but this is what I need it to do...?
 								don't use a color-picker for the 1st row
@@ -196,7 +196,7 @@
 								>
 								</color-picker>
 							</td>
-							<td v-if="colorSlotIndex > 5" class="rowDeletButton" @click="deleteColorSlotRow(colorSlotIndex)"><div>🗑️</div></td>
+							<td v-if="colorSlotIndex > 5" class="rowDeletButton" @click="deleteAltPaletteRow(colorSlotIndex)"><div>🗑️</div></td>
 						</tr>
 						<tr v-if="colorProfilesMainColors.length < 16">
 							<td colspan=100% style="padding-top: 2px;">
