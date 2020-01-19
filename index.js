@@ -444,7 +444,7 @@ const vm = new Vue({
 		addColorPaletteSlot: function(inRow, color = {r: 0, g: 255, b: 0}) {
 			const len = inRow.colors.push(color);
 
-			this.updateHandler({type: "COLOR_PALETTE_ADD_SLOT", jsonOnly: true, doRerender: false, forceUpdate: true});
+			this.updateHandler({type: "COLOR_PALETTE_ADD_SLOT", jsonOnly: true, doRerender: false, recalcRanges:false, forceUpdate: true});
 			return color;
 		},
 		addColorProfileRow: function() {
@@ -582,7 +582,7 @@ const vm = new Vue({
 				this.renderPreview();
 
 		},
-		generateGmlCode: function() {
+		generateGmlCode: function(recalcRanges = true) {
 			console.log("generateGmlCode()")
 			//this.colorProfilesMainColors[0] = {name: "default", shades: []};
 			this.ranges = [];
@@ -607,23 +607,30 @@ const vm = new Vue({
 					}
 				})
 
+				if (recalcRanges) {
+					console.log("recalculating ranges")
+					if (HSVMain) {
+						console.info("calculating range for", row.name, iRow);
+						const highest = this.calcHSVRange(HSVs, HSVMain);
 
-				if (HSVMain) {
-					console.info("calculating range for", row.name, iRow);
-					const highest = this.calcHSVRange(HSVs, HSVMain);
-
-					str += `\nset_color_profile_slot_range( ${iRow}, ${highest.h + 1}, ${highest.s + 1}, ${highest.v + 1} );`;
-					this.ranges[iRow] = {
-						hL: wrap(360, HSVMain.h - highest.h - 1),
-						hH: wrap(360, HSVMain.h + highest.h + 1),
-						sL: Math.max(0, HSVMain.s - highest.s - 1),
-						sH: Math.min(100, HSVMain.s + highest.s + 1),
-						vL: Math.max(0, HSVMain.v - highest.v - 1),
-						vH: Math.min(100, HSVMain.v + highest.v + 1),
+						str += `\nset_color_profile_slot_range( ${iRow}, ${highest.h + 1}, ${highest.s + 1}, ${highest.v + 1} );`;
+						this.ranges[iRow] = {
+							highest: highest,
+							hL: wrap(360, HSVMain.h - highest.h - 1),
+							hH: wrap(360, HSVMain.h + highest.h + 1),
+							sL: Math.max(0, HSVMain.s - highest.s - 1),
+							sH: Math.min(100, HSVMain.s + highest.s + 1),
+							vL: Math.max(0, HSVMain.v - highest.v - 1),
+							vH: Math.min(100, HSVMain.v + highest.v + 1),
+						}
+					} else {
+						str += `\n\n// ${row.name}\n// (no main color selected)`;
+						this.colorProfilesMainColors[0].shades[iRow] = null;
 					}
 				} else {
-					str += `\n\n// ${row.name}\n// (no main color selected)`;
-					this.colorProfilesMainColors[0].shades[iRow] = null;
+					console.log("not recalculating ranges")
+					const highest = this.ranges[iRow].highest;
+					str += `\nset_color_profile_slot_range( ${iRow}, ${highest.h + 1}, ${highest.s + 1}, ${highest.v + 1} );`;
 				}
 			})
 
