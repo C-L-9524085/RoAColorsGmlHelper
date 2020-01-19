@@ -513,7 +513,7 @@ const vm = new Vue({
 			}
 
 			//should only rerender if the range changes?
-			this.updateHandler({type: "COLOR_SET_MAIN", doRerender: true, forceUpdate: true});
+			this.updateHandler({type: "COLOR_SET_MAIN", doRerender: true, forceUpdate: true, recalcRanges: true });
 		},
 		deleteColorPaletteColor: function(colorSlotIndex, row) {
 			console.log("deleteColor()");
@@ -585,10 +585,14 @@ const vm = new Vue({
 			)
 
 			var rangesChanged = false;
+			if (recalcRanges)
+				rangesChanged = this.preCalculateRanges();
 
 			this.generateJSONCode();
+
 			if (jsonOnly == false)
-				rangesChanged = this.generateGmlCode(recalcRanges);
+				this.generateGmlCode();
+
 			//handling of the code is messy but it works because most people just
 			//paste once in it and then the tool does everything... so it works but could be better
 			document.getElementById('gmlDisplay').value = this.codeOutput;
@@ -605,17 +609,16 @@ const vm = new Vue({
 					console.info("ranges didn't change - not rerendering")
 			}
 		},
-		generateGmlCode: function(recalcRanges = true) {
-			//todo separate range calculation from code generation
-			console.log("generateGmlCode(), recalculating ranges:", recalcRanges)
-			//this.colorProfilesMainColors[0] = {name: "default", shades: []};
-			var str = "// DEFAULT COLOR";
+		preCalculateRanges: function() {
+			//this duplicates going through each rows / row colors with generateGMLCode()
+			//but it's simpler code-organization-wise so ohwell
 			var rangesChanged = false;
 
 			this.rows.forEach((row, iRow) => {
 				const HSVs = [];
 				var HSVMain = null;
 
+				// calculate HSV for each color in the palette row, and find the main one
 				row.colors.forEach((color, iCol) => {
 					const HSV = rgbToHsv(color.r, color.g, color.b);
 					HSVs.push(HSV);
@@ -626,42 +629,52 @@ const vm = new Vue({
 							accurateHSV: rgbToHsv_noRounding(color.r, color.g, color.b),
 							rgb: {r: color.r, g: color.g, b: color.b}
 						};
+
 						HSVMain = HSV;
-						str += `\n\n// ${row.name}\nset_color_profile_slot( 0, ${iRow}, ${color.r}, ${color.g}, ${color.b} );`;
 					}
 				})
 
-				if (recalcRanges) {
-					if (HSVMain) {
-						console.info("calculating range for", row.name, iRow);
-						const highest = this.calcHSVRange(HSVs, HSVMain);
-						if (this.ranges[iRow] &&
-							(this.ranges[iRow].highest.h != highest.h
-							|| this.ranges[iRow].highest.s != highest.s
-							|| this.ranges[iRow].highest.v != highest.v)
-						) {
-							rangesChanged = true;
-						}
+				if (HSVMain) {
+					//console.info("calculating range for", row.name, iRow);
+					const highest = this.calcHSVRange(HSVs, HSVMain);
 
-						str += `\nset_color_profile_slot_range( ${iRow}, ${highest.h + 1}, ${highest.s + 1}, ${highest.v + 1} );`;
-						this.ranges[iRow] = {
-							highest: highest,
-							hL: wrap(360, HSVMain.h - highest.h - 1),
-							hH: wrap(360, HSVMain.h + highest.h + 1),
-							sL: Math.max(0, HSVMain.s - highest.s - 1),
-							sH: Math.min(100, HSVMain.s + highest.s + 1),
-							vL: Math.max(0, HSVMain.v - highest.v - 1),
-							vH: Math.min(100, HSVMain.v + highest.v + 1),
-						}
-					} else {
-						str += `\n\n// ${row.name}\n// (no main color selected)`;
-						this.colorProfilesMainColors[0].shades[iRow] = null;
-						this.ranges[iRow] = null;
+					if (this.ranges[iRow]) {
+						const prevHighest = this.ranges[iRow].highest;
+
+						if (prevHighest.h != highest.h || prevHighest.s != highest.s || prevHighest.v != highest.v)
+							rangesChanged = true;
+					}
+
+					this.ranges[iRow] = {
+						highest: highest,
+						hL: wrap(360, HSVMain.h - highest.h - 1),
+						hH: wrap(360, HSVMain.h + highest.h + 1),
+						sL: Math.max(0, HSVMain.s - highest.s - 1),
+						sH: Math.min(100, HSVMain.s + highest.s + 1),
+						vL: Math.max(0, HSVMain.v - highest.v - 1),
+						vH: Math.min(100, HSVMain.v + highest.v + 1),
 					}
 				} else {
-					console.log("not recalculating ranges")
+					this.colorProfilesMainColors[0].shades[iRow] = null;
+					this.ranges[iRow] = null;
+				}
+			})
+			
+			return rangesChanged;
+		},
+		generateGmlCode: function() {
+			console.log("generateGmlCode()")
+			var str = "// DEFAULT COLOR";
+
+			this.rows.forEach((row, iRow) => {
+				const mainColor = row.colors.find(color => color.main);
+				str += `\n\n// ${row.name}\nset_color_profile_slot( 0, ${iRow}, ${mainColor.r}, ${mainColor.g}, ${mainColor.b} );`;
+
+				if (this.ranges[iRow]) {
 					const highest = this.ranges[iRow].highest;
 					str += `\nset_color_profile_slot_range( ${iRow}, ${highest.h + 1}, ${highest.s + 1}, ${highest.v + 1} );`;
+				} else {
+					str += `\n\n// ${row.name}\n// (no main color selected)`;
 				}
 			})
 
@@ -680,7 +693,6 @@ const vm = new Vue({
 			}
 
 			this.codeOutputGml = str;
-			return rangesChanged;
 		},
 		generateJSONCode: function() {
 			this.codeOutputJSON = "\n\n\n/* This is used by that one RoA colors.gml generator tool to store palette data\n"
