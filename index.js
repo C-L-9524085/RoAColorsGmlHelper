@@ -586,8 +586,12 @@ const vm = new Vue({
 
 			var rangesChanged = false;
 
+			this.generateJSONCode();
 			if (jsonOnly == false)
 				rangesChanged = this.generateGmlCode(recalcRanges);
+			//handling of the code is messy but it works because most people just
+			//paste once in it and then the tool does everything... so it works but could be better
+			document.getElementById('gmlDisplay').value = this.codeOutput;
 
 			//TODO: store updateType along with regenerated code
 
@@ -676,7 +680,6 @@ const vm = new Vue({
 			}
 
 			this.codeOutputGml = str;
-			//document.getElementById('gmlDisplay').value = str;
 			return rangesChanged;
 		},
 		generateJSONCode: function() {
