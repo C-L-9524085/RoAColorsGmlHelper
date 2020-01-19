@@ -293,7 +293,7 @@ const vm = new Vue({
 	},
 	beforeMount: function() { //i suppose this is the right place for this?
 		while (this.colorProfilesMainColors.length < MIN_ALT_PALETTES) {
-			this.addColorProfileRow()
+			this.addColorProfileRow(true)
 		}
 	},
 	watch: {
@@ -397,7 +397,7 @@ const vm = new Vue({
 			this.colorProfilesMainColors.forEach(this.fillShadeSlotsUpToAmountOfRows)
 
 			while (this.colorProfilesMainColors.length < MIN_ALT_PALETTES) {
-				this.addColorProfileRow()
+				this.addColorProfileRow(true)
 			}
 
 			console.log("parseGMLCodeToColorProfiles", this.colorProfilesMainColors)
@@ -448,7 +448,7 @@ const vm = new Vue({
 			this.updateHandler({type: "COLOR_PALETTE_ADD_SLOT", jsonOnly: true, doRerender: false, recalcRanges:false, forceUpdate: true});
 			return color;
 		},
-		addColorProfileRow: function() {
+		addColorProfileRow: function(isAutomated = false) {
 			const colorProfile = {
 				name: "unnamed alt palette",
 				shades: []
@@ -459,7 +459,9 @@ const vm = new Vue({
 
 
 			this.colorProfilesMainColors.push(colorProfile);
-			this.updateHandler({type: "ALT_PALETTE_ROW_ADD", jsonOnly: false, doRerender: false, recalcRanges: false});
+
+			if (!isAutomated)
+				this.updateHandler({type: "ALT_PALETTE_ROW_ADD", jsonOnly: false, doRerender: false, recalcRanges: false});
 		},
 		deleteAltPaletteRow: function(rowIndex) {
 			this.colorProfilesMainColors.splice(rowIndex, 1);
