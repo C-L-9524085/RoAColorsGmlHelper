@@ -131,7 +131,7 @@
 							<td class="color centertxt"><div v-if="iRow > 0" class="fakebutton" @click="moveRowUp(iRow)" name="move slot up">▲</div></td>
 							<td class="color centertxt"><div v-if="iRow < rows.length - 1" class="fakebutton" @click="moveRowDown(iRow)" name="move slot down">▼</div></td>
 							<td class="rowDeletButton" @click="deleteRow(iRow)"><div>🗑️</div></td>
-							<td class="shadeSlotName centertxt" contenteditable="true" @blur="changeRowName($event, row)">{{row.name}}</td>
+							<td class="shadeSlotName centertxt" contenteditable="true" @blur="changeRowName($event, row)" v-text="row.name"></td>
 							<td
 								class="color"
 								v-for="(colorSlot, colorSlotIndex) in row.colors"
@@ -173,7 +173,7 @@
 							</td>
 							<td><input type="radio" :id=`$ColorSlot_${colorSlotIndex}` v-bind:value="colorSlotIndex" v-model="selectedColorProfile">
 							<td><label :for=`$ColorSlot_${colorSlotIndex}`>{{colorSlotIndex}}</label></td>
-							<td class="shadeSlotName" contenteditable="true" @blur="changeSlotName($event, colorSlot)">{{colorSlot.name || ""}}</td>
+							<td class="shadeSlotName" contenteditable="true" @blur="changeSlotName($event, colorSlot)" v-text="colorSlot.name"></td>
 							<!--
 								the vue style guide says to not do v-for with v-if because v-if has priority but this is what I need it to do...?
 								don't use a color-picker for the 1st row
