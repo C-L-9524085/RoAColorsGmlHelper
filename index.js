@@ -302,9 +302,10 @@ const vm = new Vue({
 		},
 		rows: {
 			//not sure if I should have this or just call a function on color-picker's update:r instead of using .sync
+			//edit: this should now be handled on color-color-pickers' color-update event - keeping this here to test
 			deep: true,
 			handler: function() {
-				this.updateHandler({type: "VUE_NOTICED_COLOR_PALETTE_UPDATE"});
+				this.updateHandler({type: "VUE_NOTICED_COLOR_PALETTE_UPDATE", doRerender: false, recalcRanges: false});
 			}
 		},
 		zoomFactor: 'renderPreview'
@@ -510,14 +511,21 @@ const vm = new Vue({
 			}
 
 			//should only rerender if the range changes?
-			this.updateHandler({type: "COLOR_SET_MAIN", jsonOnly: false, doRerender: true, forceUpdate: true});
+			this.updateHandler({type: "COLOR_SET_MAIN", doRerender: true, forceUpdate: true});
 		},
-		deleteColor: function(colorSlotIndex, row) {
+		deleteColorPaletteColor: function(colorSlotIndex, row) {
 			console.log("deleteColor()");
 			row.colors.splice(colorSlotIndex, 1);
 
 			//should only rerender if the range changes?
-			this.updateHandler({type: "COLOR_DELETE", jsonOnly: false, doRerender: true, forceUpdate: true});
+			this.updateHandler({type: "COLOR_PALETTE_COLOR_DELETE", doRerender: true, forceUpdate: true});
+		},
+		colorPaletteOnColorUpdate: function() {
+			this.updateHandler({ type: 'COLOR_PALETTE_COLOR_UPDATE', doRerender: true, recalcRanges: true })
+		},
+		altPaletteOnColorUpdate: function(shade) {
+			this.calcShadesHSV(shade);
+			this.updateHandler({ type: 'ALT_PALETTE_COLOR_UPDATE', doRerender: false, forceUpdate: true, recalcRanges: false })
 		},
 		renameColorPaletteRow: function(event, row) {
 			event.target.innerText = event.target.innerText.replace(/\n/g, "");

@@ -145,7 +145,8 @@
 									v-bind:_g.sync = "colorSlot.g"
 									v-bind:_b.sync = "colorSlot.b"
 
-									@delete-color = "deleteColor(colorSlotIndex, row)"
+									@color-update = "colorPaletteOnColorUpdate"
+									@delete-color = "deleteColorPaletteColor(colorSlotIndex, row)"
 									@set-main = "setMainColor(colorSlot, row)"
 								>
 								</color-picker>
@@ -191,7 +192,7 @@
 									v-bind:_g.sync = "shade.rgb.g"
 									v-bind:_b.sync = "shade.rgb.b"
 
-									@color-update = "calcShadesHSV(shade); $forceUpdate(); generateGmlCode();"
+									@color-update = "altPaletteOnColorUpdate(shade)"
 									@rerender = "renderPreview"
 								>
 								</color-picker>
