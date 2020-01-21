@@ -357,11 +357,11 @@ const vm = new Vue({
 			}
 
 			if (this.rows.length == 0) {
-				console.log("filling palette with base colors")
+				console.log("filling color palette with alt palette main colors")
 				this.colorProfilesMainColors[0].shades.forEach(shade => {
 					console.log("adding row and slot for", shade)
-					const newRow = this.addRow();
-					const newSlot = this.addSlot(newRow, {r, g, b} = shade.rgb);
+					const newRow = this.addColorProfileRow();
+					const newSlot = this.addColorPaletteSlot(newRow, {r, g, b} = shade.rgb);
 					this.setMainColor(newSlot, newRow);
 				})
 			}
