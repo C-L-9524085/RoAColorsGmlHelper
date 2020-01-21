@@ -667,14 +667,22 @@ const vm = new Vue({
 			var str = "// DEFAULT COLOR";
 
 			this.rows.forEach((row, iRow) => {
+				str += `\n\n// ${row.name}\n`;
+
 				const mainColor = row.colors.find(color => color.main);
-				str += `\n\n// ${row.name}\nset_color_profile_slot( 0, ${iRow}, ${mainColor.r}, ${mainColor.g}, ${mainColor.b} );`;
+
+				if (mainColor) {
+					str += `set_color_profile_slot( 0, ${iRow}, ${mainColor.r}, ${mainColor.g}, ${mainColor.b} );`;
+				} else {
+					str += `// (no main color selected, can't set set_color_profile_slot)`;
+
+				}
 
 				if (this.ranges[iRow]) {
 					const highest = this.ranges[iRow].highest;
 					str += `\nset_color_profile_slot_range( ${iRow}, ${highest.h + 1}, ${highest.s + 1}, ${highest.v + 1} );`;
 				} else {
-					str += `\n\n// ${row.name}\n// (no main color selected)`;
+					str += `\n// (no main color selected, can't set set_color_profile_slot_range)`;
 				}
 			})
 
