@@ -259,7 +259,7 @@ const vm = new Vue({
 		selectedColorProfile: 0,
 		drawingCanvas: document.createElement("canvas"),
 		zoomFactor: 1,
-		shadeStrength: 1,
+		shadingValue: 1,
 		colorspelling: "color",
 		skipConfirmRecolor: false,
 		autoMoveShades: true,
@@ -301,7 +301,7 @@ const vm = new Vue({
 			deep: true,
 			handler: 'updateInput'
 		},
-		shadeStrength: 'renderPreview',
+		shadingValue: 'renderPreview',
 		zoomFactor: 'renderPreview'
 	},
 	methods: {
@@ -806,9 +806,9 @@ const vm = new Vue({
 
 									const mainToShiftedDeltaHSV = getHSVDelta(mainColorForShade.accurateHSV, shiftedHSV);
 									const shiftedHSV2 = applyDeltaToHSV({...shiftedHSV}, {
-										h: mainToShiftedDeltaHSV.h * (this.shadeStrength - 1),
-										s: mainToShiftedDeltaHSV.s * (this.shadeStrength - 1),
-										v: mainToShiftedDeltaHSV.v * (this.shadeStrength - 1)
+										h: mainToShiftedDeltaHSV.h * (this.shadingValue - 1),
+										s: mainToShiftedDeltaHSV.s * (this.shadingValue - 1),
+										v: mainToShiftedDeltaHSV.v * (this.shadingValue - 1)
 									});
 
 									const shiftedRgb = hsvToRgb_noRounding(shiftedHSV2.h, shiftedHSV2.s, shiftedHSV2.v);

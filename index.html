@@ -76,8 +76,8 @@
 							<input type="number" name="zoom" min="1" style="width: 40px" v-model:value="zoomFactor" @input="zoomFactor=Math.max(1, parseInt(zoomFactor))"></input>
 						</label>
 						<label>
-							shade strength
-							<input type="number" name="shade strength" min="-10" step="0.1" style="width: 40px" v-model:value="shadeStrength" @input="shadeStrength=Math.max(-10, parseFloat(shadeStrength))"></input>
+							shading value
+							<input type="number" name="shade strength" min="-10" step="0.1" style="width: 40px" v-model:value="shadingValue" @input="shadingValue=Math.max(-10, parseFloat(shadingValue))"></input>
 						</label>
 					</div>
 					<canvas id="preview" @click="previewClick" class="darkerbg"></canvas>
