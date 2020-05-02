@@ -754,7 +754,7 @@ const vm = new Vue({
 
 					const hsv = rgbToHsv(r, g, b);
 
-					//if (this.selectedColorProfile != 0) {
+					if (this.selectedColorProfile != 0 || this.shadingValue != 1) {
 						const cachedColor = cachedColorTransforms.get(`${r},${g},${b}`);
 						if (cachedColor) {
 							//console.log("color was cached")
@@ -829,7 +829,7 @@ const vm = new Vue({
 						}
 					//}
 				}
-			//}
+			}
 
 			console.log("drawing recolored image");
 
