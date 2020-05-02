@@ -804,19 +804,20 @@ const vm = new Vue({
 									const defaultToCurrentDeltaHSV = getHSVDelta(defaultColorForShade.accurateHSV, accurateHSV);
 									const shiftedHSV = applyDeltaToHSV(mainColorForShade.accurateHSV, defaultToCurrentDeltaHSV);
 
-									const mainToShiftedDeltaHSV = getHSVDelta(mainColorForShade.accurateHSV, shiftedHSV);
-									const shiftedHSV2 = applyDeltaToHSV({...shiftedHSV}, {
-										h: mainToShiftedDeltaHSV.h * (this.shadingValue - 1),
-										s: mainToShiftedDeltaHSV.s * (this.shadingValue - 1),
-										v: mainToShiftedDeltaHSV.v * (this.shadingValue - 1)
+									const shiftedRgb = hsvToRgb_noRounding(shiftedHSV.h, shiftedHSV.s, shiftedHSV.v);
+									const mainToShiftedDeltaRGB = getRGBDelta(mainColorForShade.rgb, shiftedRgb);
+									const shiftedRgb2 = applyDeltaToRGB({...shiftedRgb}, {
+										r: mainToShiftedDeltaRGB.r * (this.shadingValue - 1),
+										g: mainToShiftedDeltaRGB.g * (this.shadingValue - 1),
+										b: mainToShiftedDeltaRGB.b * (this.shadingValue - 1)
 									});
 
-									const shiftedRgb = hsvToRgb_noRounding(shiftedHSV2.h, shiftedHSV2.s, shiftedHSV2.v);
-									imageDataArray[i] = shiftedRgb.r;
-									imageDataArray[i+1] = shiftedRgb.g;
-									imageDataArray[i+2] = shiftedRgb.b;
 
-									cachedColorTransforms.set(`${r},${g},${b}`, shiftedRgb);
+									imageDataArray[i] = shiftedRgb2.r;
+									imageDataArray[i+1] = shiftedRgb2.g;
+									imageDataArray[i+2] = shiftedRgb2.b;
+
+									cachedColorTransforms.set(`${r},${g},${b}`, shiftedRgb2);
 
 									//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, defaultToCurrentDeltaHSV, shiftedRgb)
 								}
@@ -930,6 +931,24 @@ function applyDeltaToHSV(hsv, hsvDelta) {
 	hsvCopy.v = clamp(0, hsvCopy.v - hsvDelta.v, 1);
 
 	return hsvCopy;
+}
+
+function getRGBDelta(col1, col2) {
+	return {
+		r: parseFloat(col1.r) - parseFloat(col2.r),
+		g: parseFloat(col1.g) - parseFloat(col2.g),
+		b: parseFloat(col1.b) - parseFloat(col2.b),
+	}
+}
+
+function applyDeltaToRGB(color, delta) {
+	const copy = { ...color };
+
+	copy.r = clamp(0, copy.r - delta.r, 255);
+	copy.g = clamp(0, copy.g - delta.g, 255);
+	copy.b = clamp(0, copy.b - delta.b, 255);
+
+	return copy;
 }
 
 // https://github.com/semibran/wrap-around im idiot
