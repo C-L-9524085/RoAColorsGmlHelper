@@ -259,6 +259,7 @@ const vm = new Vue({
 		selectedColorProfile: 0,
 		drawingCanvas: document.createElement("canvas"),
 		zoomFactor: 1,
+		shadeStrength: 1,
 		colorspelling: "color",
 		skipConfirmRecolor: false,
 		autoMoveShades: true,
@@ -300,6 +301,7 @@ const vm = new Vue({
 			deep: true,
 			handler: 'updateInput'
 		},
+		shadeStrength: 'renderPreview',
 		zoomFactor: 'renderPreview'
 	},
 	methods: {
@@ -755,6 +757,7 @@ const vm = new Vue({
 					if (this.selectedColorProfile != 0) {
 						const cachedColor = cachedColorTransforms.get(`${r},${g},${b}`);
 						if (cachedColor) {
+							//console.log("color was cached")
 							imageDataArray[i] = cachedColor.r;
 							imageDataArray[i+1] = cachedColor.g;
 							imageDataArray[i+2] = cachedColor.b;
@@ -800,7 +803,15 @@ const vm = new Vue({
 									const accurateHSV = rgbToHsv_noRounding(r, g, b);
 
 									const defaultToCurrentDeltaHSV = getHSVDelta(defaultColorForShade.accurateHSV, accurateHSV);
-									const shiftedHSV = applyDeltaToHSV(mainColorForShade.accurateHSV, defaultToCurrentDeltaHSV);
+
+									const mainColorForShadeAccurateHSVCopy = applyDeltaToHSV({...mainColorForShade.accurateHSV}, {
+										h: defaultToCurrentDeltaHSV.h * (this.shadeStrength - 1),
+										s: defaultToCurrentDeltaHSV.s * (this.shadeStrength - 1),
+										v: defaultToCurrentDeltaHSV.v * (this.shadeStrength - 1)
+									});
+
+
+									const shiftedHSV = applyDeltaToHSV(mainColorForShadeAccurateHSVCopy, defaultToCurrentDeltaHSV);
 									const shiftedRgb = hsvToRgb_noRounding(shiftedHSV.h, shiftedHSV.s, shiftedHSV.v);
 									imageDataArray[i] = shiftedRgb.r;
 									imageDataArray[i+1] = shiftedRgb.g;
@@ -808,12 +819,12 @@ const vm = new Vue({
 
 									cachedColorTransforms.set(`${r},${g},${b}`, shiftedRgb);
 
-									//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, step, shiftedRgb)
+									//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, defaultToCurrentDeltaHSV, shiftedRgb)
 								}
 							})
 							if (!matched) {
 								//reaching here means the color wasn't fitting in any range
-								//console.log("unmatched color", r, g, b);
+								console.log("unmatched color", r, g, b);
 								cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
 							}
 						}
