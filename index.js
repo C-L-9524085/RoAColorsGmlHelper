@@ -259,12 +259,15 @@ const vm = new Vue({
 		selectedColorProfile: 0,
 		drawingCanvas: document.createElement("canvas"),
 		zoomFactor: 1,
-		shadingValue: 1,
+		inputShadingValue: 1,
 		colorspelling: "color",
 		skipConfirmRecolor: false,
 		autoMoveShades: true,
 	},
 	computed: {
+		shadingValue: function() {
+			return parseFloat(this.inputShadingValue) || 0;
+		},
 		colorsNotInPalette: function() {
 			const colors = [];
 			this.colorsInImg.forEach(colorInImg => {
