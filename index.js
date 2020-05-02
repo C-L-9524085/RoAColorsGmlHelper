@@ -154,7 +154,7 @@ Vue.component("color-picker", {
 			this.$emit("color-update");
 		},
 		updateColorDisplays: function() {
-			console.log("updateColorDisplays()")
+			//console.log("updateColorDisplays()")
 			const color = tinycolor(this.rgb)
 
 			// ?? either my sliders are messed up or there's a bug in tinycolor
@@ -741,7 +741,6 @@ const vm = new Vue({
 				)
 					confirmedContinue = true;
 
-			console.log("confirmed continue:", confirmedContinue, imageDataArray.length > PIC_PIXELS_TRESHOLD_FOR_WARNING * 4, imageDataArray.length, PIC_PIXELS_TRESHOLD_FOR_WARNING * 4 )
 			if (confirmedContinue && (this.selectedColorProfile != 0 || this.shadingValue != 1)) {
 				console.log("recoloring...")
 
