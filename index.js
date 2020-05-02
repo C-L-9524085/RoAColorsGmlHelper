@@ -262,6 +262,7 @@ const vm = new Vue({
 		colorspelling: "color",
 		skipConfirmRecolor: false,
 		autoMoveShades: true,
+		totalRenderTime: 0,
 	},
 	computed: {
 		shadingValue: function() {
@@ -712,6 +713,8 @@ const vm = new Vue({
 			}
 
 			console.log("rendering.....");
+			const renderTimeStart = Date.now();
+
 			//drawingcanvas is just used for recoloring and isn't shown
 			const canvas = this.drawingCanvas;
 			const width = canvas.width = this.previewImg.width;
@@ -850,6 +853,9 @@ const vm = new Vue({
 				}
 				img.src = canvas.toDataURL();
 			}
+
+			this.totalRenderTime = Date.now() - renderTimeStart;
+			console.log("total render time:", this.totalRenderTime);
 		},
 		getColorsInImg: function() {
 			console.log("getColorsInImg()");
