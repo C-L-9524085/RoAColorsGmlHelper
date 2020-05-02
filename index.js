@@ -727,7 +727,7 @@ const vm = new Vue({
 			const imageData = ctx.getImageData(0, 0, width, height);
 			const imageDataArray = imageData.data;
 
-			if (this.selectedColorProfile != 0) {
+			//if (this.selectedColorProfile != 0) {
 				console.log("recoloring...")
 
 				const cachedColorTransforms = new Map();
@@ -754,7 +754,7 @@ const vm = new Vue({
 
 					const hsv = rgbToHsv(r, g, b);
 
-					if (this.selectedColorProfile != 0) {
+					//if (this.selectedColorProfile != 0) {
 						const cachedColor = cachedColorTransforms.get(`${r},${g},${b}`);
 						if (cachedColor) {
 							//console.log("color was cached")
@@ -788,16 +788,15 @@ const vm = new Vue({
 										cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
 										return;
 									}
-
 									const defaultColorForShade = this.colorProfilesMainColors[0].shades[shadeIndex];
 
-									//don't shade shift if main color is same as default color
+									/*//don't shade shift if main color is same as default color
 									if(defaultColorForShade.rgb.r === mainColorForShade.rgb.r
 									&& defaultColorForShade.rgb.g === mainColorForShade.rgb.g
 									&& defaultColorForShade.rgb.b === mainColorForShade.rgb.b) {
 										cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
 										return;
-									}
+									}*/
 
 
 									const accurateHSV = rgbToHsv_noRounding(r, g, b);
@@ -828,9 +827,9 @@ const vm = new Vue({
 								cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
 							}
 						}
-					}
+					//}
 				}
-			}
+			//}
 
 			console.log("drawing recolored image");
 
