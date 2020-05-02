@@ -799,18 +799,9 @@ const vm = new Vue({
 
 									const accurateHSV = rgbToHsv_noRounding(r, g, b);
 
-									const stepHue = defaultColorForShade.accurateHSV.h - accurateHSV.h;
-									accurateHSV.h = mainColorForShade.accurateHSV.h - stepHue;
-									if (accurateHSV.h < 0 || accurateHSV.h > 1)
-										accurateHSV.h = wrap(1, accurateHSV.h);
-
-									const stepSat = defaultColorForShade.accurateHSV.s - accurateHSV.s;
-									accurateHSV.s = Math.max(0, Math.min(1, mainColorForShade.accurateHSV.s - stepSat));
-
-									const stepVal = defaultColorForShade.accurateHSV.v - accurateHSV.v;
-									accurateHSV.v = Math.max(0, Math.min(1, mainColorForShade.accurateHSV.v - stepVal));
-
-									const shiftedRgb = hsvToRgb_noRounding(accurateHSV.h, accurateHSV.s, accurateHSV.v);
+									const defaultToCurrentDeltaHSV = getHSVDelta(defaultColorForShade.accurateHSV, accurateHSV);
+									const shiftedHSV = applyDeltaToHSV(mainColorForShade.accurateHSV, defaultToCurrentDeltaHSV);
+									const shiftedRgb = hsvToRgb_noRounding(shiftedHSV.h, shiftedHSV.s, shiftedHSV.v);
 									imageDataArray[i] = shiftedRgb.r;
 									imageDataArray[i+1] = shiftedRgb.g;
 									imageDataArray[i+2] = shiftedRgb.b;
@@ -909,6 +900,27 @@ const vm = new Vue({
 		},
 	}
 });
+
+function getHSVDelta(hsv1, hsv2) {
+	return {
+		h: hsv1.h - hsv2.h,
+		s: hsv1.s - hsv2.s,
+		v: hsv1.v - hsv2.v,
+	}
+}
+
+function applyDeltaToHSV(hsv, hsvDelta) {
+	const hsvCopy = { ...hsv };
+
+	hsvCopy.h = hsv.h - hsvDelta.h;
+	if (hsvCopy.h < 0 || hsvCopy.h > 1)
+		hsvCopy.h = wrap(1, hsvCopy.h);
+
+	hsvCopy.s = clamp(0, hsvCopy.s - hsvDelta.s, 1);
+	hsvCopy.v = clamp(0, hsvCopy.v - hsvDelta.v, 1);
+
+	return hsvCopy;
+}
 
 // https://github.com/semibran/wrap-around im idiot
 function wrap(m, n) {
