@@ -6,7 +6,6 @@ const MIN_ALT_PALETTES = 6;
 const MAX_ALT_PALETTES = 16;
 const MAX_SHADE_ROWS = 8;
 const PIC_PIXELS_TRESHOLD_FOR_WARNING = (300 * 20) * 500; //(one sprite's width * amount of sprites in a strip) * sprite's height
-const PIC_RECOLOR_PIXELS_TRESHOLD_FOR_WARNING = PIC_PIXELS_TRESHOLD_FOR_WARNING * 4;
 const PIC_COLORS_TRESHOLD_FOR_WARNING = 100;
 const PIC_COLORS_ACTUAL_TRESHOLD = PIC_COLORS_TRESHOLD_FOR_WARNING + PIC_COLORS_TRESHOLD_FOR_WARNING / 2;
 
@@ -730,19 +729,22 @@ const vm = new Vue({
 			const imageData = ctx.getImageData(0, 0, width, height);
 			const imageDataArray = imageData.data;
 
-			//if (this.selectedColorProfile != 0) {
+
+			var confirmedContinue = this.skipConfirmRecolor;
+			if (
+				imageDataArray.length < PIC_PIXELS_TRESHOLD_FOR_WARNING * 4 
+				|| confirmedContinue
+				|| confirm("This picture looks pretty large - the browser might freeze while recoloring. Continue?")
+				)
+					confirmedContinue = true;
+
+			console.log("confirmed continue:", confirmedContinue, imageDataArray.length > PIC_PIXELS_TRESHOLD_FOR_WARNING * 4, imageDataArray.length, PIC_PIXELS_TRESHOLD_FOR_WARNING * 4 )
+			if (confirmedContinue && (this.selectedColorProfile != 0 || this.shadingValue != 1)) {
 				console.log("recoloring...")
 
 				const cachedColorTransforms = new Map();
 
-				var confirmedContinue = this.skipConfirmRecolor;
 				for (var i = 0; i < imageDataArray.length; i += 4) {
-					if (i > PIC_RECOLOR_PIXELS_TRESHOLD_FOR_WARNING && !confirmedContinue) {
-						if (confirm("This picture looks pretty large - the browser might freeze while recoloring. Continue?"))
-							confirmedContinue = true;
-						else
-							break;
-					}
 
 					if (imageDataArray[i+3] == 0) //skip transparent (/alpha 0) pixels
 						continue;
@@ -755,9 +757,7 @@ const vm = new Vue({
 					if (r < 26 && g < 26 && b < 26)
 						continue;
 
-					const hsv = rgbToHsv(r, g, b);
-
-					if (this.selectedColorProfile != 0 || this.shadingValue != 1) {
+					//if (this.selectedColorProfile != 0 || this.shadingValue != 1) {
 						const cachedColor = cachedColorTransforms.get(`${r},${g},${b}`);
 						if (cachedColor) {
 							//console.log("color was cached")
@@ -767,6 +767,8 @@ const vm = new Vue({
 						}
 						else {
 							let matched = false;
+							//don't need to optimize this much since it's only reached once for every color in the picture
+							//which is (usually) way less than the number of pixels in the picture
 							this.ranges.forEach((rangeDef, shadeIndex) => {
 								//console.log("px", i, "on shade", shadeIndex, "with range", rangeDef, "hsv:", hsv);
 								/*console.log("h", isWrappingValueWithinRange(hsv.h, 0, 360, rangeDef.hL, rangeDef.hH),
@@ -778,6 +780,8 @@ const vm = new Vue({
 									"vH", hsv.v <= rangeDef.vH
 								)*/
 
+								const hsv = rgbToHsv(r, g, b);
+
 								//those ranges are precalculated in generateGmlCode so that we don't have to math them here
 								if(isWrappingValueWithinRange(hsv.h, 0, 360, rangeDef.hL, rangeDef.hH)
 								&& hsv.s >= rangeDef.sL && hsv.s <= rangeDef.sH
@@ -785,21 +789,7 @@ const vm = new Vue({
 								) {
 									const mainColorForShade = this.colorProfilesMainColors[this.selectedColorProfile].shades[shadeIndex];
 									matched = true;
-
-									//don't shade shift if current color is same as main color
-									if (r === mainColorForShade.rgb.r && g === mainColorForShade.rgb.g && b === mainColorForShade.rgb.b) {
-										cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
-										return;
-									}
 									const defaultColorForShade = this.colorProfilesMainColors[0].shades[shadeIndex];
-
-									/*//don't shade shift if main color is same as default color
-									if(defaultColorForShade.rgb.r === mainColorForShade.rgb.r
-									&& defaultColorForShade.rgb.g === mainColorForShade.rgb.g
-									&& defaultColorForShade.rgb.b === mainColorForShade.rgb.b) {
-										cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
-										return;
-									}*/
 
 
 									const accurateHSV = rgbToHsv_noRounding(r, g, b);
@@ -827,7 +817,7 @@ const vm = new Vue({
 							})
 							if (!matched) {
 								//reaching here means the color wasn't fitting in any range
-								console.log("unmatched color", r, g, b);
+								//console.log("unmatched color", r, g, b);
 								cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
 							}
 						}
