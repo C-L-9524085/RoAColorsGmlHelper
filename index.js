@@ -259,11 +259,15 @@ const vm = new Vue({
 		selectedColorProfile: 0,
 		drawingCanvas: document.createElement("canvas"),
 		zoomFactor: 1,
+		inputShadingValue: 1,
 		colorspelling: "color",
 		skipConfirmRecolor: false,
 		autoMoveShades: true,
 	},
 	computed: {
+		shadingValue: function() {
+			return parseFloat(this.inputShadingValue) || 0;
+		},
 		colorsNotInPalette: function() {
 			const colors = [];
 			this.colorsInImg.forEach(colorInImg => {
@@ -300,6 +304,7 @@ const vm = new Vue({
 			deep: true,
 			handler: 'updateInput'
 		},
+		shadingValue: 'renderPreview',
 		zoomFactor: 'renderPreview'
 	},
 	methods: {
@@ -725,7 +730,7 @@ const vm = new Vue({
 			const imageData = ctx.getImageData(0, 0, width, height);
 			const imageDataArray = imageData.data;
 
-			if (this.selectedColorProfile != 0) {
+			//if (this.selectedColorProfile != 0) {
 				console.log("recoloring...")
 
 				const cachedColorTransforms = new Map();
@@ -752,9 +757,10 @@ const vm = new Vue({
 
 					const hsv = rgbToHsv(r, g, b);
 
-					if (this.selectedColorProfile != 0) {
+					if (this.selectedColorProfile != 0 || this.shadingValue != 1) {
 						const cachedColor = cachedColorTransforms.get(`${r},${g},${b}`);
 						if (cachedColor) {
+							//console.log("color was cached")
 							imageDataArray[i] = cachedColor.r;
 							imageDataArray[i+1] = cachedColor.g;
 							imageDataArray[i+2] = cachedColor.b;
@@ -785,39 +791,47 @@ const vm = new Vue({
 										cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
 										return;
 									}
-
 									const defaultColorForShade = this.colorProfilesMainColors[0].shades[shadeIndex];
 
-									//don't shade shift if main color is same as default color
+									/*//don't shade shift if main color is same as default color
 									if(defaultColorForShade.rgb.r === mainColorForShade.rgb.r
 									&& defaultColorForShade.rgb.g === mainColorForShade.rgb.g
 									&& defaultColorForShade.rgb.b === mainColorForShade.rgb.b) {
 										cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
 										return;
-									}
+									}*/
 
 
 									const accurateHSV = rgbToHsv_noRounding(r, g, b);
 
 									const defaultToCurrentDeltaHSV = getHSVDelta(defaultColorForShade.accurateHSV, accurateHSV);
 									const shiftedHSV = applyDeltaToHSV(mainColorForShade.accurateHSV, defaultToCurrentDeltaHSV);
+
 									const shiftedRgb = hsvToRgb_noRounding(shiftedHSV.h, shiftedHSV.s, shiftedHSV.v);
-									imageDataArray[i] = shiftedRgb.r;
-									imageDataArray[i+1] = shiftedRgb.g;
-									imageDataArray[i+2] = shiftedRgb.b;
+									const mainToShiftedDeltaRGB = getRGBDelta(mainColorForShade.rgb, shiftedRgb);
+									const shiftedRgb2 = applyDeltaToRGB({...shiftedRgb}, {
+										r: mainToShiftedDeltaRGB.r * (this.shadingValue - 1),
+										g: mainToShiftedDeltaRGB.g * (this.shadingValue - 1),
+										b: mainToShiftedDeltaRGB.b * (this.shadingValue - 1)
+									});
 
-									cachedColorTransforms.set(`${r},${g},${b}`, shiftedRgb);
 
-									//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, step, shiftedRgb)
+									imageDataArray[i] = shiftedRgb2.r;
+									imageDataArray[i+1] = shiftedRgb2.g;
+									imageDataArray[i+2] = shiftedRgb2.b;
+
+									cachedColorTransforms.set(`${r},${g},${b}`, shiftedRgb2);
+
+									//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, defaultToCurrentDeltaHSV, shiftedRgb)
 								}
 							})
 							if (!matched) {
 								//reaching here means the color wasn't fitting in any range
-								//console.log("unmatched color", r, g, b);
+								console.log("unmatched color", r, g, b);
 								cachedColorTransforms.set(`${r},${g},${b}`, {r, g, b});
 							}
 						}
-					}
+					//}
 				}
 			}
 
@@ -920,6 +934,24 @@ function applyDeltaToHSV(hsv, hsvDelta) {
 	hsvCopy.v = clamp(0, hsvCopy.v - hsvDelta.v, 1);
 
 	return hsvCopy;
+}
+
+function getRGBDelta(col1, col2) {
+	return {
+		r: parseFloat(col1.r) - parseFloat(col2.r),
+		g: parseFloat(col1.g) - parseFloat(col2.g),
+		b: parseFloat(col1.b) - parseFloat(col2.b),
+	}
+}
+
+function applyDeltaToRGB(color, delta) {
+	const copy = { ...color };
+
+	copy.r = clamp(0, copy.r - delta.r, 255);
+	copy.g = clamp(0, copy.g - delta.g, 255);
+	copy.b = clamp(0, copy.b - delta.b, 255);
+
+	return copy;
 }
 
 // https://github.com/semibran/wrap-around im idiot
