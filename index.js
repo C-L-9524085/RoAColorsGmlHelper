@@ -802,16 +802,16 @@ const vm = new Vue({
 									const accurateHSV = rgbToHsv_noRounding(r, g, b);
 
 									const defaultToCurrentDeltaHSV = getHSVDelta(defaultColorForShade.accurateHSV, accurateHSV);
+									const shiftedHSV = applyDeltaToHSV(mainColorForShade.accurateHSV, defaultToCurrentDeltaHSV);
 
-									const mainColorForShadeAccurateHSVCopy = applyDeltaToHSV({...mainColorForShade.accurateHSV}, {
-										h: defaultToCurrentDeltaHSV.h * (this.shadeStrength - 1),
-										s: defaultToCurrentDeltaHSV.s * (this.shadeStrength - 1),
-										v: defaultToCurrentDeltaHSV.v * (this.shadeStrength - 1)
+									const mainToShiftedDeltaHSV = getHSVDelta(mainColorForShade.accurateHSV, shiftedHSV);
+									const shiftedHSV2 = applyDeltaToHSV({...shiftedHSV}, {
+										h: mainToShiftedDeltaHSV.h * (this.shadeStrength - 1),
+										s: mainToShiftedDeltaHSV.s * (this.shadeStrength - 1),
+										v: mainToShiftedDeltaHSV.v * (this.shadeStrength - 1)
 									});
 
-
-									const shiftedHSV = applyDeltaToHSV(mainColorForShadeAccurateHSVCopy, defaultToCurrentDeltaHSV);
-									const shiftedRgb = hsvToRgb_noRounding(shiftedHSV.h, shiftedHSV.s, shiftedHSV.v);
+									const shiftedRgb = hsvToRgb_noRounding(shiftedHSV2.h, shiftedHSV2.s, shiftedHSV2.v);
 									imageDataArray[i] = shiftedRgb.r;
 									imageDataArray[i+1] = shiftedRgb.g;
 									imageDataArray[i+2] = shiftedRgb.b;
