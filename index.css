@@ -135,6 +135,15 @@ a:hover {
   align-items: flex-start;
 }
 
+ul.no-style-list {
+  list-style: none;
+}
+
+ul.flush-list {
+  margin-left: 0;
+  padding-left: 0;
+}
+
 #tips {
   max-width: 23rem;
 
@@ -166,8 +175,6 @@ ul.new-chocobo-tales-when-list-style {
   text-align: initial;
 
   padding-left: 1.5em;
-  margin-left: 0;
-  list-style: none;
 }
 ul.new-chocobo-tales-when-list-style > li {
   margin-bottom: 1em;
