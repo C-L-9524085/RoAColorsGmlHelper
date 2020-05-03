@@ -248,7 +248,7 @@
 							You can rename rows and slots by clicking on their name. This will update the header comment in the .gml file.
 						</li>
 						<li>
-							You can ctrl+c / ctrl+v a color as soon as you open it's picker.
+							You can ctrl+c / ctrl+v a {{colorspelling}} as soon as you open it's picker.
 						</li>
 						<li>
 							The shading value input is purely to test out how that'll render, and <strong>will not</strong> be written to the gml code as a <code>set_character_color_shading()</code> line.
@@ -264,10 +264,10 @@
 							Official doc about colors.gml <a href="https://www.rivalsofaether.com/workshop/colors-gml/">here</a>. Youtube video explanation <a href="https://www.youtube.com/watch?v=qo4hmRbW8lQ">here</a>.
 						</li>
 						<li>
-							It uses <a href="http://bgrins.github.io/TinyColor/">TinyColor</a> for parsing, so it should support all the correctly-formatted color formats you can throw at it.
+							It uses <a href="http://bgrins.github.io/TinyColor/">TinyColor</a> for parsing, so it should support all the correctly-formatted {{colorspelling}} formats you can throw at it.
 						</li>
 						<li>
-							Color picker heavily based on <a href="https://vuejsexamples.com/vue-color-picker/">"a cool Color Picker with vue.js BY Florian Schulz."</a>
+							{{colorspelling}} picker heavily based on <a href="https://vuejsexamples.com/vue-color-picker/">"a cool Color Picker with vue.js BY Florian Schulz."</a>
 						</li>
 						<li>
 							Built with <a href="https://vuejs.org/">Vue.js</a>.
@@ -285,7 +285,7 @@
 						</li>
 						<li>
 							<input type="checkbox" id="ukMode" v-model="colorspelling" true-value="colour" false-value="color"></input>
-							<label for="ukMode">U.K. mode 🇬🇧</label>
+							<label for="ukMode">U.K. mode{{colorspelling == "color" ? "?" : "!"}} 🇬🇧</label>
 						</li>
 					</ul>
 				</div>
@@ -295,12 +295,12 @@
 						<ul class="no-style-list flush-list new-chocobo-tales-when-list-style">
 							<li class="list-icon-ar">
 								<p>
-									If you think a specific color in the range is being changed in an odd way (on desaturated shadows, for example), <strong>it'll actually happen in-game too.</strong> It might help to move that color to it's own palette (you can see this happening in the <a href="https://i.imgur.com/1NYuQ7d.gif">quick demo video (0:57)</a> as well.)
+									If you think a specific {{colorspelling}} in the range is being changed in an odd way (on desaturated shadows, for example), <strong>it'll actually happen in-game too.</strong> It might help to move that {{colorspelling}} to it's own palette (you can see this happening in the <a href="https://i.imgur.com/1NYuQ7d.gif">quick demo video (0:57)</a> as well.)
 								</p>
 							</li>
 							<li class="list-icon-ar">
 								<p>
-									If some color range seem to be overlapping and the other range gets overwritten, it'll happen in-game too. <strong>Lower ranges take priority over higher ones.</strong> If you're having trouble with that, try to mess around with ranges' vertical order!
+									If some {{colorspelling}} range seem to be overlapping and the other range gets overwritten, it'll happen in-game too. <strong>Lower ranges take priority over higher ones.</strong> If you're having trouble with that, try to mess around with ranges' vertical order!
 								</p>
 							</li>
 							<li class="list-icon-ar">
@@ -310,7 +310,7 @@
 							</li>
 							<li class="list-icon-cat">
 								<p>
-									A <code>shading_value</code> of <code>1</code> is the "normal" amount of shading. <code>0</code> means no shading, and you can go above <code>1</code> and under <code>0</code>. <span class="sneakyText">(nerd talk: <code>shading_value</code> represents the percent of the difference between the range's main color and the shaded color that is applied to the final color (in rgb space). 100% (<code>shading_value = 1.0</code>) of the difference is the usual shade, 0% of the difference is the base shade, and 150% (<code>shading_value = 1.5</code>) is one and a half times the difference.)</span>
+									A <code>shading_value</code> of <code>1</code> is the "normal" amount of shading. <code>0</code> means no shading, and you can go above <code>1</code> and under <code>0</code>. <span class="sneakyText">(nerd talk: <code>shading_value</code> represents the percent of the difference between the range's main {{colorspelling}} and the shaded {{colorspelling}} that is applied to the final {{colorspelling}} (in rgb space). 100% (<code>shading_value = 1.0</code>) of the difference is the usual shade, 0% of the difference is the base shade, and 150% (<code>shading_value = 1.5</code>) is one and a half times the difference.)</span>
 								</p>
 							</li>
 						</ul>
