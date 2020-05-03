@@ -125,7 +125,10 @@ a:hover {
 }
 
 .footer {
+  clear: both;
+
   padding: 4px 16px;
+
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
