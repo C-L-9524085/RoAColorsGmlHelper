@@ -116,11 +116,7 @@ a:link {
   color: #9ff;
 }
 
-a:visited {
-  color: #dff;
-}
-
-a:active {
+a:visited, a:active{
   color: #dff;
 }
 
@@ -224,18 +220,6 @@ li.list-icon-cat:before {
 
 .tips-stronger {
   font-style: italic;
-}
-
-.tipsToggleLink {
-  text-align: center;
-  border: 3px solid rgb(24, 41, 32);
-  border-radius: 8px;
-  background-color: rgb(38, 68, 52);
-  margin: 2px auto;
-  padding: 4px;
-  width: 9em;
-  color: rgb(158, 187, 174);
-  font-family: 'Trebuchet MS', Helvetica, sans-serif;
 }
 
 
