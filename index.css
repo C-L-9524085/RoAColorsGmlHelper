@@ -58,7 +58,9 @@ textarea {
 	textarea {
 		float: none;
 	}
-}
+  .footer {
+    flex-wrap: wrap;
+  }
 }
 
 table {
@@ -125,6 +127,110 @@ a:active {
 a:hover {
   color: #fff;
 }
+
+.footer {
+  padding: 4px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+#tips {
+  max-width: 23rem;
+
+  padding: 16px;
+  margin-top: 10px;
+
+  text-align: center;
+  font-family: 'Trebuchet MS', Helvetica, sans-serif;
+  color: rgb(158, 187, 174);
+  
+  background-color: rgb(38, 68, 52);
+  
+  border: 3px solid rgb(24, 41, 32);
+  border-radius: 8px;
+
+}
+#tips strong {
+  font-weight: inherit;
+  color: rgb(128, 207, 164);
+}
+/*#tips code {
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+}*/
+ul.new-chocobo-tales-when-list-style {
+  text-align: initial;
+
+  padding-left: 1.5em;
+  margin-left: 0;
+  list-style: none;
+}
+ul.new-chocobo-tales-when-list-style > li {
+  margin-bottom: 1em;
+}
+ul.new-chocobo-tales-when-list-style > li:before {
+  position: absolute;
+  margin-top: -0.3em;
+  display: inline-block;
+  content: " ";
+  transition: 0.7s;
+  transition-timing-function: linear;
+}
+ul.new-chocobo-tales-when-list-style > li:hover:before {
+  transform: rotate(15deg);
+
+  animation:rocking 1.4s infinite;
+  animation-delay: 0.7s;
+  animation-timing-function: linear;
+  animation-direction: alternate;
+
+}
+
+@keyframes rocking {
+  0% { transform: rotate(15deg); }
+  100% { transform: rotate(-15deg); }
+}
+
+
+ul.list-icon-ar>li:before,
+li.list-icon-ar:before {
+  background-image: url(https://cdn.discordapp.com/emojis/645259598793539584.png);
+  background-size: 100% 100%;
+  margin-left: -1.7em;
+  width: 1.5em;
+  height: 1.5em;
+}
+
+ul.list-icon-cat>li:before,
+li.list-icon-cat:before {
+  background-image: url(https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/google/80/cat-face_1f431.png);
+  background-size: 100% 100%;
+  transform-origin: 50% 60%;
+  margin-left: -1.7em;
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.tips-stronger {
+  font-style: italic;
+}
+
+.tipsToggleLink {
+  text-align: center;
+  border: 3px solid rgb(24, 41, 32);
+  border-radius: 8px;
+  background-color: rgb(38, 68, 52);
+  margin: 2px auto;
+  padding: 4px;
+  width: 9em;
+  color: rgb(158, 187, 174);
+  font-family: 'Trebuchet MS', Helvetica, sans-serif;
+}
+
 
 .color-picker {
   position: relative;

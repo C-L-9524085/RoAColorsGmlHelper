@@ -216,7 +216,8 @@
 				</div>
 			</div>
 
-			<footer>
+			<footer class="footer">
+				<div id="notes">
 				<p style="clear:both;">Copy-paste your current colors.gml's file content in the text field on the right, and/or start defining {{colorspelling}}s.
 					<br>Ranges are automatically calculated from the palette <span class="sneakyText">(it doesn't read them from the code.)</span>
 					<br>The text field will be updated in real time <span class="sneakyText">(and forced into this tool's format because it's easier for me, sorry!)</span>
@@ -250,7 +251,39 @@
 				<input type="checkbox" id="ukMode" v-model="colorspelling" true-value="colour" false-value="color"></input>
 				<label for="ukMode">U.K. mode 🇬🇧</label>
 				<br>
+				</div>
+				<div id="tips">
+					<div v-if="displayTips">
+						<img src="https://i.imgur.com/7eCg7ni.png">
+						<ul class="new-chocobo-tales-when-list-style">
+							<li class="list-icon-ar">
+								<p>
+									If you think a specific color in the range is being changed in an odd way (on desaturated shadows, for example), <strong>it'll actually happen in-game too.</strong> It might help to move that color to it's own palette (you can see this happening in the leftmost "usage video" as well.)
+								</p>
+							</li>
+							<li class="list-icon-ar">
+								<p>
+									If some color range seem to be overlapping and the other range gets overwritten, it'll happen in-game too. <strong>Lower ranges take priority over higher ones.</strong> If you're having trouble with that, try to mess around with ranges' vertical order!
+								</p>
+							</li>
+							<li class="list-icon-ar">
+								<p>
+									An update some time ago added, among other things, a function to adjust the amount of "shading" a range has: <strong><code>set_character_color_shading( shade_slot, shading_value )</code></strong>. This function isn't used in colors.gml, so <strong class="tips-stronger">it won't be applied by this tool.</strong> However, you can preview the values!
+								</p>
+							</li>
+							<li class="list-icon-cat">
+								<p>
+									A <code>shading_value</code> of <code>1</code> is the "normal" amount of shading. <code>0</code> means no shading, and you can go above <code>1</code> and under <code>0</code>. <span class="sneakyText">(nerd talk: <code>shading_value</code> represents the percent of the difference between the range's main color and the shaded color that is applied to the final color (in rgb space). 100% (<code>shading_value = 1.0</code>) of the difference is the usual shade, 0% of the difference is the base shade, and 150% (<code>shading_value = 1.5</code>) is one and a half times the difference.)</span>
+								</p>
+							</li>
+						</ul>
+					</div>
+					<div>
+						<a @click="displayTips = !displayTips">[{{displayTips ? "Hide" : "Show"}} tips]</a>
+					</div>
+				</div>
 			</footer>
+
 		</div>
 
 		<script src="index.js"></script>

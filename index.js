@@ -263,6 +263,7 @@ const vm = new Vue({
 		skipConfirmRecolor: false,
 		autoMoveShades: true,
 		totalRenderTime: 0,
+		displayTips: false,
 	},
 	computed: {
 		shadingValue: function() {
