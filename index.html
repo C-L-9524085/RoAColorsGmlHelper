@@ -164,6 +164,7 @@
 						<li>Each row needs a main color.</li>
 						<li>ctrl+click a color to set it as main {{colorspelling}}.</li>
 						<li>There's a maximum of 8 rows, and each row can hold up to 5 {{colorspelling}}s.</li>
+						<li>{{colorspellingCap}}s with rgb values all lower than 26 will not be recolored.</li>
 						<li>Rows can be renamed by clicking on their name. This will update the header comment in the code.</li>
 						<li>You can ctrl+c / ctrl+v a {{colorspelling}} as soon as you open it's picker.</li>
 					</ul>
@@ -270,10 +271,10 @@
 							</ul>
 						</li>
 						<li>
-							<a href="https://www.rivalsofaether.com/workshop/colors-gml/">Official documentation about colors.gml</a>
+							<a href="https://www.rivalsofaether.com/workshop/colors-gml/">Official documentation on colors.gml</a>
 						</li>
 						<li>
-							<a href="https://www.youtube.com/watch?v=qo4hmRbW8lQ">Video explanation about colors.gml (youtube, 4:04)</a>
+							<a href="https://www.youtube.com/watch?v=qo4hmRbW8lQ">Video explanation on colors.gml (4:04)</a>
 						</li>
 						<li>
 							If you need help with animations hit/hurtboxes and attack scripts, check out <a href="https://fudgepop01.github.io/RoABox/">RoABox</a>!
@@ -285,10 +286,10 @@
 
 					<ul class="sneakyText flush-list no-style-list">
 						<li>
-							It uses <a href="http://bgrins.github.io/TinyColor/">TinyColor</a> for parsing, so it should support all the correctly-formatted {{colorspelling}} formats you can throw at it.
+							This uses <a href="http://bgrins.github.io/TinyColor/">TinyColor</a> for parsing, so it should support all the correctly-formatted {{colorspelling}} formats you can throw at it.
 						</li>
 						<li>
-							{{colorspelling.replace('c', 'C')}} picker heavily based on "<a href="https://vuejsexamples.com/vue-color-picker/">a cool Color Picker with vue.js BY Florian Schulz</a>."
+							{{colorspellingCap}} picker heavily based on "<a href="https://vuejsexamples.com/vue-color-picker/">a cool Color Picker with vue.js BY Florian Schulz</a>."
 						</li>
 						<li>
 							Built with <a href="https://vuejs.org/">Vue.js</a>.
@@ -331,7 +332,7 @@
 							</li>
 							<li class="list-icon-cat">
 								<p>
-									A <code>shading_value</code> of <code>1</code> is the "normal" amount of shading. <code>0</code> means no shading, and you can go above <code>1</code> and under <code>0</code>. <span class="sneakyText">(nerd talk: <code>shading_value</code> represents the percent of the difference between the range's main {{colorspelling}} and the shaded {{colorspelling}} that is applied to the final {{colorspelling}} (in rgb space). 100% (<code>shading_value = 1.0</code>) of the difference is the usual shade, 0% of the difference is the base shade, and 150% (<code>shading_value = 1.5</code>) is one and a half times the difference.)</span>
+									A <code>shading_value</code> of <code>1</code> is the "normal" amount of shading. <code>0</code> means no shading, and you can go above <code>1</code> and under <code>0</code>. <span class="sneakyText">(nerd talk: <code>shading_value</code> represents the percent of the difference between the range's main {{colorspelling}} and the shaded {{colorspelling}}, which is then applied to the final {{colorspelling}} (in rgb space). 100% (<code>shading_value = 1.0</code>) of the difference is the usual shade, 0% of the difference is the base shade, and 150% (<code>shading_value = 1.5</code>) is one and a half times the difference.)</span>
 								</p>
 							</li>
 						</ul>

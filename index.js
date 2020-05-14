@@ -285,6 +285,9 @@ const vm = new Vue({
 		displayTips: false,
 	},
 	computed: {
+		colorspellingCap: function() {
+			return this.colorspelling[0].toUpperCase() + this.colorspelling.substring(1);
+		},
 		shadingValue: function() {
 			return parseFloat(this.inputShadingValue) || 0;
 		},
@@ -653,7 +656,7 @@ const vm = new Vue({
 				})
 			}
 
-			str += "\n\n\n/* This is a comment used by that one RoA colors.gml generator tool to store palette data. You can safely keep it here if you plan to re-use this tool later, or safely remove it.\n"
+			str += "\n\n\n/* This is a comment used by that one RoA colors.gml generator tool to store palette data. You can safely keep it in your colors.gml if you plan to re-use the tool later, or safely remove it if you don't.\n"
 				+ jsonPaletteHeaderStart + "\n"
 				+ JSON.stringify({formatversion: 1, data: this.rows})
 				+ "\n" + jsonPaletteHeaderEnd + "\n*/\n"
