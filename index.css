@@ -2,6 +2,11 @@ body {
 	background-color: #534388;
 	color: white;
 }
+.buttons-row {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
 #flexContent {
 	display: flex;
 	flex-wrap: wrap;
@@ -105,6 +110,10 @@ td {
   transition: background-color 0.3s;
 }
 
+.cursor-pointer {
+  cursor: pointer;  
+}
+
 .fakebutton:hover {
   background-color: rgba(0, 0, 0, 0.5);
 }
@@ -142,6 +151,17 @@ ul.flush-list {
   margin-left: 0;
   padding-left: 0;
 }
+
+#colors {
+  min-width: 200px;
+}
+
+
+
+
+/*
+  footer tips
+*/
 
 #tips {
   max-width: 23rem;
@@ -225,6 +245,50 @@ li.list-icon-cat:before {
   font-style: italic;
 }
 
+
+/*
+  tipsdiv
+*/
+
+.tips-div {
+  position: relative;
+}
+
+.tipsdiv-title {
+  padding-top: 0.3em;
+  padding-bottom: 0.1em;
+}
+
+.tipsdiv-toggle {
+  position: absolute;
+  right: 0.35em;
+  top: 0.35em;
+
+  cursor: pointer;
+
+  color: white;
+  /*background: rgba(255, 255, 255, 0.5);*/
+  background: rgb(113, 97, 166);
+  border-radius: 50%;
+  border: none;
+
+}
+.tipsdiv-toggle:hover {
+  background: rgb(113, 97, 166, 0.9);
+}
+
+.tipsdiv-tips {
+  margin-left: 10px;
+  margin-right: 10px;
+
+  /*max-width: 350px;*/
+}
+
+
+
+/*
+  color picker
+*/
 
 .color-picker {
   position: relative;

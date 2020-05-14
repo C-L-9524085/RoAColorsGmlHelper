@@ -64,22 +64,44 @@
 			</div>
 		</template>
 
+		<template id="tips-div-template">
+			<div class="tips-div">
+				<div v-if="hasTitle" class="centertxt darkerbg tipsdiv-header">
+					<div class="tipsdiv-title">
+						<slot name="title"></slot>
+					</div>
+					<hr v-if="hasTitle" />
+				</div>
+				<button class="tipsdiv-toggle" @click="toggle" title="show tips">i</button>
+				<div v-if="visible" class="tipsdiv-tips sneakyText" :style="{'max-width': '350px'}">
+					<slot name="tips"></slot>
+				</div>
+				<hr v-if="visible" />
+				<slot></slot>
+			</div>
+		</template>
+
 		<div id="app">
-			<textarea id="gmlDisplay" @input="parseInputGml" placeholder="paste your color.gml code here!"></textarea>
+			<textarea id="gmlDisplay" @input="parseInputGml" v-bind:placeholder="`Copy-paste your current colors.gml's file content here, and/or start defining ${colorspelling}s on the right.\nThis text field will be updated in real time as you pick colors (and forced into this tool's format because it's easier for me, sorry!)`"></textarea>
 
 			<div id="flexContainerRight">
-				<div class="darkerbg">
+				<tips-div class="darkerbg">
+					<ul slot="tips" class="no-style-list flush-list">
+						<li>You can import a sprite here. <span class="sneakyText">(The tool is completely local, nothing gets uploaded anywhere.)</span></li>
+						<li>Click on the preview to pick a color.</li>
+						<li>The shading value is not written to the gml code.</li>
+					</ul>
+					<input type="file" id="file" accept="image/*" @change="loadFilePreview"></input>
 					<div>
-						<input type="file" id="file" accept="image/*" @change="loadFilePreview"></input>
 						<label>
-							zoom
+							zoom:
 							<input type="number" name="zoom" min="1" style="width: 40px" v-model:value="zoomFactor" @input="zoomFactor=Math.max(1, parseInt(zoomFactor))"></input>
 						</label>
 						<label>
-							shading value
+							shading value:
 							<input type="number" name="shading value" step="0.1" style="width: 40px" v-model:value="inputShadingValue"></input>
-							<button @click="inputShadingValue=0">0</button>
-							<button @click="inputShadingValue=1">1</button>
+							<!--<button @click="inputShadingValue=0">0</button>
+							<button @click="inputShadingValue=1">1</button>-->
 						</label>
 					</div>
 					<canvas id="preview" @click="previewClick" class="darkerbg"></canvas>
@@ -92,6 +114,7 @@
 						></color-picker>
 						rgb({{pickedColor.r}}, {{pickedColor.g}}, {{pickedColor.b}}) (x: {{pickedColor.x}}, y: {{pickedColor.y}})
 					</div>
+					<div>
 					<table>
 						<tr>
 							<td>{{colorspelling}}s not in palette:</td>
@@ -127,19 +150,28 @@
 							</td>
 						</tr>
 					</table>
-				</div>
+					</div>
+				</tips-div>
 
-				<div class="darkerbg">
-					<p class="centertxt">
-						click to edit {{colorspelling}}
-						<br>ctrl-click to set as main {{colorspelling}}
-					</p>
-					<hr>
+				<tips-div class="darkerbg">
+					<span slot="title">
+						sprite's palette
+					</span>
+					<ul slot="tips" class="no-style-list flush-list">
+						<li>Pick {{colorspelling}}s from your sprite and group similar ones here <span class="sneakyText">(for example one row for shades of reds, one for dark greens, one for bright greens...)</span></li>
+						<li>Colors in the same row will be re{{colorspelling}}ed together.</li>
+						<li>Ranges are automatically calculated from a row's {{colorspelling}}s.</li>
+						<li>Each row needs a main color.</li>
+						<li>ctrl+click a color to set it as main {{colorspelling}}.</li>
+						<li>There's a maximum of 8 rows, and each row can hold up to 5 {{colorspelling}}s.</li>
+						<li>Rows can be renamed by clicking on their name. This will update the header comment in the code.</li>
+						<li>You can ctrl+c / ctrl+v a {{colorspelling}} as soon as you open it's picker.</li>
+					</ul>
 					<table id="colors">
 						<tr class="shadeRow" v-for="(row, iRow) in rows">
 							<td class="color centertxt"><div v-if="iRow > 0" class="fakebutton" @click="moveRowUp(iRow)" name="move slot up">▲</div></td>
 							<td class="color centertxt"><div v-if="iRow < rows.length - 1" class="fakebutton" @click="moveRowDown(iRow)" name="move slot down">▼</div></td>
-							<td class="rowDeletButton" @click="deleteRow(iRow)"><div>🗑️</div></td>
+							<td class="rowDeletButton" @click="deleteRow(iRow)" title="delete row"><div>🗑️</div></td>
 							<td class="shadeSlotName centertxt" contenteditable="true" @blur="changeRowName($event, row)" v-text="row.name"></td>
 							<td
 								class="color"
@@ -159,17 +191,26 @@
 								>
 								</color-picker>
 						</td>
-							<td class="color centertxt"><div class="fakebutton" @click="addSlot(row)" name="add Color Slot">+</div></td>
+							<td class="color centertxt"><div class="fakebutton" @click="addSlot(row)" title="add slot">+</div></td>
 						</tr>
 						<tr v-if="rows.length < 8">
 							<td colspan=100% style="padding-top: 2px;">
-								<button style="width: 100%;" @click="addRow()" name="add Shade Row">+</button>
+								<button style="width: 100%;" @click="addRow()" title="add row">add row ({{rows.length}} / 8)</button>
 							</td>
 						</tr>
 					</table>
-				</div>
+				</tips-div>
 
-				<div class="darkerbg">
+				<tips-div class="darkerbg">
+					<span slot="title">
+						alt palettes
+					</span>
+					<ul slot="tips" class="no-style-list flush-list">
+						<li>Select alternate palettes's {{colorspelling}}s here.</li>
+						<li>Each color will be used to re{{colorspelling}} the whole row.</li>
+						<li>There's a minimum of 6 alts, and a maximum of 16.</li>
+						<li>Here too, rows can be renamed by clicking on their name.</li>
+					</ul>
 					<table id="colorProfiles">
 						<tr v-for="(colorSlot, colorSlotIndex) in colorProfilesMainColors"
 							class="colorSlot"
@@ -205,69 +246,49 @@
 								>
 								</color-picker>
 							</td>
-							<td v-if="colorSlotIndex > 5" class="rowDeletButton" @click="deleteColorSlotRow(colorSlotIndex)"><div>🗑️</div></td>
+							<td v-if="colorSlotIndex > 5" class="rowDeletButton" @click="deleteColorSlotRow(colorSlotIndex)" title="delete row">
+								<div>🗑️</div>
+							</td>
 						</tr>
 						<tr v-if="colorProfilesMainColors.length < 16">
 							<td colspan=100% style="padding-top: 2px;">
-								<button style="width: 100%" @click="addColorProfileRow">+</button>
+								<button style="width: 100%" @click="addColorProfileRow" title="add row">add row ({{colorProfilesMainColors.length}} / 16)</button>
 							</td>
 						</tr>
 					</table>
-				</div>
+				</tips-div>
 			</div>
 
 			<footer class="footer">
 				<div id="notes">
 					<ul class="flush-list no-style-list">
 						<li>
-							Copy-paste your current colors.gml's file content in the text field on the right, and/or start defining {{colorspelling}}s.
-						</li>
-						<li>
-							Ranges are automatically calculated from the palette <span class="sneakyText">(it doesn't read them from the code.)</span>
-						</li>
-						<li>
-							The text field will be updated in real time <span class="sneakyText">(and forced into this tool's format because it's easier for me, sorry!)</span>
-						</li>
-						<li>
-							Copy-paste the code back into your colors.gml file once you're done.
-						</li>
-					</ul>
-
-					<ul class="flush-list no-style-list">
-						<li>
-							Usage videos:
+							Usage videos for this tool:
 							<ul>
 								<li><a href="https://i.imgur.com/1NYuQ7d.gif">Quick demo by Hyuponia (0:57)</a></li>
 								<li><a href="https://streamable.com/i5h69">Longer demo by Hyuponia (4:44)</a></li>
 							</ul>
 						</li>
 						<li>
-							You can load a sprite to preview re{{colorspelling}}s <span class="sneakyText">(The tool is completely local, nothing gets uploaded anywhere.)</span>
+							<a href="https://www.rivalsofaether.com/workshop/colors-gml/">Official documentation about colors.gml</a>
 						</li>
 						<li>
-							You can rename rows and slots by clicking on their name. This will update the header comment in the .gml file.
+							<a href="https://www.youtube.com/watch?v=qo4hmRbW8lQ">Video explanation about colors.gml (youtube, 4:04)</a>
 						</li>
 						<li>
-							You can ctrl+c / ctrl+v a {{colorspelling}} as soon as you open it's picker.
-						</li>
-						<li>
-							The shading value input is purely to test out how that'll render, and <strong>will not</strong> be written to the gml code as a <code>set_character_color_shading()</code> line.
+							If you need help with animations hit/hurtboxes and attack scripts, check out <a href="https://fudgepop01.github.io/RoABox/">RoABox</a>!
 						</li>
 					</ul>
 
 					<p>
-						If you need help with animations hit/hurtboxes and attack scripts, check out <a href="https://fudgepop01.github.io/RoABox/">RoABox</a>!
 					</p>
 
 					<ul class="sneakyText flush-list no-style-list">
 						<li>
-							Official doc about colors.gml <a href="https://www.rivalsofaether.com/workshop/colors-gml/">here</a>. Youtube video explanation <a href="https://www.youtube.com/watch?v=qo4hmRbW8lQ">here</a>.
-						</li>
-						<li>
 							It uses <a href="http://bgrins.github.io/TinyColor/">TinyColor</a> for parsing, so it should support all the correctly-formatted {{colorspelling}} formats you can throw at it.
 						</li>
 						<li>
-							{{colorspelling}} picker heavily based on <a href="https://vuejsexamples.com/vue-color-picker/">"a cool Color Picker with vue.js BY Florian Schulz."</a>
+							{{colorspelling.replace('c', 'C')}} picker heavily based on "<a href="https://vuejsexamples.com/vue-color-picker/">a cool Color Picker with vue.js BY Florian Schulz</a>."
 						</li>
 						<li>
 							Built with <a href="https://vuejs.org/">Vue.js</a>.

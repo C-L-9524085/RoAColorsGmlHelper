@@ -216,6 +216,25 @@ Vue.component("color-picker", {
 	}
 })
 
+Vue.component("tips-div", {
+	template: "#tips-div-template",
+	data: function() {
+		return {
+			visible: false,
+		}
+	},
+	computed: {
+		hasTitle: function() {
+			return this.$slots && this.$slots.title
+		}
+	},
+	methods: {
+		toggle: function() {
+			this.visible = !this.visible;
+		}
+	}
+})
+
 function hsb2hsl(h, s, b) {
   var hsl = {
     h: h
@@ -634,7 +653,7 @@ const vm = new Vue({
 				})
 			}
 
-			str += "\n\n\n/* This is used by that one RoA colors.gml generator tool to store palette data\n"
+			str += "\n\n\n/* This is a comment used by that one RoA colors.gml generator tool to store palette data. You can safely keep it here if you plan to re-use this tool later, or safely remove it.\n"
 				+ jsonPaletteHeaderStart + "\n"
 				+ JSON.stringify({formatversion: 1, data: this.rows})
 				+ "\n" + jsonPaletteHeaderEnd + "\n*/\n"
