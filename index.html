@@ -105,50 +105,70 @@
 						</label>
 					</div>
 					<canvas id="preview" @click="previewClick" class="darkerbg"></canvas>
-					<div>
-						<color-picker style="display:inline-block"
-							v-bind:_r = "pickedColor.r"
-							v-bind:_g = "pickedColor.g"
-							v-bind:_b = "pickedColor.b"
-							readonly="true"
-						></color-picker>
-						rgb({{pickedColor.r}}, {{pickedColor.g}}, {{pickedColor.b}}) (x: {{pickedColor.x}}, y: {{pickedColor.y}})
-					</div>
-					<div>
-					<table>
-						<tr>
-							<td>{{colorspelling}}s not in palette:</td>
-							<td v-for="color in colorsNotInPalette">
-								<color-picker
-									v-bind:_r = "color.r"
-									v-bind:_g = "color.g"
-									v-bind:_b = "color.b"
-									readonly="true"
-								></color-picker>
-							</td>
-						</tr>
-						<tr>
-							<td>unmatched {{colorspelling}}s:</td>
-							<td v-for="color in colorsByRangeMatch.unmatchedColors">
-								<color-picker
-									v-bind:_r = "color.r"
-									v-bind:_g = "color.g"
-									v-bind:_b = "color.b"
-									readonly="true"
-								></color-picker>
-							</td>
-						</tr>
-						<tr>
-							<td>matched {{colorspelling}}s:</td>
-							<td v-for="color in colorsByRangeMatch.matchedColors">
-								<color-picker
-									v-bind:_r = "color.r"
-									v-bind:_g = "color.g"
-									v-bind:_b = "color.b"
-									readonly="true"
-								></color-picker>
-							</td>
-						</tr>
+					<div class="picture-colors-data">
+						<div>
+							<color-picker style="display:inline-block"
+								v-bind:_r = "pickedColor.r"
+								v-bind:_g = "pickedColor.g"
+								v-bind:_b = "pickedColor.b"
+								readonly="true"
+							></color-picker>
+							rgb({{pickedColor.r}}, {{pickedColor.g}}, {{pickedColor.b}}) (x: {{pickedColor.x}}, y: {{pickedColor.y}})
+						</div>
+						<div class="colors-list-line">
+							<span
+								class="colors-list-header"
+								:title="`These ${colorspelling}s haven't been placed in the sprite's palette.`"
+							>
+								{{colorspelling}}s not in palette ({{colorsNotInPalette.length}}):
+							</span>
+							<ul class="flush-list list-horizontal">
+								<li v-for="color in colorsNotInPalette">
+									<color-picker
+										v-bind:_r = "color.r"
+										v-bind:_g = "color.g"
+										v-bind:_b = "color.b"
+										readonly="true"
+									></color-picker>
+								</li>
+							</ul>
+						</div>
+						<div class="colors-list-line">
+							<span 
+								class="colors-list-header"
+								:title="`It's fine to have unmatched ${colorspelling}s - they simply won't be re${colorspelling}ed.`"
+							>
+								unmatched {{colorspelling}}s ({{colorsByRangeMatch.unmatchedColors.length}}):
+							</span>
+							<ul class="flush-list list-horizontal">
+								<li v-for="color in colorsByRangeMatch.unmatchedColors">
+									<color-picker
+										v-bind:_r = "color.r"
+										v-bind:_g = "color.g"
+										v-bind:_b = "color.b"
+										readonly="true"
+									></color-picker>
+								</li>
+							</ul>
+						</div>
+						<div class="colors-list-line">
+							<span
+								class="colors-list-header" 
+								:title="`These ${colorspelling}s are matched in a range.`"
+							>
+								matched {{colorspelling}}s ({{colorsByRangeMatch.matchedColors.length}}):
+							</span>
+							<ul class="flush-list list-horizontal">
+								<li v-for="color in colorsByRangeMatch.matchedColors">
+									<color-picker
+										v-bind:_r = "color.r"
+										v-bind:_g = "color.g"
+										v-bind:_b = "color.b"
+										readonly="true"
+									></color-picker>
+								</li>
+							</ul>
+						</div>
 					</table>
 					</div>
 				</tips-div>

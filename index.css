@@ -156,8 +156,34 @@ ul.flush-list {
   min-width: 200px;
 }
 
+.colors-list-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
 
+.colors-list-line ul {
+  margin: 0;
+}
+.colors-list-line li + li {
+  margin-left: 4px;
+}
 
+.colors-list-header {
+  display: inline-block;
+  min-width: 13em;
+}
+
+.picture-colors-data {
+  margin-left: 5px;
+}
+
+.list-horizontal ul {
+  list-style: none;
+}
+.list-horizontal li {
+  display: inline;
+}
 
 /*
   footer tips
@@ -271,11 +297,11 @@ li.list-icon-cat:before {
   background: rgb(113, 97, 166);
   border-radius: 50%;
   border: none;
-
 }
 .tipsdiv-toggle:hover {
   background: rgb(113, 97, 166, 0.9);
 }
+
 
 .tipsdiv-tips {
   margin-left: 10px;
@@ -292,6 +318,7 @@ li.list-icon-cat:before {
 
 .color-picker {
   position: relative;
+  display: inline-block;
 }
 
 .color-picker__overlay {
