@@ -920,8 +920,10 @@ const vm = new Vue({
 		previewClick: function(ev) {
 			const canvas = document.getElementById("preview");
 
-			const relX = ev.x + window.scrollX - canvas.offsetLeft;
-			const relY = ev.y + window.scrollY - canvas.offsetTop;
+			const boundingCRect = canvas.getBoundingClientRect();
+
+			const relX = ev.x - boundingCRect.left;
+			const relY = ev.y - boundingCRect.top;
 
 			const ctx = canvas.getContext('2d');
 
