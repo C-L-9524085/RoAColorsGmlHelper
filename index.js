@@ -285,6 +285,11 @@ const vm = new Vue({
 		displayTips: false,
 	},
 	computed: {
+		maxLineWidth: function() {
+			const imgSize = this.drawingCanvas.width * this.zoomFactor;
+
+			return Math.max(imgSize, 300) + "px";
+		},
 		colorspellingCap: function() {
 			return this.colorspelling[0].toUpperCase() + this.colorspelling.substring(1);
 		},

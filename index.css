@@ -165,8 +165,8 @@ ul.flush-list {
 .colors-list-line ul {
   margin: 0;
 }
-.colors-list-line li + li {
-  margin-left: 4px;
+.colors-list-line li {
+  margin-right: 4px;
 }
 
 .colors-list-header {
