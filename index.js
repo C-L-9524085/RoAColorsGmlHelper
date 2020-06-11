@@ -2,13 +2,9 @@ const jsonPaletteHeaderStart = "=== BEGIN JSON PALETTE ===";
 const jsonPaletteHeaderEnd = "=== END JSON PALETTE ===";
 const alternateColorsHeader = "// ALTERNATE COLORS";
 
-const MIN_ALT_PALETTES = 6;
-const MAX_ALT_PALETTES = 16;
-const MAX_SHADE_ROWS = 8;
 const PIC_PIXELS_TRESHOLD_FOR_WARNING = (300 * 20) * 500; //(one sprite's width * amount of sprites in a strip) * sprite's height
 const PIC_COLORS_TRESHOLD_FOR_WARNING = 100;
 const PIC_COLORS_ACTUAL_TRESHOLD = PIC_COLORS_TRESHOLD_FOR_WARNING + PIC_COLORS_TRESHOLD_FOR_WARNING / 2;
-
 
 /* 
 	this is a mess of synchronization
@@ -283,6 +279,9 @@ const vm = new Vue({
 		autoMoveShades: true,
 		totalRenderTime: 0,
 		displayTips: false,
+		MIN_ALT_PALETTES: 6,
+		MAX_ALT_PALETTES: 16,
+		MAX_SHADE_ROWS: 8,
 	},
 	computed: {
 		maxLineWidth: function() {
@@ -319,7 +318,7 @@ const vm = new Vue({
 		}
 	},
 	beforeMount: function() { //i suppose this is the right place for this?
-		while (this.colorProfilesMainColors.length < MIN_ALT_PALETTES) {
+		while (this.colorProfilesMainColors.length < this.MIN_ALT_PALETTES) {
 			this.addColorProfileRow()
 		}
 	},
@@ -415,12 +414,12 @@ const vm = new Vue({
 			})
 
 			//only keep 16 color profiles
-			if (this.colorProfilesMainColors.length > MAX_ALT_PALETTES)
-				this.colorProfilesMainColors.splice(15, this.colorProfilesMainColors.length - 1)
+			if (this.colorProfilesMainColors.length > this.MAX_ALT_PALETTES)
+				this.colorProfilesMainColors.splice(this.MAX_ALT_PALETTES, this.colorProfilesMainColors.length - 1)
 
 			this.colorProfilesMainColors.forEach(this.fillShadeSlotsUpToAmountOfRows)
 
-			while (this.colorProfilesMainColors.length < MIN_ALT_PALETTES) {
+			while (this.colorProfilesMainColors.length < this.MIN_ALT_PALETTES) {
 				this.addColorProfileRow()
 			}
 
@@ -437,7 +436,7 @@ const vm = new Vue({
 			this.rows = [];
 
 			try {
-				this.rows = json.splice(0, MAX_SHADE_ROWS);
+				this.rows = json.splice(0, this.MAX_SHADE_ROWS);
 
 				console.log("checking", this.rows.length, "rows")
 				for (let i = 0; i < this.rows.length; i++) {
@@ -648,7 +647,7 @@ const vm = new Vue({
 			})
 
 			str += "\n\n\n" + alternateColorsHeader;
-			str += "\nset_num_palettes( " + clamp(MIN_ALT_PALETTES, this.colorProfilesMainColors.length, MAX_ALT_PALETTES) + " );";
+			str += "\nset_num_palettes( " + clamp(this.MIN_ALT_PALETTES, this.colorProfilesMainColors.length, this.MAX_ALT_PALETTES) + " );";
 
 			for (let i = 1; i < this.colorProfilesMainColors.length; i++) {
 				const colorSlot = this.colorProfilesMainColors[i];

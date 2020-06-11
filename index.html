@@ -273,9 +273,9 @@
 								<div>🗑️</div>
 							</td>
 						</tr>
-						<tr v-if="colorProfilesMainColors.length < 16">
+						<tr v-if="colorProfilesMainColors.length < MAX_ALT_PALETTES">
 							<td colspan=100% style="padding-top: 2px;">
-								<button style="width: 100%" @click="addColorProfileRow" title="add row">add row ({{colorProfilesMainColors.length}} / 16)</button>
+								<button style="width: 100%" @click="addColorProfileRow" title="add row">add row ({{colorProfilesMainColors.length}} / {{MAX_ALT_PALETTES}})</button>
 							</td>
 						</tr>
 					</table>
@@ -319,6 +319,13 @@
 					</ul>
 
 					<ul class="no-style-list flush-list">
+
+						<li>
+							<label>
+								<input type="number" name="max number of alts" min="16" step="1" style="width: 40px" v-model:value="MAX_ALT_PALETTES"></input>
+								Max number of alts <span class="sneakyText">(note that the game only allows a maximum of 16! This is for convenience only.)</span>
+							</label>
+						</li>
 						<li>
 							<input type="checkbox" id="autoMoveShades" v-model="autoMoveShades"></input>
 							<label for="autoMoveShades">{{ (autoMoveShades ? 'A' : 'Not a') + 'utomatically moving shades when palette rows are moved' }}</label>
