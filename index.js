@@ -280,7 +280,7 @@ const vm = new Vue({
 		totalRenderTime: 0,
 		displayTips: false,
 		MIN_ALT_PALETTES: 6,
-		MAX_ALT_PALETTES: 16,
+		MAX_ALT_PALETTES: 32,
 		MAX_SHADE_ROWS: 8,
 	},
 	computed: {
