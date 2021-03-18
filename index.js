@@ -282,6 +282,7 @@ const vm = new Vue({
 		MIN_ALT_PALETTES: 6,
 		MAX_ALT_PALETTES: 32,
 		MAX_SHADE_ROWS: 8,
+		userHasEditedThings: false,
 	},
 	computed: {
 		maxLineWidth: function() {
@@ -321,6 +322,12 @@ const vm = new Vue({
 		while (this.colorProfilesMainColors.length < this.MIN_ALT_PALETTES) {
 			this.addColorProfileRow()
 		}
+
+		window.onbeforeunload = () => {
+			if (this.userHasEditedThings) {
+				return "";
+			}
+		};
 	},
 	watch: {
 		selectedColorProfile: function() {
@@ -684,6 +691,7 @@ const vm = new Vue({
 		},
 		updateInput: function() {
 			console.log("updateInput()")
+			this.userHasEditedThings = true;
 			//todo just edit json, don't regenerate gml if unchanged
 			this.generateGmlCode()
 		},
