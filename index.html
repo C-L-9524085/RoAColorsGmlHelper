@@ -93,6 +93,10 @@
 					</ul>
 					<input type="file" id="file" accept="image/*" @change="loadFilePreview"></input>
 					<div>
+						<button @click="copyImage">copy image</button>
+						<button @click="downloadImage">download image</button>
+					</div>
+					<div>
 						<label>
 							zoom:
 							<input type="number" name="zoom" min="1" style="width: 40px" v-model:value="zoomFactor" @input="zoomFactor=Math.max(1, parseInt(zoomFactor))"></input>

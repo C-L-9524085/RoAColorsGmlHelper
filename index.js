@@ -342,6 +342,33 @@ const vm = new Vue({
 		zoomFactor: 'renderPreview'
 	},
 	methods: {
+		copyImage: async function() {
+			try {
+				const realCanvas = document.getElementById("preview");
+				const blob = await new Promise((res, rej) => realCanvas.toBlob(res));
+				await navigator.clipboard.write([ new ClipboardItem({ [blob.type]: blob }) ]);
+			} catch(e) {
+				alert("error copying")
+			}
+		},
+		downloadImage: async function() {
+			try {
+				const realCanvas = document.getElementById("preview");
+				const a = document.createElement('a');
+				const blob = await new Promise((res, rej) => realCanvas.toBlob(res));
+				a.href = URL.createObjectURL(blob);
+				a.download = "download";
+
+				const clickHandler = () => {
+					URL.revokeObjectURL(url);
+					a.removeEventListener('click', clickHandler);
+				}
+
+				a.click();
+			} catch(e) {
+				alert("error downloading")
+			}
+		},
 		parseInputGml: function() {
 			console.log("parseInputGml")
 			const txt = document.getElementById("gmlDisplay").value;
