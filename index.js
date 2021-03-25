@@ -449,12 +449,8 @@ const vm = new Vue({
 				}
 			})
 
-			//only keep 16 color profiles
-			//if (this.colorProfilesMainColors.length > this.MAX_ALT_PALETTES)
-			//	this.colorProfilesMainColors.splice(this.MAX_ALT_PALETTES, this.colorProfilesMainColors.length - 1)
-
 			if (this.colorProfilesMainColors.length > this.MAX_ALT_PALETTES)
-				this.MAX_ALT_PALETTES = this.colorProfilesMainColors.length; //prefer maintaining user data.
+				this.MAX_ALT_PALETTES = this.colorProfilesMainColors.length;
 
 			this.colorProfilesMainColors.forEach(this.fillShadeSlotsUpToAmountOfRows)
 
@@ -475,10 +471,8 @@ const vm = new Vue({
 			this.rows = [];
 
 			try {
-				//this.rows = json.splice(0, this.MAX_SHADE_ROWS);
-
 				this.rows = json;
-				this.MAX_SHADE_ROWS = Math.max(8,this.rows.length); // prefer maintaining user data.
+				this.MAX_SHADE_ROWS = Math.max(8,this.rows.length);
 
 				console.log("checking", this.rows.length, "rows")
 				for (let i = 0; i < this.rows.length; i++) {
