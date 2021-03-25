@@ -196,6 +196,7 @@
 					</ul>
 					<table id="colors">
 						<tr class="shadeRow" v-for="(row, iRow) in rows">
+							<td class="color centertxt"><div v-if="iRow > 7" title="this slot will not affect the sprite.">[!]</div></td>
 							<td class="color centertxt"><div v-if="iRow > 0" class="fakebutton" @click="moveRowUp(iRow)" name="move slot up">▲</div></td>
 							<td class="color centertxt"><div v-if="iRow < rows.length - 1" class="fakebutton" @click="moveRowDown(iRow)" name="move slot down">▼</div></td>
 							<td class="rowDeletButton" @click="deleteRow(iRow)" title="delete row"><div>🗑️</div></td>
@@ -220,9 +221,9 @@
 						</td>
 							<td class="color centertxt"><div class="fakebutton" @click="addSlot(row)" title="add slot">+</div></td>
 						</tr>
-						<tr v-if="rows.length < 8">
+						<tr v-if="rows.length < MAX_SHADE_ROWS">
 							<td colspan=100% style="padding-top: 2px;">
-								<button style="width: 100%;" @click="addRow()" title="add row">add row ({{rows.length}} / 8)</button>
+								<button style="width: 100%;" @click="addRow()" title="add row">add row ({{rows.length}} / {{MAX_SHADE_ROWS}})</button>
 							</td>
 						</tr>
 					</table>
@@ -242,6 +243,7 @@
 						<tr v-for="(colorSlot, colorSlotIndex) in colorProfilesMainColors"
 							class="colorSlot"
 						>
+							<td class="color centertxt"><div v-if="colorSlotIndex > 31" title="this slot will not show up in-game.">[!]</div></td>
 							<td class="color centertxt">
 								<div v-if="colorSlotIndex > 1" class="fakebutton" @click="moveShadeUp(colorSlotIndex)" name="move alt palette up">▲</div>
 							</td>
@@ -328,6 +330,12 @@
 							<label>
 								<input type="number" name="max number of alts" min="32" step="1" style="width: 40px" v-model:value="MAX_ALT_PALETTES"></input>
 								Max number of alts <span class="sneakyText">(note that the game only allows a maximum of 32! This is for convenience only.)</span>
+							</label>
+						</li>
+						<li>
+							<label>
+								<input type="number" name="max number of shades" min="8" step="1" style="width: 40px" v-model:value="MAX_SHADE_ROWS"></input>
+								Max number of shades <span class="sneakyText">(note that the color shader only uses 8 shade slots! anything past that will not be recolored.)</span>
 							</label>
 						</li>
 						<li>
