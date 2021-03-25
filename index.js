@@ -408,8 +408,8 @@ const vm = new Vue({
 					this.colorProfilesMainColors[colorProfileSlot] = {shades: []};
 
 				console.log("adding shade", colorProfileSlot, shadeSlot, rgb)
-
 				this.colorProfilesMainColors[colorProfileSlot].shades[shadeSlot] = { rgb };
+				
 				this.calcShadesHSV(this.colorProfilesMainColors[colorProfileSlot].shades[shadeSlot]);
 			}
 
@@ -422,6 +422,8 @@ const vm = new Vue({
 					this.setMainColor(newSlot, newRow);
 				})
 			}
+
+			
 
 			const regComment = /^\/\/[ \t]*(.*)/g
 			var i = 1;
@@ -448,8 +450,11 @@ const vm = new Vue({
 			})
 
 			//only keep 16 color profiles
+			//if (this.colorProfilesMainColors.length > this.MAX_ALT_PALETTES)
+			//	this.colorProfilesMainColors.splice(this.MAX_ALT_PALETTES, this.colorProfilesMainColors.length - 1)
+
 			if (this.colorProfilesMainColors.length > this.MAX_ALT_PALETTES)
-				this.colorProfilesMainColors.splice(this.MAX_ALT_PALETTES, this.colorProfilesMainColors.length - 1)
+				this.MAX_ALT_PALETTES = this.colorProfilesMainColors.length; //prefer maintaining user data.
 
 			this.colorProfilesMainColors.forEach(this.fillShadeSlotsUpToAmountOfRows)
 
@@ -470,7 +475,10 @@ const vm = new Vue({
 			this.rows = [];
 
 			try {
-				this.rows = json.splice(0, this.MAX_SHADE_ROWS);
+				//this.rows = json.splice(0, this.MAX_SHADE_ROWS);
+
+				this.rows = json;
+				this.MAX_SHADE_ROWS = Math.max(8,this.rows.length); // prefer maintaining user data.
 
 				console.log("checking", this.rows.length, "rows")
 				for (let i = 0; i < this.rows.length; i++) {

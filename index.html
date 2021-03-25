@@ -243,6 +243,7 @@
 						<tr v-for="(colorSlot, colorSlotIndex) in colorProfilesMainColors"
 							class="colorSlot"
 						>
+							<td class="color centertxt"><div v-if="colorSlotIndex > 31" title="this slot will not show up in-game.">[!]</div></td>
 							<td class="color centertxt">
 								<div v-if="colorSlotIndex > 1" class="fakebutton" @click="moveShadeUp(colorSlotIndex)" name="move alt palette up">▲</div>
 							</td>
