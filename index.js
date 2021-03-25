@@ -883,53 +883,6 @@ const vm = new Vue({
 									//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, defaultToCurrentDeltaHSV, shiftedRgb)
 								}
 							})
-							/*
-							// I tested this (albeit hastily) and discerned that the performance difference was negligable and
-							// this might even be worse (similar avg, more fluctuation in min/max). leaving it here for
-							// prosperity and/or better testing.
-
-							let shadeIndex = 0;
-							for (const rangeDef of this.ranges) {
-								if (shadeIndex >= 8)
-									break; //prevent coloring anything past shade slot 7, as the game would not do.
-								const hsv = rgbToHsv(r, g, b);
-
-								//those ranges are precalculated in generateGmlCode so that we don't have to math them here
-								if(isWrappingValueWithinRange(hsv.h, 0, 360, rangeDef.hL, rangeDef.hH)
-								&& hsv.s >= rangeDef.sL && hsv.s <= rangeDef.sH
-								&& hsv.v >= rangeDef.vL && hsv.v <= rangeDef.vH
-								) {
-									const mainColorForShade = this.colorProfilesMainColors[this.selectedColorProfile].shades[shadeIndex];
-									matched = true;
-									const defaultColorForShade = this.colorProfilesMainColors[0].shades[shadeIndex];
-
-
-									const accurateHSV = rgbToHsv_noRounding(r, g, b);
-
-									const defaultToCurrentDeltaHSV = getHSVDelta(defaultColorForShade.accurateHSV, accurateHSV);
-									const shiftedHSV = applyDeltaToHSV(mainColorForShade.accurateHSV, defaultToCurrentDeltaHSV);
-
-									const shiftedRgb = hsvToRgb_noRounding(shiftedHSV.h, shiftedHSV.s, shiftedHSV.v);
-									const mainToShiftedDeltaRGB = getRGBDelta(mainColorForShade.rgb, shiftedRgb);
-									const shiftedRgb2 = applyDeltaToRGB({...shiftedRgb}, {
-										r: mainToShiftedDeltaRGB.r * (this.shadingValue - 1),
-										g: mainToShiftedDeltaRGB.g * (this.shadingValue - 1),
-										b: mainToShiftedDeltaRGB.b * (this.shadingValue - 1)
-									});
-
-
-									imageDataArray[i] = shiftedRgb2.r;
-									imageDataArray[i+1] = shiftedRgb2.g;
-									imageDataArray[i+2] = shiftedRgb2.b;
-
-									cachedColorTransforms.set(`${r},${g},${b}`, shiftedRgb2);
-
-									//console.log("px", i, "fitting rangeDef", hsv, mainColorForShade.hsv, defaultToCurrentDeltaHSV, shiftedRgb)
-								}
-								
-								shadeIndex++;
-							}
-							*/
 
 							if (!matched) {
 								//reaching here means the color wasn't fitting in any range
