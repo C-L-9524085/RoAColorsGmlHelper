@@ -278,6 +278,10 @@
 							<td v-if="colorSlotIndex > 5" class="rowDeletButton" @click="deleteColorSlotRow(colorSlotIndex)" title="delete row">
 								<div>🗑️</div>
 							</td>
+							<td v-else></td>
+							<td v-if="colorSlotIndex > 0" class="rowDeletButton" @click="changeSlotRowIndex(colorSlotIndex)">
+								<div>↕️</div>
+							</td>
 						</tr>
 						<tr v-if="colorProfilesMainColors.length < MAX_ALT_PALETTES">
 							<td colspan=100% style="padding-top: 2px;">

@@ -530,6 +530,27 @@ const vm = new Vue({
 
 			this.updateDisplays();
 		},
+		changeSlotRowIndex: function(colorSlotIndex) {
+			const maxIndex = this.colorProfilesMainColors.length;
+			const newIndex_str = prompt(`What is the new index? ([1, ${maxIndex}])`);
+
+			if (!newIndex_str.match(/[0-9]*/)) {
+				alert("That doesn't seem to be a valid integer");
+				return;
+			}
+
+			const newIndex = clamp(1, Number(newIndex_str), maxIndex);
+
+			const profiles = [...this.colorProfilesMainColors];
+			const [targetElement] = profiles.splice(colorSlotIndex, 1);
+			profiles.splice(newIndex, 0, targetElement);
+			this.colorProfilesMainColors = profiles;
+
+			if (this.selectedColorProfile == colorSlotIndex)
+				this.selectedColorProfile = newIndex;
+
+			this.updateDisplays();
+		},
 		moveShadeUp: function(colorSlotIndex) {
 			const row = this.colorProfilesMainColors.splice(colorSlotIndex, 1)[0];
 			console.log("moving shade", colorSlotIndex, "up", row)
