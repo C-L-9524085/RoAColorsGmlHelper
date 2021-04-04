@@ -283,15 +283,12 @@
 								<div>↕️</div>
 							</td>
 						</tr>
+						<tr v-if="colorProfilesMainColors.length < MAX_ALT_PALETTES">
+							<td colspan=100% style="padding-top: 2px;">
+								<button style="width: 100%" @click="addColorProfileRow" title="add row">add row ({{colorProfilesMainColors.length}} / {{MAX_ALT_PALETTES}})</button>
+							</td>
+						</tr>
 					</table>
-					<button
-						title="add row"
-						style="width: 100%; margin-top: 2px;"
-						v-if="colorProfilesMainColors.length < MAX_ALT_PALETTES"
-						@click="addColorProfileRow"
-					>
-						add row ({{colorProfilesMainColors.length}} / {{MAX_ALT_PALETTES}})
-					</button>
 				</tips-div>
 			</div>
 
