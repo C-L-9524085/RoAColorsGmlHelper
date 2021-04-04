@@ -524,6 +524,11 @@ const vm = new Vue({
 
 			this.colorProfilesMainColors.push(colorProfile);
 			this.updateInput();
+
+			this.$nextTick(() => {
+				const colorProfilesElem = document.getElementById("colorProfiles");
+				colorProfilesElem.scroll({top: colorProfilesElem.scrollHeight, behavior: "smooth"})
+			})
 		},
 		deleteColorSlotRow: function(colorSlotIndex) {
 			this.colorProfilesMainColors.splice(colorSlotIndex, 1);

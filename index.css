@@ -152,6 +152,12 @@ ul.flush-list {
   padding-left: 0;
 }
 
+#colorProfiles {
+  max-height: calc(24px * 12 + 12px);
+  display: block;
+  overflow-y: scroll;
+}
+
 #colors {
   min-width: 200px;
 }
