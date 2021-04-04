@@ -534,6 +534,10 @@ const vm = new Vue({
 			const maxIndex = this.colorProfilesMainColors.length;
 			const newIndex_str = prompt(`What is the new index? ([1, ${maxIndex}])`);
 
+			if (!newIndex_str) {
+				return;
+			}
+
 			if (!newIndex_str.match(/[0-9]*/)) {
 				alert("That doesn't seem to be a valid integer");
 				return;
