@@ -283,7 +283,7 @@ const vm = new Vue({
 		MAX_ALT_PALETTES: 32,
 		MAX_SHADE_ROWS: 8,
 		userHasEditedThings: false,
-		customOutline: { r: 0, g: 0, b: 0, enabled: false},
+		customOutline: { r: 0, g: 0, b: 0 },
 	},
 	computed: {
 		maxLineWidth: function() {
@@ -832,7 +832,7 @@ const vm = new Vue({
 				)
 					confirmedContinue = true;
 
-			if (confirmedContinue && (this.selectedColorProfile != 0 || this.shadingValue != 1 || this.customOutline.enabled)) {
+			if (confirmedContinue) {
 				console.log("recoloring...")
 
 				const cachedColorTransforms = new Map();
@@ -848,10 +848,6 @@ const vm = new Vue({
 
 					//skip gray outlines that the game ignores
 					if (r < 26 && g < 26 && b < 26) {
-						if (!this.customOutline.enabled) {
-							continue;
-						}
-
 						imageDataArray[i] = this.customOutline.r;
 						imageDataArray[i+1] = this.customOutline.g;
 						imageDataArray[i+2] = this.customOutline.b;
