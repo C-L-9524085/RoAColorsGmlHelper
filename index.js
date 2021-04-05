@@ -283,6 +283,7 @@ const vm = new Vue({
 		MAX_ALT_PALETTES: 32,
 		MAX_SHADE_ROWS: 8,
 		userHasEditedThings: false,
+		customOutline: { r: 0, g: 0, b: 0, enabled: false},
 	},
 	computed: {
 		maxLineWidth: function() {
@@ -333,6 +334,7 @@ const vm = new Vue({
 		selectedColorProfile: function() {
 			this.renderPreview();
 		},
+		customOutline: { deep: true, handler: 'renderPreview' },
 		rows: {
 			//not sure if I should have this or just call a function on color-picker's update:r instead of using .sync
 			deep: true,
@@ -830,7 +832,7 @@ const vm = new Vue({
 				)
 					confirmedContinue = true;
 
-			if (confirmedContinue && (this.selectedColorProfile != 0 || this.shadingValue != 1)) {
+			if (confirmedContinue && (this.selectedColorProfile != 0 || this.shadingValue != 1 || this.customOutline.enabled)) {
 				console.log("recoloring...")
 
 				const cachedColorTransforms = new Map();
@@ -845,8 +847,17 @@ const vm = new Vue({
 						b = imageDataArray[i+2];
 
 					//skip gray outlines that the game ignores
-					if (r < 26 && g < 26 && b < 26)
+					if (r < 26 && g < 26 && b < 26) {
+						if (!this.customOutline.enabled) {
+							continue;
+						}
+
+						imageDataArray[i] = this.customOutline.r;
+						imageDataArray[i+1] = this.customOutline.g;
+						imageDataArray[i+2] = this.customOutline.b;
+
 						continue;
+					}
 
 					//if (this.selectedColorProfile != 0 || this.shadingValue != 1) {
 						const cachedColor = cachedColorTransforms.get(`${r},${g},${b}`);

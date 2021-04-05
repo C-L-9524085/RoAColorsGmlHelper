@@ -329,7 +329,17 @@
 					</ul>
 
 					<ul class="no-style-list flush-list">
-
+						<li>
+							<label>
+								<input type="checkbox" id="customOutlineEnabled" v-model="customOutline.enabled"></input>
+								<label for="customOutlineEnabled">Custom outline color <span class="sneakyText">(This is only a preview - it isn't written to the resulting colors.gml code.)</span></label>
+								<div v-if="customOutline.enabled">
+									R: <input type="number" name="R" min="0" max="255" step="1" style="width: 40px" v-model:value="customOutline.r"></input>
+									G: <input type="number" name="G" min="0" max="255" step="1" style="width: 40px" v-model:value="customOutline.g"></input>
+									B: <input type="number" name="B" min="0" max="255" step="1" style="width: 40px" v-model:value="customOutline.b"></input>
+								</div>
+							</label>
+						</li>
 						<li>
 							<label>
 								<input type="number" name="max number of alts" min="32" step="1" style="width: 40px" v-model:value="MAX_ALT_PALETTES"></input>
