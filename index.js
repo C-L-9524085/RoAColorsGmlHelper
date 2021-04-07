@@ -528,6 +528,10 @@ const vm = new Vue({
 			this.updateInput();
 		},
 		deleteColorSlotRow: function(colorSlotIndex) {
+			const slotName = this.colorProfilesMainColors[colorSlotIndex].name;
+			if (!confirm(`Are you sure you want to delete alt '${slotName}'?`))
+				return;
+
 			this.colorProfilesMainColors.splice(colorSlotIndex, 1);
 
 			this.updateDisplays();
