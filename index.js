@@ -917,8 +917,8 @@ const vm = new Vue({
 									"vL", hsv.v >= rangeDef.vL,
 									"vH", hsv.v <= rangeDef.vH
 								)*/
-								//if (shadeIndex >= 8)
-									//return; //prevent coloring anything past shade slot 7, as the game would not do. 
+								if (shadeIndex >= 8)
+									return; //prevent coloring anything past shade slot 7, as the game would not do. 
 											//would've used break instead but forEach doesn't support that!
 								const hsv = rgbToHsv(r, g, b);
 
