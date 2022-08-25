@@ -48,6 +48,10 @@
 							<button @click="hide(); $emit('delete-color')">remove</button>
 							<button style="float:right;" @click="$emit('set-main')">set main</button>
 						</div>
+						<div v-if="showshadecontrol && c_per_slot_shading" style="margin-bottom: 1rem;">
+							<label style="color: black; margin: 0px; margin-top: 5px; scale: 0.5">shading value:</label>
+							<input type="number" name="shadingvalue" step="0.1" style="width: 40px" v-bind:value="shd_val" v-on:input="shd_val = Number($event.target.value);" v-on:change="askRerender" v-bind:disabled="readonly"/>
+						</div>
 						<div class="control" v-bind:style="gradientH">
 							<input type="range" min="0" max="360" v-bind:value="h" v-on:input="h = Number($event.target.value); updateFromHsv();" v-on:change="askRerender" v-bind:disabled="readonly"/>
 						</div>
@@ -269,7 +273,10 @@
 									v-bind:_r.sync = "shade.rgb.r"
 									v-bind:_g.sync = "shade.rgb.g"
 									v-bind:_b.sync = "shade.rgb.b"
+									v-bind:_shd_val.sync = "shade.shd_val"
+									v-bind:c_per_slot_shading.sync = "PER_SLOT_SHADING"
 
+									showshadecontrol = "true"
 									@color-update = "calcShadesHSV(shade); $forceUpdate(); generateGmlCode();"
 									@rerender = "renderPreview"
 								>
@@ -277,6 +284,10 @@
 							</td>
 							<td v-if="colorSlotIndex > 5" class="rowDeletButton" @click="deleteColorSlotRow(colorSlotIndex)" title="delete row">
 								<div>🗑️</div>
+							</td>
+							<td v-else></td>
+							<td v-if="colorSlotIndex > 0" class="rowDeletButton" @click="changeSlotRowIndex(colorSlotIndex)">
+								<div>↕️</div>
 							</td>
 						</tr>
 						<tr v-if="colorProfilesMainColors.length < MAX_ALT_PALETTES">
@@ -325,7 +336,15 @@
 					</ul>
 
 					<ul class="no-style-list flush-list">
-
+						<li>
+							<label>
+								R: <input type="number" name="R" min="0" max="255" step="1" style="width: 40px" v-model:value="customOutline.r"></input>
+								G: <input type="number" name="G" min="0" max="255" step="1" style="width: 40px" v-model:value="customOutline.g"></input>
+								B: <input type="number" name="B" min="0" max="255" step="1" style="width: 40px" v-model:value="customOutline.b"></input>
+								
+								Custom outline color <span class="sneakyText">(The game replaces any color under rgb(26, 26, 26) with this color. This is only a preview - it isn't written to the resulting colors.gml code. See <a title="Player Variables - Rivals of Aether" href="https://rivalsofaether.com/player-variables/">Player Variables</a>.)</span>
+							</label>
+						</li>
 						<li>
 							<label>
 								<input type="number" name="max number of alts" min="32" step="1" style="width: 40px" v-model:value="MAX_ALT_PALETTES"></input>
@@ -336,6 +355,12 @@
 							<label>
 								<input type="number" name="max number of shades" min="8" step="1" style="width: 40px" v-model:value="MAX_SHADE_ROWS"></input>
 								Max number of shades <span class="sneakyText">(note that the color shader only uses 8 shade slots! anything past that will not be recolored.)</span>
+							</label>
+						</li>
+						<li>
+							<label>
+								<input type="checkbox" name="per slot shading" v-model:value="PER_SLOT_SHADING"></input>
+								Per-slot shading values <span class="sneakyText">(The color tool does not generate the code to apply this shading value.)</span>
 							</label>
 						</li>
 						<li>
