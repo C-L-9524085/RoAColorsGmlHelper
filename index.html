@@ -48,6 +48,10 @@
 							<button @click="hide(); $emit('delete-color')">remove</button>
 							<button style="float:right;" @click="$emit('set-main')">set main</button>
 						</div>
+						<div v-if="showshadecontrol && c_per_slot_shading" style="margin-bottom: 1rem;">
+							<label style="color: black; margin: 0px; margin-top: 5px; scale: 0.5">shading value:</label>
+							<input type="number" name="shadingvalue" step="0.1" style="width: 40px" v-bind:value="shd_val" v-on:input="shd_val = Number($event.target.value);" v-on:change="askRerender" v-bind:disabled="readonly"/>
+						</div>
 						<div class="control" v-bind:style="gradientH">
 							<input type="range" min="0" max="360" v-bind:value="h" v-on:input="h = Number($event.target.value); updateFromHsv();" v-on:change="askRerender" v-bind:disabled="readonly"/>
 						</div>
@@ -101,7 +105,7 @@
 							zoom:
 							<input type="number" name="zoom" min="1" style="width: 40px" v-model:value="zoomFactor" @input="zoomFactor=Math.max(1, parseInt(zoomFactor))"></input>
 						</label>
-						<label>
+						<label v-if="!PER_SLOT_SHADING">
 							shading value:
 							<input type="number" name="shading value" step="0.1" style="width: 40px" v-model:value="inputShadingValue"></input>
 							<!--<button @click="inputShadingValue=0">0</button>
@@ -269,7 +273,10 @@
 									v-bind:_r.sync = "shade.rgb.r"
 									v-bind:_g.sync = "shade.rgb.g"
 									v-bind:_b.sync = "shade.rgb.b"
+									v-bind:_shd_val.sync = "shade.shd_val"
+									v-bind:c_per_slot_shading.sync = "PER_SLOT_SHADING"
 
+									showshadecontrol = "true"
 									@color-update = "calcShadesHSV(shade); $forceUpdate(); generateGmlCode();"
 									@rerender = "renderPreview"
 								>
@@ -348,6 +355,18 @@
 							<label>
 								<input type="number" name="max number of shades" min="8" step="1" style="width: 40px" v-model:value="MAX_SHADE_ROWS"></input>
 								Max number of shades <span class="sneakyText">(note that the color shader only uses 8 shade slots! anything past that will not be recolored.)</span>
+							</label>
+						</li>
+						<li>
+							<label>
+								<input type="checkbox" name="per slot shading" v-model:value="PER_SLOT_SHADING"></input>
+								Per-slot shading values <span class="sneakyText">(The color tool does not generate the code to apply this shading value.)</span>
+							</label>
+						</li>
+						<li>
+							<label>
+								<input type="checkbox" name="ignore shade limit" v-model:value="IGNORE_SHADE_LIMIT"></input>
+								{{(IGNORE_SHADE_LIMIT ? 'I' : 'Not i') + 'gnoring the in-game shade slot limit.'}}  <span class="sneakyText">(the color shader only uses 8 shade slots! only turn this on if you know what you're doing.)</span>
 							</label>
 						</li>
 						<li>

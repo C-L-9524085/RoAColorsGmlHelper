@@ -17,7 +17,7 @@ const PIC_COLORS_ACTUAL_TRESHOLD = PIC_COLORS_TRESHOLD_FOR_WARNING + PIC_COLORS_
 */
 Vue.component("color-picker", {
 	template: "#color-picker-template",
-	props: ["change", "_r", "_g", "_b", "readonly", "showpalettecontrols"],
+	props: ["change", "_r", "_g", "_b", "_shd_val", "readonly", "showpalettecontrols", "showshadecontrol", "c_per_slot_shading"],
 	data: function() {
 		return {
 			isVisible: false,
@@ -29,7 +29,9 @@ Vue.component("color-picker", {
 			h: 0,
 			s: 0,
 			v: 0,
-			hex: "000"
+			hex: "000",
+
+			shd_val: 1
 		}
 	},
 	directives: {
@@ -94,17 +96,19 @@ Vue.component("color-picker", {
 		'_r': function() { this.r = this._r; this.updateColorDisplays(); },
 		'_g': function() { this.g = this._g; this.updateColorDisplays(); },
 		'_b': function() { this.b = this._b; this.updateColorDisplays(); },
+		'_shd_val': function() { this.shd_val = this._shd_val; this.updateColorDisplays(); },
 	},
 	mounted: function() {
 		this.r = this._r;
 		this.g = this._g;
 		this.b = this._b;
+		this.shd_val = this._shd_val;
 
 		this.updateColorDisplays();
 	},
 	methods: {
 		askRerender: function() {
-			this.updateAll(this.rgb);
+			this.updateAll(this.rgb, this.shd_val);
 			this.$emit("rerender");
 		},
 		show: function() { this.isVisible = true; },
@@ -129,6 +133,12 @@ Vue.component("color-picker", {
 
 			this.hex = color.toHexString();
 		},
+		updateFromShdVal: function() {
+			//const color = tinycolor(`hsl(${this.h}, ${this.percentS}%, ${this.percentL}%)`);
+			//const color = tinycolor(this.hsl);
+			// ?? either my sliders are messed up or there's a bug in tinycolor (updateColorDisplays too if you fix this)
+			console.log(this.shd_val)
+		},
 		updateFromHex: function() {
 			const color = tinycolor(this.hex);
 
@@ -142,11 +152,12 @@ Vue.component("color-picker", {
 			this.s = hsv.s;
 			this.v = hsv.v;
 		},
-		updateAll: function(rgb) {
+		updateAll: function(rgb, shd_val = 1) {
 			console.log("updateAll", rgb)
 			this.$emit("update:_r", rgb.r);
 			this.$emit("update:_g", rgb.g);
 			this.$emit("update:_b", rgb.b);
+			this.$emit("update:_shd_val", shd_val);
 			this.$emit("color-update");
 		},
 		updateColorDisplays: function() {
@@ -282,6 +293,8 @@ const vm = new Vue({
 		MIN_ALT_PALETTES: 6,
 		MAX_ALT_PALETTES: 32,
 		MAX_SHADE_ROWS: 8,
+		PER_SLOT_SHADING: false,
+		IGNORE_SHADE_LIMIT: false,
 		userHasEditedThings: false,
 		customOutline: { r: 0, g: 0, b: 0 },
 	},
@@ -341,7 +354,9 @@ const vm = new Vue({
 			handler: 'updateInput'
 		},
 		shadingValue: 'renderPreview',
-		zoomFactor: 'renderPreview'
+		zoomFactor: 'renderPreview',
+		IGNORE_SHADE_LIMIT: 'renderPreview',
+		PER_SLOT_SHADING: 'updateInput'
 	},
 	methods: {
 		copyImage: async function() {
@@ -410,7 +425,7 @@ const vm = new Vue({
 					this.colorProfilesMainColors[colorProfileSlot] = {shades: []};
 
 				console.log("adding shade", colorProfileSlot, shadeSlot, rgb)
-				this.colorProfilesMainColors[colorProfileSlot].shades[shadeSlot] = { rgb };
+				this.colorProfilesMainColors[colorProfileSlot].shades[shadeSlot] = { rgb, shd_val:1 };
 				
 				this.calcShadesHSV(this.colorProfilesMainColors[colorProfileSlot].shades[shadeSlot]);
 			}
@@ -441,6 +456,25 @@ const vm = new Vue({
 						}
 
 						if (reachedAltcolors) {
+							//this is a monster and i don't know how i would do it better
+							if (line.includes("//shading data: [")) {
+								console.log("matched shading data on l", line)
+								const len = this.colorProfilesMainColors[i-1].shades.length
+								var shading_regex_str = "\\/\\/shading data: \\["; 
+								this.colorProfilesMainColors[i-1].shades.forEach(function() {
+									shading_regex_str += "([-\\d.]+)(?:[,\\]]\\s*)";
+								});
+
+								var regex = new RegExp(shading_regex_str,"g");
+								var matches = regex.exec(line)
+								this.colorProfilesMainColors[i-1].shades.forEach((shade, shade_index) => {
+									shade.shd_val = Number(matches[shade_index+1]);
+									if (shade.shd_val !== 1) {
+										this.PER_SLOT_SHADING = true
+									}
+								});
+								return;
+							}
 							console.log("name:", line)
 							if (this.colorProfilesMainColors[i])
 								this.colorProfilesMainColors[i].name = line.trim().replace(/^\/\//, '').trim();
@@ -486,7 +520,7 @@ const vm = new Vue({
 						for (let i2 = 0; i2 < row.colors.length; i2++) {
 							console.log("beep", i2, row.colors.length, i2 <= row.colors.length)
 							if (row.colors[i2] == null)
-								row.colors[i2] = {r: 0, g: 255, b: 0};
+								row.colors[i2] = {r: 0, g: 255, b: 0, shd_val: 1};
 						}
 					}
 				}
@@ -507,7 +541,8 @@ const vm = new Vue({
 			this.updateInput();
 			return newRow;
 		},
-		addSlot: function(inRow, color = {r: 0, g: 255, b: 0}) {
+		addSlot: function(inRow, color = {r: 0, g: 255, b: 0, shd_val:1}) {
+			color.shd_val = 1;
 			const len = inRow.colors.push(color);
 
 			this.$forceUpdate();
@@ -580,7 +615,8 @@ const vm = new Vue({
 				colorProfile.shades.push({
 					rgb: {r: 0, g: 255, b: 0},
 					hsv: rgbToHsv(0, 255, 0),
-					accurateHSV: rgbToHsv_noRounding(0, 255, 0)
+					accurateHSV: rgbToHsv_noRounding(0, 255, 0),
+					shd_val: 1
 				});
 			};
 
@@ -686,7 +722,8 @@ const vm = new Vue({
 						this.colorProfilesMainColors[0].shades[iRow] = {
 							hsv: HSV,
 							accurateHSV: rgbToHsv_noRounding(color.r, color.g, color.b),
-							rgb: {r: color.r, g: color.g, b: color.b}
+							rgb: {r: color.r, g: color.g, b: color.b},
+							shd_val: 1
 						};
 						HSVMain = HSV;
 						str += `\n\n// ${row.name}\nset_color_profile_slot( 0, ${iRow}, ${color.r}, ${color.g}, ${color.b} );`;
@@ -725,7 +762,15 @@ const vm = new Vue({
 					if (this.rows[shadeIndex])
 						str += ` //${this.rows[shadeIndex].name}`;
 				})
+				
+				if (this.PER_SLOT_SHADING) {
+					str += "\n//shading data: ["
+					colorSlot.shades.forEach((shade, shadeIndex) => {
+						str += shade.shd_val + (shadeIndex < colorSlot.shades.length-1 ? ", ":"]")
+					})
+				}
 			}
+			
 
 			str += "\n\n\n/* This is a comment used by that one RoA colors.gml generator tool to store palette data. You can safely keep it in your colors.gml if you plan to re-use the tool later, or safely remove it if you don't.\n"
 				+ jsonPaletteHeaderStart + "\n"
@@ -881,7 +926,7 @@ const vm = new Vue({
 									"vL", hsv.v >= rangeDef.vL,
 									"vH", hsv.v <= rangeDef.vH
 								)*/
-								if (shadeIndex >= 8)
+								if (shadeIndex >= 8 && !this.IGNORE_SHADE_LIMIT)
 									return; //prevent coloring anything past shade slot 7, as the game would not do. 
 											//would've used break instead but forEach doesn't support that!
 								const hsv = rgbToHsv(r, g, b);
@@ -895,7 +940,8 @@ const vm = new Vue({
 									matched = true;
 									const defaultColorForShade = this.colorProfilesMainColors[0].shades[shadeIndex];
 
-
+									const shd_val = this.PER_SLOT_SHADING ? mainColorForShade.shd_val : this.shadingValue;
+									
 									const accurateHSV = rgbToHsv_noRounding(r, g, b);
 
 									const defaultToCurrentDeltaHSV = getHSVDelta(defaultColorForShade.accurateHSV, accurateHSV);
@@ -904,10 +950,11 @@ const vm = new Vue({
 									const shiftedRgb = hsvToRgb_noRounding(shiftedHSV.h, shiftedHSV.s, shiftedHSV.v);
 									const mainToShiftedDeltaRGB = getRGBDelta(mainColorForShade.rgb, shiftedRgb);
 									const shiftedRgb2 = applyDeltaToRGB({...shiftedRgb}, {
-										r: mainToShiftedDeltaRGB.r * (this.shadingValue - 1),
-										g: mainToShiftedDeltaRGB.g * (this.shadingValue - 1),
-										b: mainToShiftedDeltaRGB.b * (this.shadingValue - 1)
+										r: mainToShiftedDeltaRGB.r * (shd_val - 1),
+										g: mainToShiftedDeltaRGB.g * (shd_val - 1),
+										b: mainToShiftedDeltaRGB.b * (shd_val - 1)
 									});
+									//console.log(shd_val);
 
 
 									imageDataArray[i] = shiftedRgb2.r;
