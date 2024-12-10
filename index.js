@@ -933,7 +933,7 @@ const vm = new Vue({
 									matched = true;
 									const defaultColorForShade = this.colorProfilesMainColors[0].shades[shadeIndex];
 
-									const shd_val = mainColorForShade.shd_val;
+									const shd_val = this.PER_SLOT_SHADING ? mainColorForShade.shd_val : this.shadingValue;
 									
 									const accurateHSV = rgbToHsv_noRounding(r, g, b);
 
