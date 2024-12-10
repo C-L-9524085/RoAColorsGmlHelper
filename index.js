@@ -294,6 +294,7 @@ const vm = new Vue({
 		MAX_ALT_PALETTES: 32,
 		MAX_SHADE_ROWS: 8,
 		PER_SLOT_SHADING: false,
+		IGNORE_SHADE_LIMIT: false,
 		userHasEditedThings: false,
 		customOutline: { r: 0, g: 0, b: 0 },
 	},
@@ -353,7 +354,8 @@ const vm = new Vue({
 			handler: 'updateInput'
 		},
 		shadingValue: 'renderPreview',
-		zoomFactor: 'renderPreview'
+		zoomFactor: 'renderPreview',
+		IGNORE_SHADE_LIMIT: 'renderPreview'
 	},
 	methods: {
 		copyImage: async function() {
@@ -917,7 +919,7 @@ const vm = new Vue({
 									"vL", hsv.v >= rangeDef.vL,
 									"vH", hsv.v <= rangeDef.vH
 								)*/
-								if (shadeIndex >= 8)
+								if (shadeIndex >= 8 && !this.IGNORE_SHADE_LIMIT)
 									return; //prevent coloring anything past shade slot 7, as the game would not do. 
 											//would've used break instead but forEach doesn't support that!
 								const hsv = rgbToHsv(r, g, b);

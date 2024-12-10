@@ -364,6 +364,12 @@
 							</label>
 						</li>
 						<li>
+							<label>
+								<input type="checkbox" name="ignore shade limit" v-model:value="IGNORE_SHADE_LIMIT"></input>
+								{{(IGNORE_SHADE_LIMIT ? 'I' : 'Not i') + 'gnoring the in-game shade slot limit.'}}  <span class="sneakyText">(the color shader only uses 8 shade slots! only turn this on if you know what you're doing.)</span>
+							</label>
+						</li>
+						<li>
 							<input type="checkbox" id="autoMoveShades" v-model="autoMoveShades"></input>
 							<label for="autoMoveShades">{{ (autoMoveShades ? 'A' : 'Not a') + 'utomatically moving shades when palette rows are moved' }}</label>
 						</li>
