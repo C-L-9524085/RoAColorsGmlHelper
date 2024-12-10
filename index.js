@@ -355,7 +355,8 @@ const vm = new Vue({
 		},
 		shadingValue: 'renderPreview',
 		zoomFactor: 'renderPreview',
-		IGNORE_SHADE_LIMIT: 'renderPreview'
+		IGNORE_SHADE_LIMIT: 'renderPreview',
+		PER_SLOT_SHADING: 'updateInput'
 	},
 	methods: {
 		copyImage: async function() {
