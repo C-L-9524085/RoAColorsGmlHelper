@@ -468,6 +468,9 @@ const vm = new Vue({
 								var matches = regex.exec(line)
 								this.colorProfilesMainColors[i-1].shades.forEach((shade, shade_index) => {
 									shade.shd_val = Number(matches[shade_index+1]);
+									if (shade.shd_val !== 1) {
+										this.PER_SLOT_SHADING = true
+									}
 								});
 								return;
 							}
@@ -758,10 +761,13 @@ const vm = new Vue({
 					if (this.rows[shadeIndex])
 						str += ` //${this.rows[shadeIndex].name}`;
 				})
-				str += "\n//shading data: ["
-				colorSlot.shades.forEach((shade, shadeIndex) => {
-					str += shade.shd_val + (shadeIndex < colorSlot.shades.length-1 ? ", ":"]")
-				})
+				
+				if (this.PER_SLOT_SHADING) {
+					str += "\n//shading data: ["
+					colorSlot.shades.forEach((shade, shadeIndex) => {
+						str += shade.shd_val + (shadeIndex < colorSlot.shades.length-1 ? ", ":"]")
+					})
+				}
 			}
 			
 
